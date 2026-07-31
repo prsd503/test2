@@ -658,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 window.showModal("Error: " + error.message);
             }
-        }
+        
     });
 
     document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
