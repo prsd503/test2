@@ -61,7 +61,6 @@ let owlWatcherTeamPhone = "919033406816";
 
 async function fetchTeamPhone() {
     try {
-        // Use standard fetch instead of authenticatedFetch since config might be public
         const res = await fetch(`${API_BASE}/config`, {
             headers: { 'ngrok-skip-browser-warning': 'true' }
         });
@@ -622,11 +621,10 @@ document.addEventListener('DOMContentLoaded', () => {
             await signInWithEmailAndPassword(auth, email, pass);
             localStorage.setItem("adminLoggedIn", "true");
             window.showModal("Login successful");
-} catch (e) {
-    console.error("Full Login Error:", e); // Check console to see the real error
-    window.showModal("Login error: " + (e.message || e));
-}
-        
+        } catch (e) {
+            console.error("Full Login Error:", e);
+            window.showModal("Login error: " + (e.message || e));
+        }
     });
 
     document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => {
@@ -658,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 window.showModal("Error: " + error.message);
             }
-        
+        }
     });
 
     document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
