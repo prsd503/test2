@@ -1,7 +1,7 @@
 import { auth, authenticatedFetch } from "./app.js";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev/api";
 let assignedSociety = "";
 
 window.closeModal = () => { document.getElementById('customModal').style.display = 'none'; };
