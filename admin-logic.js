@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordRe
 import { Filesystem, Directory, Encoding } from 'https://cdn.jsdelivr.net/npm/@capacitor/filesystem@latest/+esm';
 import { Share } from 'https://cdn.jsdelivr.net/npm/@capacitor/share@latest/+esm';
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev/api";
 
 let assignedSociety = "";
 let teamPhone = "919033406816";
