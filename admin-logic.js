@@ -61,7 +61,10 @@ let owlWatcherTeamPhone = "919033406816";
 
 async function fetchTeamPhone() {
     try {
-        const res = await authenticatedFetch(`${API_BASE}/config`);
+        // Use standard fetch instead of authenticatedFetch since config might be public
+        const res = await fetch(`${API_BASE}/config`, {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
         if (res.ok) {
             const data = await res.json();
             if (data.teamPhone) {
