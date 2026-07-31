@@ -622,18 +622,10 @@ document.addEventListener('DOMContentLoaded', () => {
             await signInWithEmailAndPassword(auth, email, pass);
             localStorage.setItem("adminLoggedIn", "true");
             window.showModal("Login successful");
-        } catch (e) {
-            console.error("Login error code:", e.code);
-            if (e.code === 'auth/invalid-email' || 
-                e.code === 'auth/invalid-credential' || 
-                e.code === 'auth/user-not-found' || 
-                e.code === 'auth/wrong-password') {
-                window.showModal("Invalid credentials");
-            } else if (e.code === 'auth/too-many-requests') {
-                window.showModal("Too many attempts try again later");
-            } else {
-                window.showModal("Invalid credentials");
-            }
+} catch (e) {
+    console.error("Full Login Error:", e); // Check console to see the real error
+    window.showModal("Login error: " + (e.message || e));
+}
         }
     });
 
