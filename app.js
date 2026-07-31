@@ -21,7 +21,7 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize App Check and export it
 export const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('your-recaptcha-v3-site-key-if-needed'),
+  provider: new ReCaptchaV3Provider('6LfyzGwtAAAAAPj_AmQ3jjFhjuyYa5P8fxrxTGFI'),
   isTokenAutoRefreshEnabled: true
 });
 
