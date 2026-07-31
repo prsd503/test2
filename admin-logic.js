@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error("Full Login Error:", e); // Check console to see the real error
     window.showModal("Login error: " + (e.message || e));
 }
-        }
+        
     });
 
     document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => {
