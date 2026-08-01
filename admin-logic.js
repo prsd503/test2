@@ -651,16 +651,37 @@ document.getElementById('loginBtn')?.addEventListener('click', async () => {
 
     document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
 
-    document.getElementById('postNoticeBtn')?.addEventListener('click', async () => {
-        await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
-            method: 'POST',
-            body: JSON.stringify({
-                todayMessage: document.getElementById('todayMsg').value,
-                tomorrowMessage: document.getElementById('tomorrowMsg').value,
-                date: new Date().toLocaleDateString('en-CA')
-            })
-        });
-        window.showModal("Notices updated successfully!");
+document.getElementById('updateNoticeBtn')?.addEventListener('click', async () => {
+        const todayMessage = document.getElementById('todayMsg').value;
+        const tomorrowMessage = document.getElementById('tomorrowMsg').value;
+        
+        const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
+        const formatter = new Intl.DateTimeFormat('en-CA', options);
+        const currentDate = formatter.format(new Date());
+
+        try {
+            const response = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    todayMessage: todayMessage,
+                    tomorrowMessage: tomorrowMessage,
+                    date: currentDate
+                })
+            });
+
+            if (response.ok) {
+                window.showModal("Notices updated successfully!");
+                await loadNoticeData();
+            } else {
+                window.showModal("Failed to update notices.");
+            }
+        } catch (err) {
+            console.error("Error updating notices:", err);
+            window.showModal("Error updating notices.");
+        }
     });
 
     document.getElementById('deleteNoticeBtn')?.addEventListener('click', async () => {
