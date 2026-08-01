@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordRe
 import { Filesystem, Directory, Encoding } from 'https://cdn.jsdelivr.net/npm/@capacitor/filesystem@latest/+esm';
 import { Share } from 'https://cdn.jsdelivr.net/npm/@capacitor/share@latest/+esm';
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev/api";
 
 let assignedSociety = "";
 let teamPhone = "919033406816";
@@ -61,7 +61,9 @@ let owlWatcherTeamPhone = "919033406816";
 
 async function fetchTeamPhone() {
     try {
-        const res = await authenticatedFetch(`${API_BASE}/config`);
+        const res = await fetch(`${API_BASE}/config`, {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
         if (res.ok) {
             const data = await res.json();
             if (data.teamPhone) {
@@ -191,7 +193,7 @@ if (vehicleForm) {
             const existing = await res.json();
 
             if (existing.length > 0) {
-                showModal("<p>❌ <b>Duplicate Entry</b><br>This vehicle number is already registered for this society.</p>");
+                showModal("<p>âŒ <b>Duplicate Entry</b><br>This vehicle number is already registered for this society.</p>");
                 return;
             }
 
@@ -211,12 +213,12 @@ if (vehicleForm) {
             const max2Wheeler = societyData.max2Wheeler !== undefined ? societyData.max2Wheeler : 2;
 
             if (vehicleType === "4-Wheeler" && current4WheelerCount >= max4Wheeler) {
-                showModal(`<p>⚠️ Limit Reached! Only <b>${max4Wheeler}</b> Four-Wheeler(s) are allowed per flat.</p>`);
+                showModal(`<p>âš ï¸ Limit Reached! Only <b>${max4Wheeler}</b> Four-Wheeler(s) are allowed per flat.</p>`);
                 return;
             }
 
             if (vehicleType === "2-Wheeler" && current2WheelerCount >= max2Wheeler) {
-                showModal(`<p>⚠️ Limit Reached! Only <b>${max2Wheeler}</b> Two-Wheeler(s) are allowed per flat.</p>`);
+                showModal(`<p>âš ï¸ Limit Reached! Only <b>${max2Wheeler}</b> Two-Wheeler(s) are allowed per flat.</p>`);
                 return;
             }
 
@@ -232,11 +234,11 @@ if (vehicleForm) {
                 })
             });
 
-            showModal("<p>✅ Vehicle registered successfully!</p>");
+            showModal("<p>âœ… Vehicle registered successfully!</p>");
             setTimeout(() => window.location.href = "index.html", 1500);
         } catch (err) {
             console.error(err);
-            showModal("<p>❌ Error saving entry. Try again.</p>");
+            showModal("<p>âŒ Error saving entry. Try again.</p>");
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
@@ -595,44 +597,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('loginBtn')?.addEventListener('click', async () => {
-        const emailInput = document.getElementById('email');
-        const passInput = document.getElementById('pass');
+document.getElementById('loginBtn')?.addEventListener('click', async () => {
+    const emailInput = document.getElementById('email');
+    const passInput = document.getElementById('pass');
 
-        if (!emailInput || !passInput) return;
+    if (!emailInput || !passInput) return;
 
-        const email = emailInput.value.trim().toLowerCase();
-        const pass = passInput.value.trim();
+    const email = emailInput.value.trim().toLowerCase();
+    const pass = passInput.value.trim();
 
-        if (!email || !pass) {
-            window.showModal("Pls enter email id");
+    if (!email || !pass) {
+        window.showModal("Pls enter email id");
+        return;
+    }
+
+    try {
+        // 1. Sign in with Firebase first so auth.currentUser is populated
+        await signInWithEmailAndPassword(auth, email, pass);
+
+        // 2. Now use authenticatedFetch or standard fetch to verify the admin document
+        const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
+        if (!res.ok) {
+            signOut(auth);
+            window.showModal("Invalid credentials");
             return;
         }
 
-        try {
-            const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
-            if (!res.ok) {
-                window.showModal("Invalid credentials");
-                return;
-            }
-
-            await signInWithEmailAndPassword(auth, email, pass);
-            localStorage.setItem("adminLoggedIn", "true");
-            window.showModal("Login successful");
-        } catch (e) {
-            console.error("Login error code:", e.code);
-            if (e.code === 'auth/invalid-email' || 
-                e.code === 'auth/invalid-credential' || 
-                e.code === 'auth/user-not-found' || 
-                e.code === 'auth/wrong-password') {
-                window.showModal("Invalid credentials");
-            } else if (e.code === 'auth/too-many-requests') {
-                window.showModal("Too many attempts try again later");
-            } else {
-                window.showModal("Invalid credentials");
-            }
-        }
-    });
+        localStorage.setItem("adminLoggedIn", "true");
+        window.showModal("Login successful");
+    } catch (e) {
+        console.error("Full Login Error:", e);
+        window.showModal("Login error: " + (e.message || e));
+    }
+});
 
     document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => {
         const emailInput = document.getElementById('email');
