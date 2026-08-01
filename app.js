@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
 
 // TODO: Replace with your actual Firebase project configuration details
 const firebaseConfig = {
@@ -14,6 +15,16 @@ const firebaseConfig = {
 
 // Initialize Firebase services
 const app = initializeApp(firebaseConfig);
+
+// --- APP CHECK INITIALIZATION ---
+// Uncomment and replace 'YOUR_RECAPTCHA_V3_SITE_KEY' if you have App Check enforced.
+// If App Check is disabled in your Firebase console, you can leave this commented out.
+
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LfyzGwtAAAAAPj_AmQ3jjFhjuyYa5P8fxrxTGFI'),
+  isTokenAutoRefreshEnabled: true
+});
+
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
