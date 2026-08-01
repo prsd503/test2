@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordRe
 import { Filesystem, Directory, Encoding } from 'https://cdn.jsdelivr.net/npm/@capacitor/filesystem@latest/+esm';
 import { Share } from 'https://cdn.jsdelivr.net/npm/@capacitor/share@latest/+esm';
 
-const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev/api";
+const API_BASE = "http://localhost:3000/api";
 
 let assignedSociety = "";
 let teamPhone = "919033406816";
@@ -61,9 +61,7 @@ let owlWatcherTeamPhone = "919033406816";
 
 async function fetchTeamPhone() {
     try {
-        const res = await fetch(`${API_BASE}/config`, {
-            headers: { 'ngrok-skip-browser-warning': 'true' }
-        });
+        const res = await authenticatedFetch(`${API_BASE}/config`);
         if (res.ok) {
             const data = await res.json();
             if (data.teamPhone) {
@@ -487,18 +485,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-async function loadNoticeData() {
+    async function loadNoticeData() {
         if (!assignedSociety) return;
         
+        const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
+        const formatter = new Intl.DateTimeFormat('en-CA', options);
+        const currentIstDateStr = formatter.format(new Date());
+
         try {
             const res = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`);
             if (res.ok) {
                 const data = await res.json();
                 let todayMsg = data.todayMessage || "";
                 let tomorrowMsg = data.tomorrowMessage || "";
+                let noticeDate = data.date || "";
 
-                // Just display whatever is currently stored in Firestore 
-                // without auto-wiping it on manual page refreshes.
+                if (noticeDate && noticeDate < currentIstDateStr) {
+                    todayMsg = tomorrowMsg;
+                    tomorrowMsg = "";
+                    noticeDate = currentIstDateStr;
+
+                    await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
+                        method: 'POST',
+                        body: JSON.stringify({ todayMessage: todayMsg, tomorrowMessage: tomorrowMsg, date: noticeDate })
+                    });
+                }
+
                 if (document.getElementById('todayMsg')) document.getElementById('todayMsg').value = todayMsg;
                 if (document.getElementById('tomorrowMsg')) document.getElementById('tomorrowMsg').value = tomorrowMsg;
             }
@@ -583,39 +595,44 @@ async function loadNoticeData() {
         }
     });
 
-document.getElementById('loginBtn')?.addEventListener('click', async () => {
-    const emailInput = document.getElementById('email');
-    const passInput = document.getElementById('pass');
+    document.getElementById('loginBtn')?.addEventListener('click', async () => {
+        const emailInput = document.getElementById('email');
+        const passInput = document.getElementById('pass');
 
-    if (!emailInput || !passInput) return;
+        if (!emailInput || !passInput) return;
 
-    const email = emailInput.value.trim().toLowerCase();
-    const pass = passInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
+        const pass = passInput.value.trim();
 
-    if (!email || !pass) {
-        window.showModal("Pls enter email id");
-        return;
-    }
-
-    try {
-        // 1. Sign in with Firebase first so auth.currentUser is populated
-        await signInWithEmailAndPassword(auth, email, pass);
-
-        // 2. Now use authenticatedFetch or standard fetch to verify the admin document
-        const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
-        if (!res.ok) {
-            signOut(auth);
-            window.showModal("Invalid credentials");
+        if (!email || !pass) {
+            window.showModal("Pls enter email id");
             return;
         }
 
-        localStorage.setItem("adminLoggedIn", "true");
-        window.showModal("Login successful");
-    } catch (e) {
-        console.error("Full Login Error:", e);
-        window.showModal("Login error: " + (e.message || e));
-    }
-});
+        try {
+            const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
+            if (!res.ok) {
+                window.showModal("Invalid credentials");
+                return;
+            }
+
+            await signInWithEmailAndPassword(auth, email, pass);
+            localStorage.setItem("adminLoggedIn", "true");
+            window.showModal("Login successful");
+        } catch (e) {
+            console.error("Login error code:", e.code);
+            if (e.code === 'auth/invalid-email' || 
+                e.code === 'auth/invalid-credential' || 
+                e.code === 'auth/user-not-found' || 
+                e.code === 'auth/wrong-password') {
+                window.showModal("Invalid credentials");
+            } else if (e.code === 'auth/too-many-requests') {
+                window.showModal("Too many attempts try again later");
+            } else {
+                window.showModal("Invalid credentials");
+            }
+        }
+    });
 
     document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => {
         const emailInput = document.getElementById('email');
@@ -651,37 +668,16 @@ document.getElementById('loginBtn')?.addEventListener('click', async () => {
 
     document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
 
-document.getElementById('updateNoticeBtn')?.addEventListener('click', async () => {
-        const todayMessage = document.getElementById('todayMsg').value;
-        const tomorrowMessage = document.getElementById('tomorrowMsg').value;
-        
-        const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
-        const formatter = new Intl.DateTimeFormat('en-CA', options);
-        const currentDate = formatter.format(new Date());
-
-        try {
-            const response = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    todayMessage: todayMessage,
-                    tomorrowMessage: tomorrowMessage,
-                    date: currentDate
-                })
-            });
-
-            if (response.ok) {
-                window.showModal("Notices updated successfully!");
-                await loadNoticeData();
-            } else {
-                window.showModal("Failed to update notices.");
-            }
-        } catch (err) {
-            console.error("Error updating notices:", err);
-            window.showModal("Error updating notices.");
-        }
+    document.getElementById('postNoticeBtn')?.addEventListener('click', async () => {
+        await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                todayMessage: document.getElementById('todayMsg').value,
+                tomorrowMessage: document.getElementById('tomorrowMsg').value,
+                date: new Date().toLocaleDateString('en-CA')
+            })
+        });
+        window.showModal("Notices updated successfully!");
     });
 
     document.getElementById('deleteNoticeBtn')?.addEventListener('click', async () => {
