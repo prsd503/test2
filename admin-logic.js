@@ -89,6 +89,19 @@ async function updateContactUsWhatsAppLink() {
     }
 }
 
+window.addEventListener("DOMContentLoaded", async () => {
+    await updateContactUsWhatsAppLink();
+
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        localStorage.removeItem("adminLoggedIn");
+        document.getElementById("login-section").style.display = "block";
+        document.getElementById("search-section").style.display = "none";
+        document.getElementById("data-section").style.display = "none";
+        const masterPanel = document.getElementById("master-admin-panel");
+        if (masterPanel) masterPanel.style.display = "none";
+    });
+});
+
 // --- Security Guard Management Logic ---
 document.getElementById('searchGuardBtn')?.addEventListener('click', async () => {
     const searchName = document.getElementById('searchGuardName').value.trim().toLowerCase();
@@ -364,16 +377,6 @@ document.getElementById('downloadTemplateBtn')?.addEventListener('click', () => 
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    updateContactUsWhatsAppLink();
-
-    document.getElementById("logoutBtn")?.addEventListener("click", () => {
-        localStorage.removeItem("adminLoggedIn");
-        document.getElementById("login-section").style.display = "block";
-        document.getElementById("search-section").style.display = "none";
-        document.getElementById("data-section").style.display = "none";
-        const masterPanel = document.getElementById("master-admin-panel");
-        if (masterPanel) masterPanel.style.display = "none";
-    });
 
     async function loadSocietyLimits() {
         if (!assignedSociety) return;
@@ -896,43 +899,39 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showModal("Are you sure you want to delete the vehicles listed in the uploaded CSV? This cannot be undone.", true);
         window.confirmDelete = async () => {
             const reader = new FileReader();
-            registerBulkDeleteReader(reader);
+            reader.onload = async (e) => {
+                try {
+                    const rows = e.target.result.split('\n').slice(1);
+                    let deleteCount = 0;
+                    let notFoundCount = 0;
+
+                    for (const row of rows) {
+                        const c = row.split(',');
+                        if (c.length >= 1 && c[0].trim()) {
+                            const vNum = c[0].trim().toUpperCase();
+                            const res = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
+                            const vehicles = await res.json();
+
+                            if (vehicles.length > 0) {
+                                for (const v of vehicles) {
+                                    await authenticatedFetch(`${API_BASE}/vehicles/${v.id}`, { method: 'DELETE' });
+                                    deleteCount++;
+                                }
+                            } else {
+                                notFoundCount++;
+                            }
+                        }
+                    }
+
+                    window.showModal(`Targeted Bulk Delete complete! Deleted: ${deleteCount}, Not Found: ${notFoundCount}`);
+                    window.closeModal();
+                    if (document.getElementById('admin-results')) document.getElementById('admin-results').innerHTML = "";
+                } catch (err) {
+                    console.error("Bulk Delete Error:", err);
+                    window.showModal("Bulk delete failed: " + (err.message || err));
+                }
+            };
             reader.readAsText(file);
         };
     });
-
-    function registerBulkDeleteReader(reader) {
-        reader.onload = async (e) => {
-            try {
-                const rows = e.target.result.split('\n').slice(1);
-                let deleteCount = 0;
-                let notFoundCount = 0;
-
-                for (const row of rows) {
-                    const c = row.split(',');
-                    if (c.length >= 1 && c[0].trim()) {
-                        const vNum = c[0].trim().toUpperCase();
-                        const res = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
-                        const vehicles = await res.json();
-
-                        if (vehicles.length > 0) {
-                            for (const v of vehicles) {
-                                await authenticatedFetch(`${API_BASE}/vehicles/${v.id}`, { method: 'DELETE' });
-                                deleteCount++;
-                            }
-                        } else {
-                            notFoundCount++;
-                        }
-                    }
-                }
-
-                window.showModal(`Targeted Bulk Delete complete! Deleted: ${deleteCount}, Not Found: ${notFoundCount}`);
-                window.closeModal();
-                if (document.getElementById('admin-results')) document.getElementById('admin-results').innerHTML = "";
-            } catch (err) {
-                console.error("Bulk Delete Error:", err);
-                window.showModal("Bulk delete failed: " + (err.message || err));
-            }
-        };
-    }
 });
