@@ -488,38 +488,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function loadNoticeData() {
-        if (!assignedSociety) return;
-        
-        const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
-        const formatter = new Intl.DateTimeFormat('en-CA', options);
-        const currentIstDateStr = formatter.format(new Date());
-
-        try {
-            const res = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`);
-            if (res.ok) {
-                const data = await res.json();
-                let todayMsg = data.todayMessage || "";
-                let tomorrowMsg = data.tomorrowMessage || "";
-                let noticeDate = data.date || "";
-
-                if (noticeDate && noticeDate < currentIstDateStr) {
-                    todayMsg = tomorrowMsg;
-                    tomorrowMsg = "";
-                    noticeDate = currentIstDateStr;
-
-                    await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
-                        method: 'POST',
-                        body: JSON.stringify({ todayMessage: todayMsg, tomorrowMessage: tomorrowMsg, date: noticeDate })
-                    });
-                }
-
-                if (document.getElementById('todayMsg')) document.getElementById('todayMsg').value = todayMsg;
-                if (document.getElementById('tomorrowMsg')) document.getElementById('tomorrowMsg').value = tomorrowMsg;
-            }
-        } catch (err) {
-            console.error("Failed loading notice data:", err);
+    if (!assignedSociety) return;
+    
+    try {
+        const res = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`);
+        if (res.ok) {
+            const data = await res.json();
+            if (document.getElementById('todayMsg')) document.getElementById('todayMsg').value = data.todayMessage || "";
+            if (document.getElementById('tomorrowMsg')) document.getElementById('tomorrowMsg').value = data.tomorrowMessage || "";
         }
+    } catch (err) {
+        console.error("Failed loading notice data:", err);
     }
+}
 
     document.getElementById('masterSavePhoneBtn')?.addEventListener('click', async () => {
         const newPhone = document.getElementById('masterPhoneInput').value.trim();
