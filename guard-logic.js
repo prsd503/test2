@@ -67,12 +67,22 @@ document.getElementById('activateBtn')?.addEventListener('click', async () => {
     
     try {
         const selectedOption = select.options[select.selectedIndex];
+        
+        // Added 'Content-Type': 'application/json' to headers
         await authenticatedFetch(`${API_BASE}/societies/${encodeURIComponent(assignedSociety)}/active-guard`, {
             method: 'PATCH',
-            body: JSON.stringify({ activeGuardName: select.value, activeGuardPhone: selectedOption ? selectedOption.dataset.phone : "" })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                activeGuardName: select.value, 
+                activeGuardPhone: selectedOption ? selectedOption.dataset.phone : "" 
+            })
         });
+        
         window.showModal("Duty activated successfully for " + assignedSociety);
     } catch (e) {
+        console.error("Activation error:", e);
         window.showModal("Failed to activate duty.");
     }
 });
