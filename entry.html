@@ -101,7 +101,9 @@
 
     <!-- Integrated API and Modular Entry Logic -->
     <script>
-const API_BASE_URL = 'https://unloving-limit-ferry.ngrok-free.dev/api';
+
+        const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
+        const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
       const modal = document.getElementById("resultModal");
       function showModal(msg) {
