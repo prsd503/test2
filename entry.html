@@ -100,6 +100,7 @@
     </div>
 
     <!-- Integrated API and Modular Entry Logic -->
+   <!-- Integrated API and Modular Entry Logic -->
     <script>
 
         const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
@@ -130,7 +131,8 @@
           let currentSocietyData = null;
 
           try {
-              const response = await fetch(`${API_BASE_URL}/societies`);
+              // Added headers: NG_HEADERS to bypass ngrok warning page
+              const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
               const societies = await response.json();
               currentSocietyData = societies.find(s => s.id === societyName || s.name === societyName);
               
@@ -154,7 +156,6 @@
           const residentTypeSelect = document.getElementById('residentTypeSelect');
           const restrictionNote = document.getElementById('restrictionNote');
 
-          // Enforce 10-character strict numeric rule on mobile input
           mobileInput.addEventListener('input', (e) => {
               e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
           });
@@ -163,7 +164,6 @@
               flatSelect.addEventListener('change', async () => {
                   const selectedFlat = flatSelect.value;
                   
-                  // Reset UI Elements
                   dynamicContainer.innerHTML = '';
                   restrictionNote.style.display = 'none';
                   submitBtn.style.display = 'none';
@@ -173,11 +173,10 @@
                   if (!selectedFlat) return;
 
                   try {
-                      // Fetch all registered vehicles in the society to check for duplicates globally
-                      const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`);
+                      // Added headers: NG_HEADERS here as well
+                      const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`, { headers: NG_HEADERS });
                       const allVehicles = await res.json();
 
-                      // Filter records that belong specifically to this selected flat for slot tracking & pre-fill
                       const existingVehicles = allVehicles.filter(v => String(v.flatNumber).trim() === String(selectedFlat).trim());
 
                       const max2W = currentSocietyData ? (currentSocietyData.max2Wheeler || 0) : 0;
@@ -188,7 +187,6 @@
                       let registered4W = existingVehicles.filter(v => v.vehicleType === '4-Wheeler');
                       let totalRegisteredCount = existingVehicles.length;
 
-                      // Pre-fill fields if records exist for this flat
                       if (existingVehicles.length > 0) {
                           mobileInput.value = existingVehicles[0].mobileNumber || '';
                           residentTypeSelect.value = existingVehicles[0].residentType || '';
@@ -205,7 +203,6 @@
                           fieldsHTML += `</div>`;
                       }
 
-                      // Calculate Remaining Slots & Generate Inputs
                       const remaining2W = Math.max(0, max2W - registered2W.length);
                       const remaining4W = Math.max(0, max4W - registered4W.length);
                       const totalRemaining = remaining2W + remaining4W;
@@ -239,7 +236,6 @@
 
                       dynamicContainer.innerHTML = fieldsHTML;
 
-                      // Enforce alphanumeric characters, uppercase, and max length 10 continuously on typing
                       document.querySelectorAll('.dynamic-vehicle-input').forEach(input => {
                           input.addEventListener("input", (event) => {
                               event.target.value = event.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10);
@@ -252,7 +248,6 @@
               });
           }
 
-          // Handle form submission with Global Duplicate Check
           const vehicleForm = document.getElementById('vehicleForm');
           if (vehicleForm) {
               vehicleForm.addEventListener('submit', async (e) => {
@@ -298,16 +293,15 @@
                   submitBtn.innerText = "Checking duplicates...";
 
                   try {
-                      // Fetch all vehicles again right before submit to ensure no concurrent duplicates were added
-                      const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`);
+                      // Added headers: NG_HEADERS here too
+                      const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`, { headers: NG_HEADERS });
                       const allVehicles = await res.json();
 
-                      // Check if any vehicle number being submitted already exists anywhere else in the society
                       let duplicateFound = null;
                       for (const subVehicle of vehiclesToSubmit) {
                           const foundMatch = allVehicles.find(v => 
                               String(v.vehicleNumber).trim().toUpperCase() === subVehicle.vehicleNumber.toUpperCase() &&
-                              String(v.flatNumber).trim() !== String(flatNumber).trim() // Allow re-submitting for same flat if updating
+                              String(v.flatNumber).trim() !== String(flatNumber).trim()
                           );
                           if (foundMatch) {
                               duplicateFound = subVehicle.vehicleNumber;
@@ -326,7 +320,10 @@
 
                       const response = await fetch(`${API_BASE_URL}/vehicles`, {
                           method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
+                          headers: { 
+                              'Content-Type': 'application/json',
+                              ...NG_HEADERS 
+                          },
                           body: JSON.stringify({
                               societyName,
                               flatNumber,
@@ -356,7 +353,7 @@
           }
       });
     </script>
-
+    
     <!-- Owl Interactive Effect Widget -->
     <div id="owl-container">
       <div id="owl-icon" onclick="activateOwlEffect()">🦉</div>
