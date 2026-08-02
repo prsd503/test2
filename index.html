@@ -159,10 +159,12 @@ body { padding-top: 80px; }
         <div style="max-width: 500px; width: 90%; padding: 30px; background: #ffffff; border: 2px solid #8d6e63; border-radius: 20px; box-shadow: 6px 6px 0px #5d4037; text-align: center;">
             <h1 id="overlayWelcomeText" style="font-family: 'Caveat', cursive; color: #5d4037; margin-bottom: 5px; font-size: 2.8rem; line-height: 1.1; white-space: pre-line;">Welcome <br>to <br>Owl Watcher 🦉</h1>        
             
+            <!-- Commercial Subtitle / Tagline -->
             <p style="font-family: sans-serif; color: #795548; font-size: 0.95rem; margin-bottom: 25px; font-weight: 600; letter-spacing: 0.5px;">
                 Smart Vehicle Tracking & Management System
             </p>
 
+           <!-- Trust / Feature Indicators -->
 <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; font-family: sans-serif; font-size: 0.8rem; color: #8d6e63;">
     <span style="background: #fdf6e3; padding: 5px 10px; border-radius: 8px; border: 1px solid #d7ccc8;">🛡️ Secure Access</span>
     <span style="background: #fdf6e3; padding: 5px 10px; border-radius: 8px; border: 1px solid #d7ccc8;">⚡ Instant Search</span>
@@ -174,6 +176,7 @@ body { padding-top: 80px; }
     </div>
 
     <div class="card">
+        <!-- Unified Navigation -->
         <nav class="main-nav" style="margin-top: 50px;">
             <div class="nav-logo">Owl Watcher 🦉</div>
             <button class="menu-btn" id="menuToggle">☰</button>
@@ -239,6 +242,7 @@ body { padding-top: 80px; }
             <a id="localAdLink" href="#" target="_blank" class="ad-link">Contact for Posting Paid Content Here!</a>
         </div>
 
+        <!-- Properly Placed & Styled Action Buttons Section -->
         <div style="margin-top: 25px; border-top: 2px dashed #8d6e63; padding-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
             <a id="factlityPage" href="#" style="background: #8d6e63; color: white; padding: 12px 20px; text-decoration: none; border-radius: 12px; font-family: 'Caveat', cursive; font-size: 1.3rem; box-shadow: 3px 3px 0px #5d4037; display: inline-block; transition: transform 0.2s;">
                📅 Go to Facility Booking
@@ -261,13 +265,15 @@ body { padding-top: 80px; }
     </div>
 </div>
     <script>
-        const API_BASE_URL = "http://localhost:3000/api";
+        
+        const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
+        const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
         const themeAudio = new Audio('tapenter.mp3'); 
         
         const modal = document.getElementById("resultModal");
         let currentSociety = "";
-        let guardInterval = null;
+        let guardUnsubscribe = null;
         let adInterval = null;
         let globalAdInterval = null;
         
@@ -288,7 +294,7 @@ body { padding-top: 80px; }
         
         async function fetchTeamPhone() {
             try {
-                const response = await fetch(`${API_BASE_URL}/config`);
+                const response = await fetch(`${API_BASE_URL}/config`, { headers: NG_HEADERS });
                 if (response.ok) {
                     const data = await response.json();
                     if (data.teamPhone) {
@@ -330,7 +336,7 @@ body { padding-top: 80px; }
         async function loadNotice(societyId) {
             const noticeDiv = document.getElementById('notice-content');
             try {
-                const response = await fetch(`${API_BASE_URL}/notices/${societyId}`);
+                const response = await fetch(`${API_BASE_URL}/notices/${societyId}`, { headers: NG_HEADERS });
                 const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
                 const formatter = new Intl.DateTimeFormat('en-CA', options);
                 const currentIstDateStr = formatter.format(new Date());
@@ -363,32 +369,7 @@ body { padding-top: 80px; }
         }
 
         function setupGuard(societyId) {
-            if (guardInterval) clearInterval(guardInterval);
-
-            async function fetchGuardStatus() {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/societies/${societyId}`);
-                    if (response.ok) {
-                        const g = await response.json();
-                        const container = document.getElementById("guard-container");
-                        
-                        if (g && g.activeGuardName) {
-                            container.innerHTML = `
-                                <div style="padding:10px; border:2px solid #8d6e63; border-radius:10px; background:#fdf6e3;">
-                                    <p style="margin:0; font-family: sans-serif;">On Duty: <b>${g.activeGuardName}</b></p>
-                                    <a href="tel:${g.activeGuardPhone}" class="btn-msg" style="background:#27ae60; margin-top:5px;">📞 Call Security</a>
-                                </div>`;
-                        } else {
-                            container.innerHTML = "";
-                        }
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch live security guard status:", err);
-                }
-            }
-
-            fetchGuardStatus();
-            guardInterval = setInterval(fetchGuardStatus, 10000);
+            document.getElementById("guard-container").innerHTML = "";
         }
 
         function changeSlide(direction) {
@@ -453,7 +434,7 @@ body { padding-top: 80px; }
             if(globalAdInterval) clearInterval(globalAdInterval);
 
             try {
-                const response = await fetch(`${API_BASE_URL}/ads/global`);
+                const response = await fetch(`${API_BASE_URL}/ads/global`, { headers: NG_HEADERS });
                 const ads = await response.json();
 
                 if (!Array.isArray(ads) || ads.length === 0) {
@@ -496,7 +477,7 @@ body { padding-top: 80px; }
             if(adInterval) clearInterval(adInterval);
 
             try {
-                const response = await fetch(`${API_BASE_URL}/ads/local/${societyId}`);
+                const response = await fetch(`${API_BASE_URL}/ads/local/${societyId}`, { headers: NG_HEADERS });
                 const ads = await response.json();
 
                 if (!Array.isArray(ads) || ads.length === 0) {
@@ -575,7 +556,7 @@ body { padding-top: 80px; }
             localStorage.removeItem("savedSocietyName");
             localStorage.removeItem("savedSocietyId");
             localStorage.removeItem("societyLoginTime");
-            if (guardInterval) clearInterval(guardInterval);
+            if (guardUnsubscribe) guardUnsubscribe();
             if (adInterval) clearInterval(adInterval);
             currentSociety = "";
             document.getElementById("vehicleInput").value = "";
@@ -591,7 +572,7 @@ body { padding-top: 80px; }
             if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
             
             try {
-                const response = await fetch(`${API_BASE_URL}/societies`);
+                const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
                 const societies = await response.json();
                 const match = societies.find(d => d.name?.toLowerCase() === input);
 
@@ -616,7 +597,7 @@ body { padding-top: 80px; }
             if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
             
             try {
-               const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
+               const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { headers: NG_HEADERS });
                 const matches = await response.json();
 
                 if (matches.length > 0) {
