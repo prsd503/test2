@@ -80,6 +80,7 @@ document.getElementById('activateBtn')?.addEventListener('click', async () => {
             })
         });
         
+        
         window.showModal("Duty activated successfully for " + assignedSociety);
     } catch (e) {
         console.error("Activation error:", e);
