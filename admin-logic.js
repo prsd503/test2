@@ -193,7 +193,7 @@ if (vehicleForm) {
             const existing = await res.json();
 
             if (existing.length > 0) {
-                showModal("<p>âŒ <b>Duplicate Entry</b><br>This vehicle number is already registered for this society.</p>");
+                showModal("<p>â Œ <b>Duplicate Entry</b><br>This vehicle number is already registered for this society.</p>");
                 return;
             }
 
@@ -213,12 +213,12 @@ if (vehicleForm) {
             const max2Wheeler = societyData.max2Wheeler !== undefined ? societyData.max2Wheeler : 2;
 
             if (vehicleType === "4-Wheeler" && current4WheelerCount >= max4Wheeler) {
-                showModal(`<p>âš ï¸ Limit Reached! Only <b>${max4Wheeler}</b> Four-Wheeler(s) are allowed per flat.</p>`);
+                showModal(`<p>âš ï¸  Limit Reached! Only <b>${max4Wheeler}</b> Four-Wheeler(s) are allowed per flat.</p>`);
                 return;
             }
 
             if (vehicleType === "2-Wheeler" && current2WheelerCount >= max2Wheeler) {
-                showModal(`<p>âš ï¸ Limit Reached! Only <b>${max2Wheeler}</b> Two-Wheeler(s) are allowed per flat.</p>`);
+                showModal(`<p>âš ï¸  Limit Reached! Only <b>${max2Wheeler}</b> Two-Wheeler(s) are allowed per flat.</p>`);
                 return;
             }
 
@@ -238,7 +238,7 @@ if (vehicleForm) {
             setTimeout(() => window.location.href = "index.html", 1500);
         } catch (err) {
             console.error(err);
-            showModal("<p>âŒ Error saving entry. Try again.</p>");
+            showModal("<p>â Œ Error saving entry. Try again.</p>");
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
@@ -488,19 +488,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function loadNoticeData() {
-    if (!assignedSociety) return;
-    
-    try {
-        const res = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`);
-        if (res.ok) {
-            const data = await res.json();
-            if (document.getElementById('todayMsg')) document.getElementById('todayMsg').value = data.todayMessage || "";
-            if (document.getElementById('tomorrowMsg')) document.getElementById('tomorrowMsg').value = data.tomorrowMessage || "";
+        if (!assignedSociety) return;
+        
+        try {
+            const res = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (document.getElementById('todayMsg')) document.getElementById('todayMsg').value = data.todayMessage || "";
+                if (document.getElementById('tomorrowMsg')) document.getElementById('tomorrowMsg').value = data.tomorrowMessage || "";
+            }
+        } catch (err) {
+            console.error("Failed loading notice data:", err);
         }
-    } catch (err) {
-        console.error("Failed loading notice data:", err);
     }
-}
 
     document.getElementById('masterSavePhoneBtn')?.addEventListener('click', async () => {
         const newPhone = document.getElementById('masterPhoneInput').value.trim();
@@ -578,39 +578,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-document.getElementById('loginBtn')?.addEventListener('click', async () => {
-    const emailInput = document.getElementById('email');
-    const passInput = document.getElementById('pass');
+    document.getElementById('loginBtn')?.addEventListener('click', async () => {
+        const emailInput = document.getElementById('email');
+        const passInput = document.getElementById('pass');
 
-    if (!emailInput || !passInput) return;
+        if (!emailInput || !passInput) return;
 
-    const email = emailInput.value.trim().toLowerCase();
-    const pass = passInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
+        const pass = passInput.value.trim();
 
-    if (!email || !pass) {
-        window.showModal("Pls enter email id");
-        return;
-    }
-
-    try {
-        // 1. Sign in with Firebase first so auth.currentUser is populated
-        await signInWithEmailAndPassword(auth, email, pass);
-
-        // 2. Now use authenticatedFetch or standard fetch to verify the admin document
-        const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
-        if (!res.ok) {
-            signOut(auth);
-            window.showModal("Invalid credentials");
+        if (!email || !pass) {
+            window.showModal("Pls enter email id");
             return;
         }
 
-        localStorage.setItem("adminLoggedIn", "true");
-        window.showModal("Login successful");
-    } catch (e) {
-        console.error("Full Login Error:", e);
-        window.showModal("Login error: " + (e.message || e));
-    }
-});
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
+            if (!res.ok) {
+                signOut(auth);
+                window.showModal("Invalid credentials");
+                return;
+            }
+
+            localStorage.setItem("adminLoggedIn", "true");
+            window.showModal("Login successful");
+        } catch (e) {
+            console.error("Full Login Error:", e);
+            window.showModal("Login error: " + (e.message || e));
+        }
+    });
 
     document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => {
         const emailInput = document.getElementById('email');
@@ -647,22 +644,31 @@ document.getElementById('loginBtn')?.addEventListener('click', async () => {
     document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
 
     document.getElementById('postNoticeBtn')?.addEventListener('click', async () => {
-        await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
-            method: 'POST',
-            body: JSON.stringify({
-                todayMessage: document.getElementById('todayMsg').value,
-                tomorrowMessage: document.getElementById('tomorrowMsg').value,
-                date: new Date().toLocaleDateString('en-CA')
-            })
-        });
-        window.showModal("Notices updated successfully!");
+        try {
+            await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    todayMessage: document.getElementById('todayMsg').value,
+                    tomorrowMessage: document.getElementById('tomorrowMsg').value,
+                    date: new Date().toLocaleDateString('en-CA')
+                })
+            });
+            window.showModal("Notices updated successfully!");
+        } catch (err) {
+            console.error(err);
+            window.showModal("Failed to update notices.");
+        }
     });
 
     document.getElementById('deleteNoticeBtn')?.addEventListener('click', async () => {
-        await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, { method: 'DELETE' });
-        document.getElementById('todayMsg').value = "";
-        document.getElementById('tomorrowMsg').value = "";
-        window.showModal("Notice deleted.");
+        try {
+            await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, { method: 'DELETE' });
+            document.getElementById('todayMsg').value = "";
+            document.getElementById('tomorrowMsg').value = "";
+            window.showModal("Notice deleted.");
+        } catch (err) {
+            window.showModal("Failed to delete notice.");
+        }
     });
 
     window.updateFacilityName = async (fId) => {
