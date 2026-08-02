@@ -643,23 +643,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
 
-    document.getElementById('postNoticeBtn')?.addEventListener('click', async () => {
-        try {
-            await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    todayMessage: document.getElementById('todayMsg').value,
-                    tomorrowMessage: document.getElementById('tomorrowMsg').value,
-                    date: new Date().toLocaleDateString('en-CA')
-                })
-            });
-            window.showModal("Notices updated successfully!");
-        } catch (err) {
-            console.error(err);
-            window.showModal("Failed to update notices.");
-        }
-    });
+document.getElementById('postNoticeBtn')?.addEventListener('click', async () => {
+    // 1. Debugging check to see what society is currently assigned
+    console.log("Current assignedSociety value:", assignedSociety);
 
+    if (!assignedSociety || assignedSociety === "undefined") {
+        window.showModal("Error: Society name is missing. Please refresh or re-login.");
+        return;
+    }
+
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // Make sure content type is set
+            },
+            body: JSON.stringify({
+                todayMessage: document.getElementById('todayMsg').value,
+                tomorrowMessage: document.getElementById('tomorrowMsg').value,
+                date: new Date().toLocaleDateString('en-CA')
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Server failed to update");
+        }
+
+        window.showModal("Notices updated successfully!");
+    } catch (err) {
+        console.error("Failed to update notices:", err);
+        window.showModal("Failed to update notices: " + err.message);
+    }
+});
     document.getElementById('deleteNoticeBtn')?.addEventListener('click', async () => {
         try {
             await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, { method: 'DELETE' });
