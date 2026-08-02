@@ -368,24 +368,38 @@ body { padding-top: 80px; }
             }
         }
 
-        function setupGuard(societyId) {
-            document.getElementById("guard-container").innerHTML = "";
-        }
+async function setupGuard(societyId) {
+            const guardContainer = document.getElementById("guard-container");
+            guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
 
-        function changeSlide(direction) {
-            const slider = document.getElementById("adSlider");
-            const slides = slider.getElementsByClassName("ad-slide");
-            if (slides.length <= 1) return;
+            try {
+                const response = await fetch(`${API_BASE_URL}/societies/${societyId}`, { headers: NG_HEADERS });
+                if (response.ok) {
+                    const societyData = await response.json();
+                    const guardName = societyData.activeGuardName;
+                    const guardPhone = societyData.activeGuardPhone;
 
-            slides[currentIndex].classList.remove("active");
-            
-            if (direction === "next") {
-                currentIndex = (currentIndex + 1) % slides.length;
-            } else if (direction === "prev") {
-                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                    if (guardName) {
+                        const cleanPhone = guardPhone ? guardPhone.replace(/\D/g, '') : '';
+                        const waMsg = encodeURIComponent(`Hi Guard ${guardName}, contacting from Owl Watcher regarding society assistance.`);
+                        
+                        guardContainer.innerHTML = `
+                            <div style="background: #fff8f5; border: 2px dashed #8d6e63; padding: 12px; border-radius: 12px; display: inline-block; max-width: 90%; font-family: sans-serif;">
+                                <span style="font-family: 'Caveat', cursive; font-size: 1.3rem; color: #5d4037; display: block; margin-bottom: 4px;">🛡️ Live Security Guard on Duty</span>
+                                <span style="font-size: 1.05rem; font-weight: bold; color: #2f3640;">${guardName}</span>
+                                ${cleanPhone ? `<br><a href="https://wa.me/${cleanPhone}?text=${waMsg}" target="_blank" style="background: #25D366; color: white; padding: 6px 14px; text-decoration: none; border-radius: 8px; font-size: 0.9rem; display: inline-block; margin-top: 8px;">💬 Call / WhatsApp Guard</a>` : ''}
+                            </div>
+                        `;
+                    } else {
+                        guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #8d6e63; font-family: sans-serif;">No active security guard assigned currently.</p>`;
+                    }
+                } else {
+                    guardContainer.innerHTML = "";
+                }
+            } catch (err) {
+                console.error("Failed to load active guard info:", err);
+                guardContainer.innerHTML = "";
             }
-            
-            slides[currentIndex].classList.add("active");
         }
 
         function changeGlobalSlide(direction) {
