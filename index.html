@@ -368,7 +368,7 @@ body { padding-top: 80px; }
             }
         }
 
-async function setupGuard(societyId) {
+        async function setupGuard(societyId) {
             const guardContainer = document.getElementById("guard-container");
             guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
 
@@ -597,70 +597,82 @@ async function setupGuard(societyId) {
             loadGlobalAdsPreLogin();
         }
 
-document.getElementById("verifyBtn").addEventListener("click", async () => {
-    const input = document.getElementById("societyInput").value.trim().toLowerCase();
-    if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
-        const societies = await response.json();
-        const match = societies.find(d => d.name?.toLowerCase() === input);
-
-        if (match) {
-            localStorage.setItem("savedSocietyName", match.name);
-            localStorage.setItem("savedSocietyId", match.id);
-            localStorage.setItem("societyLoginTime", Date.now().toString());
+        document.getElementById("verifyBtn").addEventListener("click", async () => {
+            const input = document.getElementById("societyInput").value.trim().toLowerCase();
+            if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
             
-            // Save the token (fallback to your default session string if undefined)
-            localStorage.setItem("authToken", match.token || "owl-watcher-session-token");
+            try {
+                const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
+                const societies = await response.json();
+                const match = societies.find(d => d.name?.toLowerCase() === input);
+
+                if (match) {
+                    localStorage.setItem("savedSocietyName", match.name);
+                    localStorage.setItem("savedSocietyId", match.id);
+                    localStorage.setItem("societyLoginTime", Date.now().toString());
+                    
+                    showSearchScreen(match.name, match.id);
+                } else { 
+                    showModal("<p>❌ Society not found.</p>"); 
+                }
+            } catch (err) {
+                showModal("<p>❌ Error connecting to server.</p>");
+            }
+        });
+
+        // UPDATED SEARCH BUTTON FETCH LOGIC TO USE 15-SECOND SHORT-LIVED JWT
+        document.getElementById("searchBtn").addEventListener("click", async () => {
+            themeAudio.currentTime = 0;
+            themeAudio.play().catch(e => console.error("Audio playback failed:", e));
+
+            const vNum = document.getElementById("vehicleInput").value.trim().toUpperCase();
+            if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
             
-            showSearchScreen(match.name, match.id);
-        } else { 
-            showModal("<p>❌ Society not found.</p>"); 
-        }
-    } catch (err) {
-        showModal("<p>❌ Error connecting to server.</p>");
-    }
-});
+            try {
+               // 1. Request a fresh short-lived JWT token on-demand from the backend
+               const tokenResponse = await fetch(`${API_BASE_URL}/auth/token`, {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json',
+                       ...NG_HEADERS
+                   }
+               });
 
-document.getElementById("searchBtn").addEventListener("click", async () => {
-    themeAudio.currentTime = 0;
-    themeAudio.play().catch(e => console.error("Audio playback failed:", e));
+               if (!tokenResponse.ok) {
+                   throw new Error("Failed to acquire short-lived authentication token.");
+               }
 
-    const vNum = document.getElementById("vehicleInput").value.trim().toUpperCase();
-    if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
-    
-    try {
-       // Retrieve the actual token stored during login
-       const token = localStorage.getItem("authToken") || localStorage.getItem("token") || ""; 
+               const tokenData = await tokenResponse.json();
+               const shortLivedToken = tokenData.token;
 
-       const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { 
-           headers: { 
-               ...NG_HEADERS, 
-               'Authorization': `Bearer ${token}` 
-           } 
-       });
+               // 2. Perform the vehicle search using the fresh token
+               const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { 
+                   headers: { 
+                       ...NG_HEADERS, 
+                       'Authorization': `Bearer ${shortLivedToken}` 
+                   } 
+               });
 
-       if (!response.ok) {
-           throw new Error(`Server responded with status ${response.status}`);
-       }
+               if (!response.ok) {
+                   throw new Error(`Server responded with status ${response.status}`);
+               }
 
-       const matches = await response.json();
+               const matches = await response.json();
 
-       if (matches.length > 0) {
-           let htmlContent = "";
-           matches.forEach(data => {
-               const msg = encodeURIComponent(`(Using: Owl-Watcher) Hello, vehicle ${data.vehicleNumber} of ${data.flatNumber}`);
-               htmlContent += `<div style="margin-bottom:15px; font-family: sans-serif;">✅ Vehicle: <b>${data.vehicleNumber}</b><br>Flat/Name: <b>${data.flatNumber}</b><br><div hidden><a href="https://wa.me/${data.mobileNumber?.replace(/\D/g, '')}?text=${msg}" target="_blank" class="btn-msg">💬 Message Admin</a></div></div>`;
-           });
-           showModal(htmlContent);
-       } else { 
-           showModal("<p>❌ Vehicle not found.</p>"); 
-       }
-    } catch (err) {
-       showModal("<p>❌ Error searching vehicle.</p>");
-    }
-});
+               if (matches.length > 0) {
+                   let htmlContent = "";
+                   matches.forEach(data => {
+                       const msg = encodeURIComponent(`(Using: Owl-Watcher) Hello, vehicle ${data.vehicleNumber} of ${data.flatNumber}`);
+                       htmlContent += `<div style="margin-bottom:15px; font-family: sans-serif;">✅ Vehicle: <b>${data.vehicleNumber}</b><br>Flat/Name: <b>${data.flatNumber}</b><br><div hidden><a href="https://wa.me/${data.mobileNumber?.replace(/\D/g, '')}?text=${msg}" target="_blank" class="btn-msg">💬 Message Admin</a></div></div>`;
+                   });
+                   showModal(htmlContent);
+               } else { 
+                   showModal("<p>❌ Vehicle not found.</p>"); 
+               }
+            } catch (err) {
+               showModal("<p>❌ Error searching vehicle.</p>");
+            }
+        });
 
         document.getElementById("switchSocietyBtn").addEventListener("click", () => {
             clearSocietySession();
@@ -726,7 +738,9 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
             hoot.volume = 0.5;
             hoot.play().catch(e => console.log("Hoot play failed:", e));
         });
-    </script>
+    </script> 
+    
+    
     <canvas id="fireCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; display:none;"></canvas>
     <audio id="hootSound" src="tapenter.mp3" preload="auto"></audio>
 
