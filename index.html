@@ -618,31 +618,44 @@ async function setupGuard(societyId) {
             }
         });
 
-        document.getElementById("searchBtn").addEventListener("click", async () => {
-            themeAudio.currentTime = 0;
-            themeAudio.play().catch(e => console.error("Audio playback failed:", e));
+document.getElementById("searchBtn").addEventListener("click", async () => {
+    themeAudio.currentTime = 0;
+    themeAudio.play().catch(e => console.error("Audio playback failed:", e));
 
-            const vNum = document.getElementById("vehicleInput").value.trim().toUpperCase();
-            if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
-            
-            try {
-               const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { headers: NG_HEADERS });
-                const matches = await response.json();
+    const vNum = document.getElementById("vehicleInput").value.trim().toUpperCase();
+    if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
+    
+    try {
+       // Retrieve your auth token from storage (adjust key if stored differently)
+       const token = localStorage.getItem("authToken") || ""; 
 
-                if (matches.length > 0) {
-                    let htmlContent = "";
-                    matches.forEach(data => {
-                        const msg = encodeURIComponent(`(Using: Owl-Watcher) Hello, vehicle ${data.vehicleNumber} of ${data.flatNumber}`);
-                        htmlContent += `<div style="margin-bottom:15px; font-family: sans-serif;">✅ Vehicle: <b>${data.vehicleNumber}</b><br>Flat/Name: <b>${data.flatNumber}</b><br><div hidden><a href="https://wa.me/${data.mobileNumber?.replace(/\D/g, '')}?text=${msg}" target="_blank" class="btn-msg">💬 Message Admin</a></div></div>`;
-                    });
-                    showModal(htmlContent);
-                } else { 
-                    showModal("<p>❌ Vehicle not found.</p>"); 
-                }
-            } catch (err) {
-                showModal("<p>❌ Error searching vehicle.</p>");
-            }
-        });
+       const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { 
+           headers: { 
+               ...NG_HEADERS, 
+               'Authorization': `Bearer ${token}` 
+           } 
+       });
+
+       if (!response.ok) {
+           throw new Error("Server responded with an error");
+       }
+
+       const matches = await response.json();
+
+       if (matches.length > 0) {
+           let htmlContent = "";
+           matches.forEach(data => {
+               const msg = encodeURIComponent(`(Using: Owl-Watcher) Hello, vehicle ${data.vehicleNumber} of ${data.flatNumber}`);
+               htmlContent += `<div style="margin-bottom:15px; font-family: sans-serif;">✅ Vehicle: <b>${data.vehicleNumber}</b><br>Flat/Name: <b>${data.flatNumber}</b><br><div hidden><a href="https://wa.me/${data.mobileNumber?.replace(/\D/g, '')}?text=${msg}" target="_blank" class="btn-msg">💬 Message Admin</a></div></div>`;
+           });
+           showModal(htmlContent);
+       } else { 
+           showModal("<p>❌ Vehicle not found.</p>"); 
+       }
+    } catch (err) {
+       showModal("<p>❌ Error searching vehicle.</p>");
+    }
+});
 
         document.getElementById("switchSocietyBtn").addEventListener("click", () => {
             clearSocietySession();
