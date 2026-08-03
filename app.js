@@ -17,14 +17,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // --- APP CHECK INITIALIZATION ---
-// Uncomment and replace 'YOUR_RECAPTCHA_V3_SITE_KEY' if you have App Check enforced.
-// If App Check is disabled in your Firebase console, you can leave this commented out.
-
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6LfyzGwtAAAAAPj_AmQ3jjFhjuyYa5P8fxrxTGFI'),
   isTokenAutoRefreshEnabled: true
 });
-
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
@@ -44,13 +40,19 @@ export async function authenticatedFetch(url, options = {}) {
   // 1. Get Firebase Auth ID Token
   const idToken = await currentUser.getIdToken();
 
-  // 2. Inject token into request headers along with ngrok bypass if needed
-  options.headers = {
-    ...options.headers,
-    'Content-Type': 'application/json',
+  // 2. Prepare headers, avoiding forced Content-Type if body is FormData
+  const headers = {
     'Authorization': `Bearer ${idToken}`,
-    'ngrok-skip-browser-warning': 'true'
+    'ngrok-skip-browser-warning': 'true',
+    ...options.headers
   };
+
+  // If the body is not FormData and a content-type isn't specified, default to application/json
+  if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  options.headers = headers;
 
   return fetch(url, options);
 }
