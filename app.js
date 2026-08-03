@@ -37,8 +37,8 @@ export async function authenticatedFetch(url, options = {}) {
     throw new Error("User must be logged in to perform this action.");
   }
 
-  // 1. Get Firebase Auth ID Token
-  const idToken = await currentUser.getIdToken();
+  // 1. Get Firebase Auth ID Token (forces refresh to ensure it's fresh and valid)
+  const idToken = await currentUser.getIdToken(true);
 
   // 2. Prepare headers, avoiding forced Content-Type if body is FormData
   const headers = {
