@@ -559,7 +559,8 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
-                const token = await user.getIdToken();
+                // Force refresh token to ensure it's valid and fresh immediately upon login
+                const token = await user.getIdToken(true);
                 if (!token) {
                     console.warn("User authenticated, but failed to retrieve a valid ID token.");
                     return;
