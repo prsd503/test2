@@ -158,11 +158,17 @@ body { padding-top: 80px; }
 <div id="startOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #fdf6e3; z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; box-sizing: border-box;">
         <div style="max-width: 500px; width: 90%; padding: 30px; background: #ffffff; border: 2px solid #8d6e63; border-radius: 20px; box-shadow: 6px 6px 0px #5d4037; text-align: center;">
             
-            <!-- Added Video Animation -->
-            <video autoplay muted loop playsinline style="width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; margin-bottom: 15px;">
-                <source src="animate.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            <!-- Video container with a relative wrapper for the audio button -->
+            <div style="position: relative; width: 100%; margin-bottom: 15px;">
+                <video id="welcomeVideo" autoplay muted loop playsinline style="width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; display: block;">
+                    <source src="animate.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <!-- Unmute/Mute Toggle Button -->
+                <button id="audioToggleBtn" onclick="toggleVideoAudio()" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.6); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Unmute Video">
+                    🔇
+                </button>
+            </div>
 
             <h1 id="overlayWelcomeText" style="font-family: 'Caveat', cursive; color: #5d4037; margin-bottom: 5px; font-size: 2.8rem; line-height: 1.1; white-space: pre-line;">Welcome <br>to <br>Owl Watcher 🦉</h1>        
             
