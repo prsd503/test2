@@ -25,6 +25,8 @@ const appCheck = initializeAppCheck(app, {
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
+const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev";
+
 // --- SECURED FETCH HELPER (UPDATED FOR 15s SHORT-LIVED JWT) ---
 /**
  * Use this wrapper instead of standard fetch() for protected API endpoints.
@@ -32,8 +34,13 @@ export const db = getFirestore(app);
  */
 export async function authenticatedFetch(url, options = {}) {
   try {
-    // 1. Request a fresh short-lived JWT from your backend
-    const tokenResponse = await fetch('/api/auth/token', {
+    // If the user is not logged in yet, bypass short-lived token fetch and use standard fetch
+    if (!auth.currentUser) {
+      return fetch(url, options);
+    }
+
+    // 1. Request a fresh short-lived JWT from your backend using the correct absolute URL
+    const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
