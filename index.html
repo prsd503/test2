@@ -368,7 +368,7 @@ body { padding-top: 80px; }
             }
         }
 
-async function setupGuard(societyId) {
+        async function setupGuard(societyId) {
             const guardContainer = document.getElementById("guard-container");
             if (!guardContainer) {
                 console.error("DEBUG: Element with id 'guard-container' not found in DOM.");
@@ -378,7 +378,7 @@ async function setupGuard(societyId) {
             guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
 
             try {
-                console.log(`DEBUG: Fetching society data for ID/Name: ${societyId}`);
+                console.log(`DEBUG: Fetching society data for ID: ${societyId}`);
                 const response = await fetch(`${API_BASE_URL}/societies/${societyId}`, { headers: NG_HEADERS });
                 
                 console.log(`DEBUG: API Response status: ${response.status}`);
@@ -611,21 +611,26 @@ async function setupGuard(societyId) {
             loadGlobalAdsPreLogin();
         }
 
-document.getElementById("verifyBtn").addEventListener("click", async () => {
+        document.getElementById("verifyBtn").addEventListener("click", async () => {
             const input = document.getElementById("societyInput").value.trim().toLowerCase();
             if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
             
             try {
                 const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
                 const societies = await response.json();
-                const match = societies.find(d => d.name?.toLowerCase() === input);
+                
+                // Find matching society where either name or id matches the input
+                const match = societies.find(d => 
+                    (d.name && d.name.toLowerCase() === input) || 
+                    (d.id && d.id.toLowerCase() === input)
+                );
 
                 if (match) {
-                    localStorage.setItem("savedSocietyName", match.name);
-                    localStorage.setItem("savedSocietyId", match.id); // Ensure ID is saved correctly
+                    localStorage.setItem("savedSocietyName", match.name || match.id);
+                    localStorage.setItem("savedSocietyId", match.id); 
                     localStorage.setItem("societyLoginTime", Date.now().toString());
                     
-                    showSearchScreen(match.name, match.id); // Pass match.id here
+                    showSearchScreen(match.name || match.id, match.id); 
                 } else { 
                     showModal("<p>❌ Society not found.</p>"); 
                 }
