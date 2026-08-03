@@ -559,14 +559,12 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
-                // Fetch the token explicitly to verify initialization/valid token availability before calling authenticatedFetch
                 const token = await user.getIdToken();
                 if (!token) {
                     console.warn("User authenticated, but failed to retrieve a valid ID token.");
                     return;
                 }
 
-                // Updated to use query parameter route
                 const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(user.email)}`);
                 if (res.ok) {
                     const adminData = await res.json();
@@ -625,18 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-            
-            // Ensure token is fully generated and ready before triggering the profile check fetch
-            await userCredential.user.getIdToken(true);
-
-            // Updated to use query parameter route
-            const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(email)}`);
-            if (!res.ok) {
-                signOut(auth);
-                window.showModal("Invalid credentials");
-                return;
-            }
+            await signInWithEmailAndPassword(auth, email, pass);
 
             localStorage.setItem("adminLoggedIn", "true");
             window.showModal("Login successful");
@@ -656,7 +643,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            // Updated to use query parameter route
             const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(email)}`);
             if (!res.ok) {
                 window.showModal("Invalid credentials");
