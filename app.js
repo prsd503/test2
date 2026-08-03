@@ -34,25 +34,23 @@ export async function authenticatedFetch(url, options = {}) {
   const currentUser = auth.currentUser;
   
   if (!currentUser) {
+    console.error("authenticatedFetch Error: No active Firebase user found. Are you logged in?");
     throw new Error("User must be logged in to perform this action.");
   }
 
-  // 1. Get Firebase Auth ID Token (forces refresh to ensure it's fresh and valid)
   const idToken = await currentUser.getIdToken(true);
+  console.log("Sending Firebase Token length:", idToken ? idToken.length : 0);
 
-  // 2. Prepare headers, avoiding forced Content-Type if body is FormData
   const headers = {
     'Authorization': `Bearer ${idToken}`,
     'ngrok-skip-browser-warning': 'true',
     ...options.headers
   };
 
-  // If the body is not FormData and a content-type isn't specified, default to application/json
   if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
 
   options.headers = headers;
-
   return fetch(url, options);
 }
