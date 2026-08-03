@@ -62,7 +62,7 @@ let owlWatcherTeamPhone = "919033406816";
 
 async function fetchTeamPhone() {
     try {
-        const res = await fetch(`${API_BASE}/config`, {
+        const res = await fetch(`${API_BASE_URL}/config`, {
             headers: { 'ngrok-skip-browser-warning': 'true' }
         });
         if (res.ok) {
@@ -109,7 +109,7 @@ document.getElementById('searchGuardBtn')?.addEventListener('click', async () =>
     if (!searchName) return window.showModal("Please enter a guard name to search.");
 
     try {
-        const res = await authenticatedFetch(`${API_BASE}/guards?society=${encodeURIComponent(assignedSociety)}&name_lower=${encodeURIComponent(searchName)}`);
+        const res = await authenticatedFetch(`${API_BASE_URL}/guards?society=${encodeURIComponent(assignedSociety)}&name_lower=${encodeURIComponent(searchName)}`);
         const guards = await res.json();
 
         if (guards.length === 0) {
@@ -137,7 +137,7 @@ document.getElementById('addGuardBtn')?.addEventListener('click', async () => {
 
     try {
         const nameLower = name.toLowerCase();
-        const res = await authenticatedFetch(`${API_BASE}/guards?society=${encodeURIComponent(assignedSociety)}&name_lower=${encodeURIComponent(nameLower)}`);
+        const res = await authenticatedFetch(`${API_BASE_URL}/guards?society=${encodeURIComponent(assignedSociety)}&name_lower=${encodeURIComponent(nameLower)}`);
         const guards = await res.json();
 
         let targetDocId = email; 
@@ -145,7 +145,7 @@ document.getElementById('addGuardBtn')?.addEventListener('click', async () => {
             targetDocId = guards[0].id;
         }
 
-        await authenticatedFetch(`${API_BASE}/guards`, {
+        await authenticatedFetch(`${API_BASE_URL}/guards`, {
             method: 'POST',
             body: JSON.stringify({ targetDocId, email, name, name_lower: nameLower, phone, society: assignedSociety })
         });
@@ -161,7 +161,7 @@ document.getElementById('deleteGuardBtn')?.addEventListener('click', async () =>
     if (!email) return window.showModal("Please specify or search the guard email to delete.");
 
     try {
-        await authenticatedFetch(`${API_BASE}/guards/${email}`, { method: 'DELETE' });
+        await authenticatedFetch(`${API_BASE_URL}/guards/${email}`, { method: 'DELETE' });
         window.showModal("Guard deleted successfully.");
         document.getElementById('gEmail').value = "";
         document.getElementById('gName').value = "";
@@ -190,7 +190,7 @@ if (vehicleForm) {
         const targetSociety = societyData.name || societyId;
         
         try {
-            const res = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(targetSociety)}&vehicleNumber=${encodeURIComponent(vehicleNumber)}`);
+            const res = await authenticatedFetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(targetSociety)}&vehicleNumber=${encodeURIComponent(vehicleNumber)}`);
             const existing = await res.json();
 
             if (existing.length > 0) {
@@ -198,7 +198,7 @@ if (vehicleForm) {
                 return;
             }
 
-            const flatRes = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(targetSociety)}`);
+            const flatRes = await authenticatedFetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(targetSociety)}`);
             const allVehicles = await flatRes.json();
             const flatVehicles = allVehicles.filter(v => v.flatNumber === flatNumber);
 
@@ -223,7 +223,7 @@ if (vehicleForm) {
                 return;
             }
 
-            await authenticatedFetch(`${API_BASE}/vehicles`, {
+            await authenticatedFetch(`${API_BASE_URL}/vehicles`, {
                 method: 'POST',
                 body: JSON.stringify({
                     vehicleNumber,
@@ -255,7 +255,7 @@ document.getElementById('adminSearchBtn')?.addEventListener('click', async () =>
 
     resultsDiv.innerHTML = "Searching...";
     try {
-        const res = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(searchVal)}`);
+        const res = await authenticatedFetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(searchVal)}`);
         const vehicles = await res.json();
         
         if (vehicles.length === 0) {
@@ -265,7 +265,7 @@ document.getElementById('adminSearchBtn')?.addEventListener('click', async () =>
 
         window.deleteVehicleDoc = async (docId) => {
             try {
-                await authenticatedFetch(`${API_BASE}/vehicles/${docId}`, { method: 'DELETE' });
+                await authenticatedFetch(`${API_BASE_URL}/vehicles/${docId}`, { method: 'DELETE' });
                 window.showModal("Vehicle deleted from registry.");
                 document.getElementById('admin-results').innerHTML = "";
             } catch (err) {
@@ -301,12 +301,12 @@ document.getElementById('saveBtn')?.addEventListener('click', async () => {
     if (!vNum || !fNum) return window.showModal("Vehicle number and Flat number/Name are required.");
 
     try {
-        const res = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
+        const res = await authenticatedFetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
         const vehicles = await res.json();
 
         const existingId = vehicles.length > 0 ? vehicles[0].id : null;
 
-        await authenticatedFetch(`${API_BASE}/vehicles`, {
+        await authenticatedFetch(`${API_BASE_URL}/vehicles`, {
             method: 'POST',
             body: JSON.stringify({
                 id: existingId,
@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadSocietyLimits() {
         if (!assignedSociety) return;
         try {
-            const res = await authenticatedFetch(`${API_BASE}/societies/${assignedSociety}`);
+            const res = await authenticatedFetch(`${API_BASE_URL}/societies/${assignedSociety}`);
             if (res.ok) {
                 const data = await res.json();
                 if (document.getElementById('max4WheelerInput')) {
@@ -406,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            await authenticatedFetch(`${API_BASE}/societies/${assignedSociety}/limits`, {
+            await authenticatedFetch(`${API_BASE_URL}/societies/${assignedSociety}/limits`, {
                 method: 'PATCH',
                 body: JSON.stringify({ max4Wheeler: max4W, max2Wheeler: max2W })
             });
@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadFlatNumbers() {
         if (!assignedSociety) return;
         try {
-            const res = await authenticatedFetch(`${API_BASE}/societies/${assignedSociety}`);
+            const res = await authenticatedFetch(`${API_BASE_URL}/societies/${assignedSociety}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.flatList) {
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const flatList = rawText.split(',').map(f => f.trim()).filter(f => f.length > 0);
 
         try {
-            await authenticatedFetch(`${API_BASE}/societies/${assignedSociety}/flats`, {
+            await authenticatedFetch(`${API_BASE_URL}/societies/${assignedSociety}/flats`, {
                 method: 'PATCH',
                 body: JSON.stringify({ flatList })
             });
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!newSociety) return window.showModal("Please enter a valid society name.");
         
         try {
-            const res = await authenticatedFetch(`${API_BASE}/admins/verify-society?society=${encodeURIComponent(newSociety)}`);
+            const res = await authenticatedFetch(`${API_BASE_URL}/admins/verify-society?society=${encodeURIComponent(newSociety)}`);
             const data = await res.json();
 
             if (!data.exists) {
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentIstDateStr = formatter.format(new Date());
 
         try {
-            const res = await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`);
+            const res = await authenticatedFetch(`${API_BASE_URL}/notices/${assignedSociety}`);
             if (res.ok) {
                 const data = await res.json();
                 let todayMsg = data.todayMessage || "";
@@ -508,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tomorrowMsg = "";
                     noticeDate = currentIstDateStr;
 
-                    await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
+                    await authenticatedFetch(`${API_BASE_URL}/notices/${assignedSociety}`, {
                         method: 'POST',
                         body: JSON.stringify({ todayMessage: todayMsg, tomorrowMessage: tomorrowMsg, date: noticeDate })
                     });
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!newPhone) return window.showModal("Please enter a valid phone number.");
         
         try {
-            await authenticatedFetch(`${API_BASE}/config`, {
+            await authenticatedFetch(`${API_BASE_URL}/config`, {
                 method: 'POST',
                 body: JSON.stringify({ teamPhone: newPhone })
             });
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             try {
                 // Updated to use query parameter route
-                const res = await authenticatedFetch(`${API_BASE}/admins?email=${encodeURIComponent(user.email)}`);
+                const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(user.email)}`);
                 if (res.ok) {
                     const adminData = await res.json();
                     assignedSociety = adminData.society || "";
@@ -621,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await signInWithEmailAndPassword(auth, email, pass);
 
             // Updated to use query parameter route
-            const res = await authenticatedFetch(`${API_BASE}/admins?email=${encodeURIComponent(email)}`);
+            const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(email)}`);
             if (!res.ok) {
                 signOut(auth);
                 window.showModal("Invalid credentials");
@@ -647,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Updated to use query parameter route
-            const res = await authenticatedFetch(`${API_BASE}/admins?email=${encodeURIComponent(email)}`);
+            const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(email)}`);
             if (!res.ok) {
                 window.showModal("Invalid credentials");
                 return;
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
 
     document.getElementById('postNoticeBtn')?.addEventListener('click', async () => {
-        await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, {
+        await authenticatedFetch(`${API_BASE_URL}/notices/${assignedSociety}`, {
             method: 'POST',
             body: JSON.stringify({
                 todayMessage: document.getElementById('todayMsg').value,
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('deleteNoticeBtn')?.addEventListener('click', async () => {
-        await authenticatedFetch(`${API_BASE}/notices/${assignedSociety}`, { method: 'DELETE' });
+        await authenticatedFetch(`${API_BASE_URL}/notices/${assignedSociety}`, { method: 'DELETE' });
         document.getElementById('todayMsg').value = "";
         document.getElementById('tomorrowMsg').value = "";
         window.showModal("Notice deleted.");
@@ -694,7 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newName = document.getElementById(`name_${fId}`).value.trim();
         if (!newName) return window.showModal("Please enter a name.");
         
-        await authenticatedFetch(`${API_BASE}/facilities/${assignedSociety}`, {
+        await authenticatedFetch(`${API_BASE_URL}/facilities/${assignedSociety}`, {
             method: 'POST',
             body: JSON.stringify({ [fId]: newName })
         });
@@ -711,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
             F5: document.getElementById('name_F5').value
         };
         
-        await authenticatedFetch(`${API_BASE}/facilities/${assignedSociety}`, {
+        await authenticatedFetch(`${API_BASE_URL}/facilities/${assignedSociety}`, {
             method: 'POST',
             body: JSON.stringify(data)
         });
@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadFacilitiesDropdown() {
         if (!assignedSociety) return;
-        const res = await authenticatedFetch(`${API_BASE}/facilities/${assignedSociety}`);
+        const res = await authenticatedFetch(`${API_BASE_URL}/facilities/${assignedSociety}`);
         const data = res.ok ? await res.json() : {};
         const select = document.getElementById('facilitySelect');
         
@@ -743,10 +743,10 @@ document.addEventListener('DOMContentLoaded', () => {
         listContainer.innerHTML = "<p style='font-size: 0.9rem;'>Loading bookings...</p>";
 
         try {
-            const fRes = await authenticatedFetch(`${API_BASE}/facilities/${assignedSociety}`);
+            const fRes = await authenticatedFetch(`${API_BASE_URL}/facilities/${assignedSociety}`);
             const facilityNames = fRes.ok ? await fRes.json() : {};
 
-            const bRes = await authenticatedFetch(`${API_BASE}/bookings?society=${encodeURIComponent(assignedSociety)}`);
+            const bRes = await authenticatedFetch(`${API_BASE_URL}/bookings?society=${encodeURIComponent(assignedSociety)}`);
             const bookings = bRes.ok ? await bRes.json() : [];
 
             if (bookings.length === 0) {
@@ -797,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            await authenticatedFetch(`${API_BASE}/bookings`, {
+            await authenticatedFetch(`${API_BASE_URL}/bookings`, {
                 method: 'POST',
                 body: JSON.stringify({
                     society: assignedSociety, 
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.deleteBooking = async (bookingDocId) => {
         try {
-            await authenticatedFetch(`${API_BASE}/bookings/${bookingDocId}`, { method: 'DELETE' });
+            await authenticatedFetch(`${API_BASE_URL}/bookings/${bookingDocId}`, { method: 'DELETE' });
             window.showModal("Booking deleted.");
             loadActiveBookings(); 
         } catch (err) {
@@ -843,11 +843,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         const mNum = c[3] ? c[3].trim() : "";
                         const vType = c[4] ? c[4].trim() : "2-Wheeler";
 
-                        const checkRes = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
+                        const checkRes = await authenticatedFetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
                         const existing = await checkRes.json();
 
                         if (existing.length === 0) {
-                            await authenticatedFetch(`${API_BASE}/vehicles`, {
+                            await authenticatedFetch(`${API_BASE_URL}/vehicles`, {
                                 method: 'POST',
                                 body: JSON.stringify({
                                     vehicleNumber: vNum,
@@ -876,7 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('approveAdBtn')?.addEventListener('click', async () => {
         const adKey = document.getElementById('adApprovalKey').value.trim().toUpperCase();
-        await authenticatedFetch(`${API_BASE}/ads/${adKey}`, {
+        await authenticatedFetch(`${API_BASE_URL}/ads/${adKey}`, {
             method: 'PATCH',
             body: JSON.stringify({ societyApproved: true })
         });
@@ -887,7 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('exportBtn')?.addEventListener('click', async () => {
         if (!assignedSociety) return;
         try {
-            const res = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(assignedSociety)}`);
+            const res = await authenticatedFetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(assignedSociety)}`);
             const vehicles = await res.json();
             if (vehicles.length === 0) return window.showModal("No data to export.");
 
@@ -919,12 +919,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         const c = row.split(',');
                         if (c.length >= 1 && c[0].trim()) {
                             const vNum = c[0].trim().toUpperCase();
-                            const res = await authenticatedFetch(`${API_BASE}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
+                            const res = await authenticatedFetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(assignedSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`);
                             const vehicles = await res.json();
 
                             if (vehicles.length > 0) {
                                 for (const v of vehicles) {
-                                    await authenticatedFetch(`${API_BASE}/vehicles/${v.id}`, { method: 'DELETE' });
+                                    await authenticatedFetch(`${API_BASE_URL}/vehicles/${v.id}`, { method: 'DELETE' });
                                     deleteCount++;
                                 }
                             } else {
