@@ -154,40 +154,41 @@ body { padding-top: 80px; }
     </style>
 </head>
 <body>
-
-<div id="startOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #fdf6e3; z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; box-sizing: border-box;">
-        <div style="max-width: 500px; width: 90%; padding: 30px; background: #000; border: 2px solid #8d6e63; border-radius: 20px; box-shadow: 6px 6px 0px #5d4037; text-align: center;">
-            
-            <!-- Video container with a relative wrapper for the audio button -->
-            <div style="position: relative; margin-bottom: 15px;">
-               <div hidden> <img style="max-width:200px" src="test.gif"/> </div>
-                <video id="welcomeVideo" autoplay muted loop playsinline style="display:none; width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; display: block;">
-                    <source src="animate.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video> 
-                <!-- Unmute/Mute Toggle Button -->
-                <button id="audioToggleBtn" onclick="toggleVideoAudio()" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.6); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Unmute Video">
-                    🔇<p> Unmute
-                </button>
-            </div>
-
-            <h1 id="overlayWelcomeText" style="font-family: 'Caveat', cursive; color: #FF7F00; margin-bottom: 5px; font-size: 2.8rem; line-height: 1.1; white-space: pre-line;">Owl Watcher</h1>        
-            
-            <!-- Commercial Subtitle / Tagline -->
-            <p style="font-family: sans-serif; color: #FFF; font-size: 0.95rem; margin-bottom: 25px; font-weight: 600; letter-spacing: 0.5px;">
-                Smart Vehicle Tracking & Management System
-            </p>
-
-           <!-- Trust / Feature Indicators -->
-            <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; font-family: sans-serif; font-size: 0.8rem; color: #8d6e63;">
-                <span style="background: #fdf6e3; padding: 5px 10px; border-radius: 8px; border: 1px solid #d7ccc8;">🛡️ Secure Access</span>
-                <span style="background: #fdf6e3; padding: 5px 10px; border-radius: 8px; border: 1px solid #d7ccc8;">⚡ Instant Search</span>
-                <span style="background: #fdf6e3; padding: 5px 10px; border-radius: 8px; border: 1px solid #d7ccc8;">📸 Photo Studio</span>
-            </div>
-
-            <button id="startButton" style="font-family: 'Caveat', cursive; font-size: 1.8rem; padding: 12px 35px; cursor:pointer; background: #8d6e63; color: white; border: none; border-radius: 12px; box-shadow: 3px 3px 0px #5d4037; transition: transform 0.1s;">Enter Portal</button>
+<div id="startOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; box-sizing: border-box;">
+    
+    <!-- Outer container (no card styling, centered flexibly) -->
+    <div style="max-width: 500px; width: 90%; text-align: center;">
+        
+        <!-- Video container with a relative wrapper for the audio button -->
+        <div style="position: relative; margin-bottom: 15px;">
+           <div hidden> <img style="max-width:200px" src="test.gif"/> </div>
+            <video id="welcomeVideo" autoplay muted loop playsinline style="width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; display: block;">
+                <source src="animate.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video> 
+            <!-- Unmute/Mute Toggle Button -->
+            <button id="audioToggleBtn" onclick="toggleVideoAudio()" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.6); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Unmute Video">
+                🔇
+            </button>
         </div>
+
+        <h1 id="overlayWelcomeText" style="font-family: 'Caveat', cursive; color: #FF7F00; margin-bottom: 5px; font-size: 2.8rem; line-height: 1.1; white-space: pre-line;">Owl Watcher</h1>        
+        
+        <!-- Commercial Subtitle / Tagline -->
+        <p style="font-family: sans-serif; color: #FFF; font-size: 0.95rem; margin-bottom: 25px; font-weight: 600; letter-spacing: 0.5px;">
+            Smart Vehicle Tracking & Management System
+        </p>
+
+       <!-- Trust / Feature Indicators -->
+        <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; font-family: sans-serif; font-size: 0.8rem; color: #8d6e63;">
+            <span style="background: #111; padding: 5px 10px; border-radius: 8px; border: 1px solid #333; color: #ccc;">🛡️ Secure Access</span>
+            <span style="background: #111; padding: 5px 10px; border-radius: 8px; border: 1px solid #333; color: #ccc;">⚡ Instant Search</span>
+            <span style="background: #111; padding: 5px 10px; border-radius: 8px; border: 1px solid #333; color: #ccc;">📸 Photo Studio</span>
+        </div>
+
+        <button id="startButton" style="font-family: 'Caveat', cursive; font-size: 1.8rem; padding: 12px 35px; cursor:pointer; background: #8d6e63; color: white; border: none; border-radius: 12px; box-shadow: 3px 3px 0px #5d4037; transition: transform 0.1s;">Enter Portal</button>
     </div>
+</div>
 
     <div class="card">
         <!-- Unified Navigation -->
