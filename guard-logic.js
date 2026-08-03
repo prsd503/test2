@@ -39,14 +39,20 @@ async function initializeGuardPortal(email) {
         document.getElementById('portalSection').style.display = 'block';
         document.getElementById('logoutBtn').style.display = 'block';
     } catch (e) { 
+        console.error("Portal load error:", e);
         window.showModal("Error loading portal profile data.");
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    onAuthStateChanged(auth, async (user) => {
-        if (user) await initializeGuardPortal(user.email);
-    });
+// Listen to auth state changes to ensure Firebase has fully restored the user session and token
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        await initializeGuardPortal(user.email);
+    } else {
+        document.getElementById('login-section').style.display = 'block';
+        document.getElementById('portalSection').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'none';
+    }
 });
 
 document.getElementById('loginBtn')?.addEventListener('click', async () => {
