@@ -159,12 +159,12 @@ body { padding-top: 80px; }
         <div style="max-width: 500px; width: 90%; padding: 30px; background: #000; border: 2px solid #8d6e63; border-radius: 20px; box-shadow: 6px 6px 0px #5d4037; text-align: center;">
             
             <!-- Video container with a relative wrapper for the audio button -->
-            <div style="position: relative; width: 100%; margin-bottom: 15px;">
-                <img src="test.gif"/>
-                <video id="welcomeVideo" autoplay muted loop playsinline style="width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; display: block;">
+            <div style="position: relative; width: 80%; margin-bottom: 15px;">
+                <img style="" src="test.gif"/>
+               <div hidden> <video id="welcomeVideo" autoplay muted loop playsinline style="display:none; width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; display: block;">
                     <source src="animate.mp4" type="video/mp4">
                     Your browser does not support the video tag.
-                </video>
+                </video> </div>
                 <!-- Unmute/Mute Toggle Button -->
                 <button id="audioToggleBtn" onclick="toggleVideoAudio()" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.6); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Unmute Video">
                     🔇<p> Unmute
