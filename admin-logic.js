@@ -559,7 +559,8 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
-                const res = await authenticatedFetch(`${API_BASE}/admins/${user.email}`);
+                // Updated to use query parameter route
+                const res = await authenticatedFetch(`${API_BASE}/admins?email=${encodeURIComponent(user.email)}`);
                 if (res.ok) {
                     const adminData = await res.json();
                     assignedSociety = adminData.society || "";
@@ -581,7 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                     
-                    // ✅ FIX: Only load data once assignedSociety is successfully available
                     if (assignedSociety) {
                         loadNoticeData();
                         loadFacilitiesDropdown();
@@ -620,7 +620,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await signInWithEmailAndPassword(auth, email, pass);
 
-            const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
+            // Updated to use query parameter route
+            const res = await authenticatedFetch(`${API_BASE}/admins?email=${encodeURIComponent(email)}`);
             if (!res.ok) {
                 signOut(auth);
                 window.showModal("Invalid credentials");
@@ -645,7 +646,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
+            // Updated to use query parameter route
+            const res = await authenticatedFetch(`${API_BASE}/admins?email=${encodeURIComponent(email)}`);
             if (!res.ok) {
                 window.showModal("Invalid credentials");
                 return;
