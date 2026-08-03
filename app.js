@@ -25,32 +25,49 @@ const appCheck = initializeAppCheck(app, {
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// --- SECURED FETCH HELPER ---
+// --- SECURED FETCH HELPER (UPDATED FOR 15s SHORT-LIVED JWT) ---
 /**
  * Use this wrapper instead of standard fetch() for protected API endpoints.
- * It automatically injects the Firebase Auth Bearer token.
+ * It fetches a fresh 15-second short-lived JWT from the backend and injects it.
  */
 export async function authenticatedFetch(url, options = {}) {
-  const currentUser = auth.currentUser;
-  
-  if (!currentUser) {
-    console.error("authenticatedFetch Error: No active Firebase user found. Are you logged in?");
-    throw new Error("User must be logged in to perform this action.");
+  try {
+    // 1. Request a fresh short-lived JWT from your backend
+    const tokenResponse = await fetch('/api/auth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      }
+    });
+
+    if (!tokenResponse.ok) {
+      throw new Error("Failed to acquire short-lived authentication token from server.");
+    }
+
+    const tokenData = await tokenResponse.json();
+    const shortLivedToken = tokenData.token;
+
+    console.log("Acquired short-lived JWT. Expires in:", tokenData.expiresin, "seconds");
+
+    // 2. Build headers with the new short-lived token
+    const headers = {
+      'Authorization': `Bearer ${shortLivedToken}`,
+      'ngrok-skip-browser-warning': 'true',
+      ...options.headers
+    };
+
+    if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    options.headers = headers;
+    
+    // 3. Execute the original fetch request
+    return fetch(url, options);
+
+  } catch (error) {
+    console.error("authenticatedFetch Error:", error);
+    throw error;
   }
-
-  const idToken = await currentUser.getIdToken(true);
-  console.log("Sending Firebase Token length:", idToken ? idToken.length : 0);
-
-  const headers = {
-    'Authorization': `Bearer ${idToken}`,
-    'ngrok-skip-browser-warning': 'true',
-    ...options.headers
-  };
-
-  if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
-    headers['Content-Type'] = 'application/json';
-  }
-
-  options.headers = headers;
-  return fetch(url, options);
 }
