@@ -3,7 +3,8 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordRe
 import { Filesystem, Directory, Encoding } from 'https://cdn.jsdelivr.net/npm/@capacitor/filesystem@latest/+esm';
 import { Share } from 'https://cdn.jsdelivr.net/npm/@capacitor/share@latest/+esm';
 
-const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev/api";
+        const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
+        const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
 let assignedSociety = "";
 let teamPhone = "919033406816";
