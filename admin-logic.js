@@ -559,6 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
+                // Ensure Firebase auth session exists before running authenticated requests
                 const token = await user.getIdToken(true);
                 if (!token) {
                     console.warn("User authenticated, but failed to retrieve a valid ID token.");
