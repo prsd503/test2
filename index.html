@@ -597,30 +597,32 @@ async function setupGuard(societyId) {
         }
 
 document.getElementById("verifyBtn").addEventListener("click", async () => {
-    const input = document.getElementById("societyInput").value.trim().toLowerCase();
-    if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
-        const societies = await response.json();
-        const match = societies.find(d => d.name?.toLowerCase() === input);
-
-        if (match) {
-            localStorage.setItem("savedSocietyName", match.name);
-            localStorage.setItem("savedSocietyId", match.id);
-            localStorage.setItem("societyLoginTime", Date.now().toString());
+            const input = document.getElementById("societyInput").value.trim().toLowerCase();
+            if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
             
-            // IF YOUR BACKEND RETURNS A TOKEN UPON VERIFICATION:
-            // localStorage.setItem("authToken", match.token); 
+            try {
+                const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
+                const societies = await response.json();
+                const match = societies.find(d => d.name?.toLowerCase() === input);
 
-            showSearchScreen(match.name, match.id);
-        } else { 
-            showModal("<p>❌ Society not found.</p>"); 
-        }
-    } catch (err) {
-        showModal("<p>❌ Error connecting to server.</p>");
-    }
-});
+                if (match) {
+                    localStorage.setItem("savedSocietyName", match.name);
+                    localStorage.setItem("savedSocietyId", match.id);
+                    localStorage.setItem("societyLoginTime", Date.now().toString());
+                    
+                    // Save the token so downstream requests (like vehicle search) pass the Bearer check
+                    if (match.token) {
+                        localStorage.setItem("authToken", match.token);
+                    }
+                    
+                    showSearchScreen(match.name, match.id);
+                } else { 
+                    showModal("<p>❌ Society not found.</p>"); 
+                }
+            } catch (err) {
+                showModal("<p>❌ Error connecting to server.</p>");
+            }
+        });
 
 document.getElementById("searchBtn").addEventListener("click", async () => {
     themeAudio.currentTime = 0;
