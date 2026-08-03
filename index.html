@@ -626,8 +626,8 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
     if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
     
     try {
-       // Retrieve your auth token from storage (adjust key if stored differently)
-       const token = localStorage.getItem("authToken") || ""; 
+       // Retrieve the actual token stored during login
+       const token = localStorage.getItem("authToken") || localStorage.getItem("token") || ""; 
 
        const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { 
            headers: { 
@@ -637,7 +637,7 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
        });
 
        if (!response.ok) {
-           throw new Error("Server responded with an error");
+           throw new Error(`Server responded with status ${response.status}`);
        }
 
        const matches = await response.json();
