@@ -597,7 +597,7 @@ body { padding-top: 80px; }
             loadGlobalAdsPreLogin();
         }
 
-        document.getElementById("verifyBtn").addEventListener("click", async () => {
+document.getElementById("verifyBtn").addEventListener("click", async () => {
             const input = document.getElementById("societyInput").value.trim().toLowerCase();
             if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
             
@@ -608,10 +608,10 @@ body { padding-top: 80px; }
 
                 if (match) {
                     localStorage.setItem("savedSocietyName", match.name);
-                    localStorage.setItem("savedSocietyId", match.id);
+                    localStorage.setItem("savedSocietyId", match.id); // Ensure ID is saved correctly
                     localStorage.setItem("societyLoginTime", Date.now().toString());
                     
-                    showSearchScreen(match.name, match.id);
+                    showSearchScreen(match.name, match.id); // Pass match.id here
                 } else { 
                     showModal("<p>❌ Society not found.</p>"); 
                 }
