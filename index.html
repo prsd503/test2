@@ -368,7 +368,7 @@ body { padding-top: 80px; }
             }
         }
 
-        async function setupGuard(societyId) {
+        async function setupGuard(societyIdOrName) {
             const guardContainer = document.getElementById("guard-container");
             if (!guardContainer) {
                 console.error("DEBUG: Element with id 'guard-container' not found in DOM.");
@@ -378,8 +378,19 @@ body { padding-top: 80px; }
             guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
 
             try {
-                console.log(`DEBUG: Fetching society data for ID: ${societyId}`);
-                const response = await fetch(`${API_BASE_URL}/societies/${societyId}`, { headers: NG_HEADERS });
+                // If societyIdOrName is a name, look up its actual ID first to prevent 404s
+                let targetId = societyIdOrName;
+                const listRes = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
+                if (listRes.ok) {
+                    const societies = await listRes.json();
+                    const found = societies.find(s => s.id === societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase());
+                    if (found && found.id) {
+                        targetId = found.id;
+                    }
+                }
+
+                console.log(`DEBUG: Fetching society data for ID: ${targetId}`);
+                const response = await fetch(`${API_BASE_URL}/societies/${targetId}`, { headers: NG_HEADERS });
                 
                 console.log(`DEBUG: API Response status: ${response.status}`);
                 if (response.ok) {
@@ -590,9 +601,11 @@ body { padding-top: 80px; }
             updateAdLinks(societyName);
 
             if (globalAdInterval) clearInterval(globalAdInterval);
-            setupGuard(societyId);
-            loadNotice(societyId);
-            loadAds(societyId);
+            
+            // Use savedSocietyId if provided, otherwise fallback to societyName
+            setupGuard(societyId || societyName);
+            loadNotice(societyId || societyName);
+            loadAds(societyId || societyName);
         }
 
         function clearSocietySession() {
@@ -619,7 +632,7 @@ body { padding-top: 80px; }
                 const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
                 const societies = await response.json();
                 
-                // Find matching society where either name or id matches the input
+                // Find matching society where name or id matches input
                 const match = societies.find(d => 
                     (d.name && d.name.toLowerCase() === input) || 
                     (d.id && d.id.toLowerCase() === input)
