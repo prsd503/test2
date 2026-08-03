@@ -824,6 +824,21 @@ body { padding-top: 80px; }
 </style>
 
 <script>
+function toggleVideoAudio() {
+    const video = document.getElementById("welcomeVideo");
+    const btn = document.getElementById("audioToggleBtn");
+    
+    if (video.muted) {
+        video.muted = false;
+        btn.innerText = "🔊";
+        btn.title = "Mute Video";
+    } else {
+        video.muted = true;
+        btn.innerText = "🔇";
+        btn.title = "Unmute Video";
+    }
+}
+    
   function activateOwlEffect() {
     const container = document.getElementById('owl-container');
     const audio = document.getElementById('owl-audio');
