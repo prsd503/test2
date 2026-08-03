@@ -580,9 +580,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                     
-                    loadNoticeData();
-                    loadFacilitiesDropdown();
-                    loadActiveBookings();
+                    // ✅ FIX: Only load data once assignedSociety is successfully available
+                    if (assignedSociety) {
+                        loadNoticeData();
+                        loadFacilitiesDropdown();
+                        loadActiveBookings();
+                    } else {
+                        console.warn("Admin profile loaded, but no society assigned.");
+                    }
                 } else {
                     window.showModal("Unauthorized access.");
                     signOut(auth);
@@ -597,39 +602,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-document.getElementById('loginBtn')?.addEventListener('click', async () => {
-    const emailInput = document.getElementById('email');
-    const passInput = document.getElementById('pass');
+    document.getElementById('loginBtn')?.addEventListener('click', async () => {
+        const emailInput = document.getElementById('email');
+        const passInput = document.getElementById('pass');
 
-    if (!emailInput || !passInput) return;
+        if (!emailInput || !passInput) return;
 
-    const email = emailInput.value.trim().toLowerCase();
-    const pass = passInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
+        const pass = passInput.value.trim();
 
-    if (!email || !pass) {
-        window.showModal("Pls enter email id");
-        return;
-    }
-
-    try {
-        // 1. Sign in with Firebase first so auth.currentUser is populated
-        await signInWithEmailAndPassword(auth, email, pass);
-
-        // 2. Now use authenticatedFetch or standard fetch to verify the admin document
-        const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
-        if (!res.ok) {
-            signOut(auth);
-            window.showModal("Invalid credentials");
+        if (!email || !pass) {
+            window.showModal("Pls enter email id");
             return;
         }
 
-        localStorage.setItem("adminLoggedIn", "true");
-        window.showModal("Login successful");
-    } catch (e) {
-        console.error("Full Login Error:", e);
-        window.showModal("Login error: " + (e.message || e));
-    }
-});
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+
+            const res = await authenticatedFetch(`${API_BASE}/admins/${email}`);
+            if (!res.ok) {
+                signOut(auth);
+                window.showModal("Invalid credentials");
+                return;
+            }
+
+            localStorage.setItem("adminLoggedIn", "true");
+            window.showModal("Login successful");
+        } catch (e) {
+            console.error("Full Login Error:", e);
+            window.showModal("Login error: " + (e.message || e));
+        }
+    });
 
     document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => {
         const emailInput = document.getElementById('email');
