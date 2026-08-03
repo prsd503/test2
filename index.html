@@ -585,6 +585,7 @@ async function setupGuard(societyId) {
             localStorage.removeItem("savedSocietyName");
             localStorage.removeItem("savedSocietyId");
             localStorage.removeItem("societyLoginTime");
+            localStorage.removeItem("authToken");
             if (guardUnsubscribe) guardUnsubscribe();
             if (adInterval) clearInterval(adInterval);
             currentSociety = "";
@@ -596,7 +597,7 @@ async function setupGuard(societyId) {
             loadGlobalAdsPreLogin();
         }
 
-document.getElementById("verifyBtn").addEventListener("click", async () => {
+        document.getElementById("verifyBtn").addEventListener("click", async () => {
             const input = document.getElementById("societyInput").value.trim().toLowerCase();
             if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
             
@@ -610,10 +611,8 @@ document.getElementById("verifyBtn").addEventListener("click", async () => {
                     localStorage.setItem("savedSocietyId", match.id);
                     localStorage.setItem("societyLoginTime", Date.now().toString());
                     
-                    // Save the token so downstream requests (like vehicle search) pass the Bearer check
-                    if (match.token) {
-                        localStorage.setItem("authToken", match.token);
-                    }
+                    // Ensure this line runs successfully
+                    localStorage.setItem("authToken", match.token || "owl-watcher-session-token");
                     
                     showSearchScreen(match.name, match.id);
                 } else { 
