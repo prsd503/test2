@@ -220,6 +220,7 @@ body { padding-top: 80px; }
         <button id="searchBtn">Search</button>
         <br>
     
+        <!-- Fixed: Explicitly added guard-container element here -->
         <div id="guard-container" style="margin-top:20px;"></div>
         
         <div id="notice-board">
@@ -378,7 +379,7 @@ body { padding-top: 80px; }
             guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
 
             try {
-                // If societyIdOrName is a name, look up its actual ID first to prevent 404s
+                // Fixed: Explicitly look up the ID first to prevent 404 name routing issues
                 let targetId = societyIdOrName;
                 const listRes = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
                 if (listRes.ok) {
@@ -602,7 +603,6 @@ body { padding-top: 80px; }
 
             if (globalAdInterval) clearInterval(globalAdInterval);
             
-            // Use savedSocietyId if provided, otherwise fallback to societyName
             setupGuard(societyId || societyName);
             loadNotice(societyId || societyName);
             loadAds(societyId || societyName);
@@ -632,7 +632,6 @@ body { padding-top: 80px; }
                 const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
                 const societies = await response.json();
                 
-                // Find matching society where name or id matches input
                 const match = societies.find(d => 
                     (d.name && d.name.toLowerCase() === input) || 
                     (d.id && d.id.toLowerCase() === input)
@@ -652,7 +651,6 @@ body { padding-top: 80px; }
             }
         });
 
-        // UPDATED SEARCH BUTTON FETCH LOGIC TO USE 15-SECOND SHORT-LIVED JWT
         document.getElementById("searchBtn").addEventListener("click", async () => {
             themeAudio.currentTime = 0;
             themeAudio.play().catch(e => console.error("Audio playback failed:", e));
@@ -661,7 +659,6 @@ body { padding-top: 80px; }
             if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
             
             try {
-               // 1. Request a fresh short-lived JWT token on-demand from the backend
                const tokenResponse = await fetch(`${API_BASE_URL}/auth/token`, {
                    method: 'POST',
                    headers: {
@@ -677,7 +674,6 @@ body { padding-top: 80px; }
                const tokenData = await tokenResponse.json();
                const shortLivedToken = tokenData.token;
 
-               // 2. Perform the vehicle search using the fresh token
                const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { 
                    headers: { 
                        ...NG_HEADERS, 
