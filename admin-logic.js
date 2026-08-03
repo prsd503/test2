@@ -3,8 +3,8 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordRe
 import { Filesystem, Directory, Encoding } from 'https://cdn.jsdelivr.net/npm/@capacitor/filesystem@latest/+esm';
 import { Share } from 'https://cdn.jsdelivr.net/npm/@capacitor/share@latest/+esm';
 
-        const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
-        const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
+const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
+const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
 let assignedSociety = "";
 let teamPhone = "919033406816";
@@ -559,6 +559,13 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
+                // Fetch the token explicitly to verify initialization/valid token availability before calling authenticatedFetch
+                const token = await user.getIdToken();
+                if (!token) {
+                    console.warn("User authenticated, but failed to retrieve a valid ID token.");
+                    return;
+                }
+
                 // Updated to use query parameter route
                 const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(user.email)}`);
                 if (res.ok) {
@@ -618,7 +625,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            await signInWithEmailAndPassword(auth, email, pass);
+            const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+            
+            // Ensure token is fully generated and ready before triggering the profile check fetch
+            await userCredential.user.getIdToken(true);
 
             // Updated to use query parameter route
             const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(email)}`);
