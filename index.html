@@ -401,6 +401,22 @@ async function setupGuard(societyId) {
             }
         }
 
+        function changeSlide(direction) {
+            const slider = document.getElementById("adSlider");
+            const slides = slider.getElementsByClassName("ad-slide");
+            if (slides.length <= 1) return;
+
+            slides[currentIndex].classList.remove("active");
+            
+            if (direction === "next") {
+                currentIndex = (currentIndex + 1) % slides.length;
+            } else if (direction === "prev") {
+                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            }
+            
+            slides[currentIndex].classList.add("active");
+        }
+
         function changeGlobalSlide(direction) {
             const slider = document.getElementById("globalAdSlider");
             const slides = slider.getElementsByClassName("global-ad-slide");
