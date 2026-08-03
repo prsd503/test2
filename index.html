@@ -368,16 +368,28 @@ body { padding-top: 80px; }
             }
         }
 
-        async function setupGuard(societyId) {
+async function setupGuard(societyId) {
             const guardContainer = document.getElementById("guard-container");
+            if (!guardContainer) {
+                console.error("DEBUG: Element with id 'guard-container' not found in DOM.");
+                return;
+            }
+
             guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
 
             try {
+                console.log(`DEBUG: Fetching society data for ID/Name: ${societyId}`);
                 const response = await fetch(`${API_BASE_URL}/societies/${societyId}`, { headers: NG_HEADERS });
+                
+                console.log(`DEBUG: API Response status: ${response.status}`);
                 if (response.ok) {
                     const societyData = await response.json();
+                    console.log("DEBUG: Parsed society data received from server:", societyData);
+
                     const guardName = societyData.activeGuardName;
                     const guardPhone = societyData.activeGuardPhone;
+
+                    console.log(`DEBUG: Extracted guardName: "${guardName}", guardPhone: "${guardPhone}"`);
 
                     if (guardName) {
                         const cleanPhone = guardPhone ? guardPhone.replace(/\D/g, '') : '';
@@ -390,13 +402,15 @@ body { padding-top: 80px; }
                             </div>
                         `;
                     } else {
+                        console.log("DEBUG: guardName was empty or undefined. Showing fallback message.");
                         guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #8d6e63; font-family: sans-serif;">No active security guard assigned currently.</p>`;
                     }
                 } else {
+                    console.warn(`DEBUG: Server returned error status code: ${response.status}`);
                     guardContainer.innerHTML = "";
                 }
             } catch (err) {
-                console.error("Failed to load active guard info:", err);
+                console.error("DEBUG: Failed to load active guard info due to exception:", err);
                 guardContainer.innerHTML = "";
             }
         }
