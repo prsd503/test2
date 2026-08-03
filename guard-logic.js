@@ -12,6 +12,7 @@ window.showModal = (msg) => {
 
 async function initializeGuardPortal(email) {
     try {
+        // Authenticated fetch sends the Bearer token required by the updated /api/guards endpoint
         const res = await authenticatedFetch(`${API_BASE}/guards?email=${encodeURIComponent(email)}`);
         const guardsList = await res.json();
         
@@ -68,7 +69,6 @@ document.getElementById('activateBtn')?.addEventListener('click', async () => {
     try {
         const selectedOption = select.options[select.selectedIndex];
         
-        // Added 'Content-Type': 'application/json' to headers
         await authenticatedFetch(`${API_BASE}/societies/${encodeURIComponent(assignedSociety)}/active-guard`, {
             method: 'PATCH',
             headers: {
@@ -79,7 +79,6 @@ document.getElementById('activateBtn')?.addEventListener('click', async () => {
                 activeGuardPhone: selectedOption ? selectedOption.dataset.phone : "" 
             })
         });
-        
         
         window.showModal("Duty activated successfully for " + assignedSociety);
     } catch (e) {
