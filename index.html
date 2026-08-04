@@ -552,10 +552,16 @@ body { padding-top: 80px; }
             try {
                 const headers = await getAuthHeaders();
                 let response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId)}`, { headers });
-                if (!response.ok && currentSociety && currentSociety !== societyId) {
+                
+                // Fallback case-insensitive fetch variants if primary exact match returns 404
+                if (!response.ok) {
+                    response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId.toLowerCase())}`, { headers });
+                }
+                if (!response.ok && currentSociety) {
                     response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(currentSociety)}`, { headers });
                 }
-                const ads = await response.json();
+
+                const ads = response.ok ? await response.json() : [];
 
                 if (!Array.isArray(ads) || ads.length === 0) {
                     slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
@@ -646,7 +652,7 @@ body { padding-top: 80px; }
             loadGlobalAdsPreLogin();
         }
 
-        // UPDATED: Case-insensitive match check against backend verification response
+        // Updated verification handler using correct server name casing/fallback preservation
         document.getElementById("verifyBtn").addEventListener("click", async () => {
             const inputRaw = document.getElementById("societyInput").value.trim();
             if (!inputRaw) return showModal("<p>⚠️ Please enter a society name.</p>");
@@ -658,15 +664,13 @@ body { padding-top: 80px; }
                 if (response.ok) {
                     const match = await response.json();
                     
-                    // Case-insensitive check: Normalize match name or fallback to input
-                    const serverName = match.name || match.id || "";
-                    const societyNameToUse = (serverName.toLowerCase() === inputRaw.toLowerCase()) ? serverName : inputRaw;
+                    const serverName = match.name || match.id || inputRaw;
                     
-                    localStorage.setItem("savedSocietyName", societyNameToUse);
-                    localStorage.setItem("savedSocietyId", societyNameToUse); 
+                    localStorage.setItem("savedSocietyName", serverName);
+                    localStorage.setItem("savedSocietyId", serverName); 
                     localStorage.setItem("societyLoginTime", Date.now().toString());
                     
-                    showSearchScreen(societyNameToUse, societyNameToUse); 
+                    showSearchScreen(serverName, serverName); 
                 } else { 
                     showModal("<p>❌ Society not found.</p>"); 
                 }
