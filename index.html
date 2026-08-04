@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[cite: 7]<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -637,7 +637,6 @@ body { padding-top: 80px; }
                 
                 if (response.ok) {
                     const match = await response.json();
-                    
                     localStorage.setItem("savedSocietyName", match.name || match.id);
                     localStorage.setItem("savedSocietyId", match.id); 
                     localStorage.setItem("societyLoginTime", Date.now().toString());
@@ -867,3 +866,4 @@ function toggleVideoAudio() {
 </script>
 </body>
 </html>
+```[cite: 7]
