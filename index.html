@@ -396,7 +396,10 @@ body { padding-top: 80px; }
             try {
                 // Fixed: Explicitly look up the ID first to prevent 404 name routing issues
                 let targetId = societyIdOrName;
-                const listRes = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
+                const listRes = await fetch(`${API_BASE_URL}/societies`, { headers: { 
+                       ...NG_HEADERS, 
+                       'Authorization': `Bearer ${shortLivedToken}` 
+                   } });
                 if (listRes.ok) {
                     const societies = await listRes.json();
                     const found = societies.find(s => s.id === societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase());
