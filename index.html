@@ -404,7 +404,6 @@ body { padding-top: 80px; }
                 const headers = await getAuthHeaders();
                 const listRes = await fetch(`${API_BASE_URL}/societies/${societyIdOrName}/active-guard`, { headers });
                 if (listRes.ok) {
-                    debugger;
                     const societies = await listRes.json();
                     const found = societies.find(s => s.id === societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase());
                     if (found && found.id) {
@@ -627,30 +626,30 @@ body { padding-top: 80px; }
             updateAdLinks();
             loadGlobalAdsPreLogin();
         }
-document.getElementById("verifyBtn").addEventListener("click", async () => {
-    const input = document.getElementById("societyInput").value.trim();
-    if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
-    
-    try {
-        const headers = await getAuthHeaders();
-        // Call a direct verification endpoint passing the name as a query parameter
-        const response = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(input)}`, { headers });
-        
-        if (response.ok) {
-            const match = await response.json();
+
+        document.getElementById("verifyBtn").addEventListener("click", async () => {
+            const input = document.getElementById("societyInput").value.trim();
+            if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
             
-            localStorage.setItem("savedSocietyName", match.name || match.id);
-            localStorage.setItem("savedSocietyId", match.id); 
-            localStorage.setItem("societyLoginTime", Date.now().toString());
-            
-            showSearchScreen(match.name || match.id, match.id); 
-        } else { 
-            showModal("<p>❌ Society not found.</p>"); 
-        }
-    } catch (err) {
-        showModal("<p>❌ Error connecting to server.</p>");
-    }
-});
+            try {
+                const headers = await getAuthHeaders();
+                const response = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(input)}`, { headers });
+                
+                if (response.ok) {
+                    const match = await response.json();
+                    
+                    localStorage.setItem("savedSocietyName", match.name || match.id);
+                    localStorage.setItem("savedSocietyId", match.id); 
+                    localStorage.setItem("societyLoginTime", Date.now().toString());
+                    
+                    showSearchScreen(match.name || match.id, match.id); 
+                } else { 
+                    showModal("<p>❌ Society not found.</p>"); 
+                }
+            } catch (err) {
+                showModal("<p>❌ Error connecting to server.</p>");
+            }
+        });
 
         document.getElementById("searchBtn").addEventListener("click", async () => {
             themeAudio.currentTime = 0;
