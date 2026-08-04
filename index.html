@@ -392,8 +392,22 @@ body { padding-top: 80px; }
             }
 
             guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
-
+            
             try {
+                const tokenResponse = await fetch(`${API_BASE_URL}/auth/token`, {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json',
+                       ...NG_HEADERS
+                   }
+               });
+
+               if (!tokenResponse.ok) {
+                   throw new Error("Failed to acquire short-lived authentication token.");
+               }
+
+               const tokenData = await tokenResponse.json();
+               const shortLivedToken = tokenData.token;
                 // Fixed: Explicitly look up the ID first to prevent 404 name routing issues
                 let targetId = societyIdOrName;
                 const listRes = await fetch(`${API_BASE_URL}/societies`, { headers: { 
