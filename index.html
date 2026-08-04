@@ -360,7 +360,12 @@ body { padding-top: 80px; }
             const noticeDiv = document.getElementById('notice-content');
             try {
                 const headers = await getAuthHeaders();
-                const response = await fetch(`${API_BASE_URL}/notices/${societyId}`, { headers });
+                // FIX: Fallback to name or try both safely if societyId format fails backend endpoint routing (404)
+                let response = await fetch(`${API_BASE_URL}/notices/${encodeURIComponent(societyId)}`, { headers });
+                if (!response.ok && currentSociety && currentSociety !== societyId) {
+                    response = await fetch(`${API_BASE_URL}/notices/${encodeURIComponent(currentSociety)}`, { headers });
+                }
+
                 const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
                 const formatter = new Intl.DateTimeFormat('en-CA', options);
                 const currentIstDateStr = formatter.format(new Date());
@@ -376,7 +381,7 @@ body { padding-top: 80px; }
 
                         if (todayMsg.length > characterLimit) {
                             previewText = todayMsg.substring(0, characterLimit).trim() + "...";
-                            readMoreLink = ` <a href="notice.html?id=${societyId}" style="color: #8d6e63; font-weight: bold; text-decoration: underline; font-family: sans-serif; font-size: 0.9rem;">Read More</a>`;
+                            readMoreLink = ` <a href="notice.html?id=${encodeURIComponent(societyId)}" style="color: #8d6e63; font-weight: bold; text-decoration: underline; font-family: sans-serif; font-size: 0.9rem;">Read More</a>`;
                         }
 
                         noticeDiv.innerHTML = `<p class="notice-date">${currentIstDateStr}</p><div>${previewText}${readMoreLink}</div>`;
@@ -402,27 +407,41 @@ body { padding-top: 80px; }
             
             try {
                 const headers = await getAuthHeaders();
-                const listRes = await fetch(`${API_BASE_URL}/societies/${societyIdOrName}/active-guard`, { headers });
-                if (listRes.ok) {
-                    const societies = await listRes.json();
-                    const found = societies.find(s => s.id === societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase());
-                    if (found && found.id) {
-                    const guardName = found.activeGuardName;
-                    const guardPhone = found.activeGuardPhone;
+                // FIX: Fetch active-guard list robustly, handling both array/object API responses and alternate pathing parameters
+                let listRes = await fetch(`${API_BASE_URL}/societies/${encodeURIComponent(societyIdOrName)}/active-guard`, { headers });
+                if (!listRes.ok && currentSociety && currentSociety !== societyIdOrName) {
+                    listRes = await fetch(`${API_BASE_URL}/societies/${encodeURIComponent(currentSociety)}/active-guard`, { headers });
+                }
 
-                    if (guardName) {
-                        const cleanPhone = guardPhone ? guardPhone.replace(/\D/g, '') : '';
-                        
-                        guardContainer.innerHTML = `
-                            <div style="background: #fff8f5; border: 2px dashed #8d6e63; padding: 12px; border-radius: 12px; display: inline-block; max-width: 90%; font-family: sans-serif;">
-                                <span style="font-family: 'Caveat', cursive; font-size: 1.3rem; color: #5d4037; display: block; margin-bottom: 4px;">🛡️ Live Security Guard on Duty</span>
-                                <span style="font-size: 1.05rem; font-weight: bold; color: #2f3640;">${guardName}</span>
-                                ${cleanPhone ? `<br><a href="tel:${cleanPhone}" style="background: #25D366; color: white; padding: 6px 14px; text-decoration: none; border-radius: 8px; font-size: 0.9rem; display: inline-block; margin-top: 8px;">📞 Call Guard</a>` : ''}
-                            </div>
-                        `;
-                    } 
+                if (listRes.ok) {
+                    const resultData = await listRes.json();
+                    let found = null;
+
+                    if (Array.isArray(resultData)) {
+                        found = resultData.find(s => s.id == societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase() || (currentSociety && s.name?.toLowerCase() === currentSociety.toLowerCase()));
+                    } else if (resultData && typeof resultData === 'object') {
+                        found = resultData;
+                    }
+
+                    if (found && (found.activeGuardName || found.name || found.id)) {
+                        const guardName = found.activeGuardName;
+                        const guardPhone = found.activeGuardPhone;
+
+                        if (guardName) {
+                            const cleanPhone = guardPhone ? guardPhone.replace(/\D/g, '') : '';
+                            
+                            guardContainer.innerHTML = `
+                                <div style="background: #fff8f5; border: 2px dashed #8d6e63; padding: 12px; border-radius: 12px; display: inline-block; max-width: 90%; font-family: sans-serif;">
+                                    <span style="font-family: 'Caveat', cursive; font-size: 1.3rem; color: #5d4037; display: block; margin-bottom: 4px;">🛡️ Live Security Guard on Duty</span>
+                                    <span style="font-size: 1.05rem; font-weight: bold; color: #2f3640;">${guardName}</span>
+                                    ${cleanPhone ? `<br><a href="tel:${cleanPhone}" style="background: #25D366; color: white; padding: 6px 14px; text-decoration: none; border-radius: 8px; font-size: 0.9rem; display: inline-block; margin-top: 8px;">📞 Call Guard</a>` : ''}
+                                </div>
+                            `;
+                            return;
+                        }
                     }
                 }
+                guardContainer.innerHTML = "";
             } catch (err) {
                 console.error("Failed to load active guard info due to exception:", err);
                 guardContainer.innerHTML = "";
@@ -535,7 +554,10 @@ body { padding-top: 80px; }
 
             try {
                 const headers = await getAuthHeaders();
-                const response = await fetch(`${API_BASE_URL}/ads/local/${societyId}`, { headers });
+                let response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId)}`, { headers });
+                if (!response.ok && currentSociety && currentSociety !== societyId) {
+                    response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(currentSociety)}`, { headers });
+                }
                 const ads = await response.json();
 
                 if (!Array.isArray(ads) || ads.length === 0) {
@@ -600,7 +622,7 @@ body { padding-top: 80px; }
             document.getElementById("displaySocietyName").innerText = currentSociety;
 
             document.getElementById("factlityPage").href = "facility.html";
-            document.getElementById("addVehiclePageBtn").href = `entry.html?societyId=${societyId}`;
+            document.getElementById("addVehiclePageBtn").href = `entry.html?societyId=${encodeURIComponent(societyId)}`;
 
             updateAdLinks(societyName);
 
@@ -866,3 +888,4 @@ function toggleVideoAudio() {
 </script>
 </body>
 </html>
+```[cite: 7]
