@@ -100,258 +100,279 @@
     </div>
 
     <!-- Integrated API and Modular Entry Logic -->
-   <!-- Integrated API and Modular Entry Logic -->
     <script>
-
         const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
         const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
-      const modal = document.getElementById("resultModal");
-      function showModal(msg) {
-          document.getElementById("modalMessage").innerHTML = msg;
-          modal.style.display = "block";
-      }
-      window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
+        // Helper function to dynamically fetch a fresh short-lived auth token
+        async function getAuthHeaders() {
+            try {
+                const tokenRes = await fetch(`${API_BASE_URL}/auth/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...NG_HEADERS }
+                });
+                const tokenData = await tokenRes.json();
+                if (tokenData && tokenData.token) {
+                    return {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${tokenData.token}`,
+                        ...NG_HEADERS
+                    };
+                }
+            } catch (err) {
+                console.error("Failed to acquire auth token:", err);
+            }
+            return { ...NG_HEADERS };
+        }
 
-      document.addEventListener('DOMContentLoaded', async () => {
-          const urlParams = new URLSearchParams(window.location.search);
-          const societyName = urlParams.get('societyId') || urlParams.get('society') || localStorage.getItem('selectedSociety') || 'Aangan';
+        const modal = document.getElementById("resultModal");
+        function showModal(msg) {
+            document.getElementById("modalMessage").innerHTML = msg;
+            modal.style.display = "block";
+        }
+        window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
 
-          let deviceId = localStorage.getItem('mockDeviceId');
-          if (!deviceId) {
-              deviceId = `browser-${Math.random().toString(36).substr(2, 9)}`;
-              localStorage.setItem('mockDeviceId', deviceId);
-          }
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const societyName = urlParams.get('societyId') || urlParams.get('society') || localStorage.getItem('selectedSociety') || 'Aangan';
 
-          const societyLabel = document.getElementById('societyNameLabel');
-          if (societyLabel) {
-              societyLabel.innerText = societyName;
-          }
+            let deviceId = localStorage.getItem('mockDeviceId');
+            if (!deviceId) {
+                deviceId = `browser-${Math.random().toString(36).substr(2, 9)}`;
+                localStorage.setItem('mockDeviceId', deviceId);
+            }
 
-          let currentSocietyData = null;
+            const societyLabel = document.getElementById('societyNameLabel');
+            if (societyLabel) {
+                societyLabel.innerText = societyName;
+            }
 
-          try {
-              // Added headers: NG_HEADERS to bypass ngrok warning page
-              const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
-              const societies = await response.json();
-              currentSocietyData = societies.find(s => s.id === societyName || s.name === societyName);
-              
-              if (currentSocietyData && currentSocietyData.flatList) {
-                  const flatSelect = document.getElementById('flatSelect');
-                  if (flatSelect) {
-                      flatSelect.innerHTML = '<option value="">Select Flat Number/Name</option>';
-                      currentSocietyData.flatList.forEach(flat => {
-                          flatSelect.innerHTML += `<option value="${flat}">${flat}</option>`;
-                      });
-                  }
-              }
-          } catch (error) {
-              console.error("Error fetching society data from server:", error);
-          }
+            let currentSocietyData = null;
 
-          const flatSelect = document.getElementById('flatSelect');
-          const dynamicContainer = document.getElementById('dynamicVehicleFields');
-          const submitBtn = document.getElementById('submitBtn');
-          const mobileInput = document.getElementById('mobileNumber');
-          const residentTypeSelect = document.getElementById('residentTypeSelect');
-          const restrictionNote = document.getElementById('restrictionNote');
+            try {
+                const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
+                const societies = await response.json();
+                if (Array.isArray(societies)) {
+                    currentSocietyData = societies.find(s => s.id === societyName || s.name === societyName);
+                }
+                
+                if (currentSocietyData && currentSocietyData.flatList) {
+                    const flatSelect = document.getElementById('flatSelect');
+                    if (flatSelect) {
+                        flatSelect.innerHTML = '<option value="">Select Flat Number/Name</option>';
+                        currentSocietyData.flatList.forEach(flat => {
+                            flatSelect.innerHTML += `<option value="${flat}">${flat}</option>`;
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching society data from server:", error);
+            }
 
-          mobileInput.addEventListener('input', (e) => {
-              e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
-          });
+            const flatSelect = document.getElementById('flatSelect');
+            const dynamicContainer = document.getElementById('dynamicVehicleFields');
+            const submitBtn = document.getElementById('submitBtn');
+            const mobileInput = document.getElementById('mobileNumber');
+            const residentTypeSelect = document.getElementById('residentTypeSelect');
+            const restrictionNote = document.getElementById('restrictionNote');
 
-          if (flatSelect) {
-              flatSelect.addEventListener('change', async () => {
-                  const selectedFlat = flatSelect.value;
-                  
-                  dynamicContainer.innerHTML = '';
-                  restrictionNote.style.display = 'none';
-                  submitBtn.style.display = 'none';
-                  mobileInput.value = '';
-                  residentTypeSelect.value = '';
+            mobileInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+            });
 
-                  if (!selectedFlat) return;
+            if (flatSelect) {
+                flatSelect.addEventListener('change', async () => {
+                    const selectedFlat = flatSelect.value;
+                    
+                    dynamicContainer.innerHTML = '';
+                    restrictionNote.style.display = 'none';
+                    submitBtn.style.display = 'none';
+                    mobileInput.value = '';
+                    residentTypeSelect.value = '';
 
-                  try {
-                      // Added headers: NG_HEADERS here as well
-                      const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`, { headers: NG_HEADERS });
-                      const allVehicles = await res.json();
+                    if (!selectedFlat) return;
 
-                      const existingVehicles = allVehicles.filter(v => String(v.flatNumber).trim() === String(selectedFlat).trim());
+                    try {
+                        const headers = await getAuthHeaders();
+                        const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`, { headers });
+                        const allVehiclesResponse = await res.json();
+                        
+                        // Safeguard check to ensure response is an array
+                        const allVehicles = Array.isArray(allVehiclesResponse) ? allVehiclesResponse : [];
 
-                      const max2W = currentSocietyData ? (currentSocietyData.max2Wheeler || 0) : 0;
-                      const max4W = currentSocietyData ? (currentSocietyData.max4Wheeler || 0) : 0;
-                      const totalAllowed = max2W + max4W;
+                        const existingVehicles = allVehicles.filter(v => String(v.flatNumber).trim() === String(selectedFlat).trim());
 
-                      let registered2W = existingVehicles.filter(v => v.vehicleType === '2-Wheeler');
-                      let registered4W = existingVehicles.filter(v => v.vehicleType === '4-Wheeler');
-                      let totalRegisteredCount = existingVehicles.length;
+                        const max2W = currentSocietyData ? (currentSocietyData.max2Wheeler || 0) : 0;
+                        const max4W = currentSocietyData ? (currentSocietyData.max4Wheeler || 0) : 0;
+                        const totalAllowed = max2W + max4W;
 
-                      if (existingVehicles.length > 0) {
-                          mobileInput.value = existingVehicles[0].mobileNumber || '';
-                          residentTypeSelect.value = existingVehicles[0].residentType || '';
-                      }
+                        let registered2W = existingVehicles.filter(v => v.vehicleType === '2-Wheeler');
+                        let registered4W = existingVehicles.filter(v => v.vehicleType === '4-Wheeler');
+                        let totalRegisteredCount = existingVehicles.length;
 
-                      let fieldsHTML = '';
+                        if (existingVehicles.length > 0) {
+                            mobileInput.value = existingVehicles[0].mobileNumber || '';
+                            residentTypeSelect.value = existingVehicles[0].residentType || '';
+                        }
 
-                      if (totalRegisteredCount > 0) {
-                          fieldsHTML += `<div style="background: #f4ede2; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
-                              <b>Already Registered Vehicles (${totalRegisteredCount}/${totalAllowed}):</b>`;
-                          existingVehicles.forEach(v => {
-                              fieldsHTML += `<div style="font-size: 0.95rem; font-family: system-ui;">• ${v.vehicleNumber} (${v.vehicleType})</div>`;
-                          });
-                          fieldsHTML += `</div>`;
-                      }
+                        let fieldsHTML = '';
 
-                      const remaining2W = Math.max(0, max2W - registered2W.length);
-                      const remaining4W = Math.max(0, max4W - registered4W.length);
-                      const totalRemaining = remaining2W + remaining4W;
+                        if (totalRegisteredCount > 0) {
+                            fieldsHTML += `<div style="background: #f4ede2; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                                <b>Already Registered Vehicles (${totalRegisteredCount}/${totalAllowed}):</b>`;
+                            existingVehicles.forEach(v => {
+                                fieldsHTML += `<div style="font-size: 0.95rem; font-family: system-ui;">• ${v.vehicleNumber} (${v.vehicleType})</div>`;
+                            });
+                            fieldsHTML += `</div>`;
+                        }
 
-                      if (totalRemaining > 0) {
-                          restrictionNote.style.display = 'block';
-                          restrictionNote.innerText = `ℹ️ ${totalRegisteredCount} filled, ${totalRemaining} remaining to fill.`;
-                          restrictionNote.style.color = '#d97706';
+                        const remaining2W = Math.max(0, max2W - registered2W.length);
+                        const remaining4W = Math.max(0, max4W - registered4W.length);
+                        const totalRemaining = remaining2W + remaining4W;
 
-                          for (let i = 1; i <= remaining2W; i++) {
-                              fieldsHTML += `
-                                  <div class="section-title">2-Wheeler Number (Remaining #${i})</div>
-                                  <input type="text" class="vehicle-input sans-input dynamic-vehicle-input" data-type="2-Wheeler" placeholder="10 chars e.g. GJ01AB1234" maxlength="10" style="width: 100%; font-size: 1rem; padding: 10px; border: 2px solid #8d6e63; border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; text-transform: uppercase;">
-                              `;
-                          }
+                        if (totalRemaining > 0) {
+                            restrictionNote.style.display = 'block';
+                            restrictionNote.innerText = `ℹ️ ${totalRegisteredCount} filled, ${totalRemaining} remaining to fill.`;
+                            restrictionNote.style.color = '#d97706';
 
-                          for (let i = 1; i <= remaining4W; i++) {
-                              fieldsHTML += `
-                                  <div class="section-title">4-Wheeler Number (Remaining #${i})</div>
-                                  <input type="text" class="vehicle-input sans-input dynamic-vehicle-input" data-type="4-Wheeler" placeholder="10 chars e.g. GJ01AB1234" maxlength="10" style="width: 100%; font-size: 1rem; padding: 10px; border: 2px solid #8d6e63; border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; text-transform: uppercase;">
-                              `;
-                          }
+                            for (let i = 1; i <= remaining2W; i++) {
+                                fieldsHTML += `
+                                    <div class="section-title">2-Wheeler Number (Remaining #${i})</div>
+                                    <input type="text" class="vehicle-input sans-input dynamic-vehicle-input" data-type="2-Wheeler" placeholder="10 chars e.g. GJ01AB1234" maxlength="10" style="width: 100%; font-size: 1rem; padding: 10px; border: 2px solid #8d6e63; border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; text-transform: uppercase;">
+                                `;
+                            }
 
-                          submitBtn.style.display = 'inline-block';
-                      } else {
-                          restrictionNote.style.display = 'block';
-                          restrictionNote.innerText = `✅ All allowed vehicles (${totalAllowed}/${totalAllowed}) have been filled for this flat.`;
-                          restrictionNote.style.color = '#27ae60';
-                          submitBtn.style.display = 'none';
-                      }
+                            for (let i = 1; i <= remaining4W; i++) {
+                                fieldsHTML += `
+                                    <div class="section-title">4-Wheeler Number (Remaining #${i})</div>
+                                    <input type="text" class="vehicle-input sans-input dynamic-vehicle-input" data-type="4-Wheeler" placeholder="10 chars e.g. GJ01AB1234" maxlength="10" style="width: 100%; font-size: 1rem; padding: 10px; border: 2px solid #8d6e63; border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; text-transform: uppercase;">
+                                `;
+                            }
 
-                      dynamicContainer.innerHTML = fieldsHTML;
+                            submitBtn.style.display = 'inline-block';
+                        } else {
+                            restrictionNote.style.display = 'block';
+                            restrictionNote.innerText = `✅ All allowed vehicles (${totalAllowed}/${totalAllowed}) have been filled for this flat.`;
+                            restrictionNote.style.color = '#27ae60';
+                            submitBtn.style.display = 'none';
+                        }
 
-                      document.querySelectorAll('.dynamic-vehicle-input').forEach(input => {
-                          input.addEventListener("input", (event) => {
-                              event.target.value = event.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10);
-                          });
-                      });
+                        dynamicContainer.innerHTML = fieldsHTML;
 
-                  } catch (err) {
-                      console.error("Error loading flat vehicle records:", err);
-                  }
-              });
-          }
+                        document.querySelectorAll('.dynamic-vehicle-input').forEach(input => {
+                            input.addEventListener("input", (event) => {
+                                event.target.value = event.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10);
+                            });
+                        });
 
-          const vehicleForm = document.getElementById('vehicleForm');
-          if (vehicleForm) {
-              vehicleForm.addEventListener('submit', async (e) => {
-                  e.preventDefault();
-                  const flatNumber = flatSelect.value;
-                  const residentType = residentTypeSelect.value;
-                  const mobileNumber = mobileInput.value.trim();
-                  const vehicleInputs = document.querySelectorAll('.dynamic-vehicle-input');
+                    } catch (err) {
+                        console.error("Error loading flat vehicle records:", err);
+                    }
+                });
+            }
 
-                  if (mobileNumber.length !== 10) {
-                      showModal("⚠️ Mobile number must be exactly 10 digits.");
-                      return;
-                  }
+            const vehicleForm = document.getElementById('vehicleForm');
+            if (vehicleForm) {
+                vehicleForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const flatNumber = flatSelect.value;
+                    const residentType = residentTypeSelect.value;
+                    const mobileNumber = mobileInput.value.trim();
+                    const vehicleInputs = document.querySelectorAll('.dynamic-vehicle-input');
 
-                  let vehiclesToSubmit = [];
-                  let isValid = true;
+                    if (mobileNumber.length !== 10) {
+                        showModal("⚠️ Mobile number must be exactly 10 digits.");
+                        return;
+                    }
 
-                  vehicleInputs.forEach(input => {
-                      const val = input.value.trim();
-                      if (val) {
-                          if (val.length !== 10) {
-                              isValid = false;
-                          } else {
-                              vehiclesToSubmit.push({
-                                  vehicleNumber: val,
-                                  vehicleType: input.dataset.type
-                              });
-                          }
-                      }
-                  });
+                    let vehiclesToSubmit = [];
+                    let isValid = true;
 
-                  if (!isValid) {
-                      showModal("⚠️ Any entered vehicle number must be exactly 10 characters long.");
-                      return;
-                  }
+                    vehicleInputs.forEach(input => {
+                        const val = input.value.trim();
+                        if (val) {
+                            if (val.length !== 10) {
+                                isValid = false;
+                            } else {
+                                vehiclesToSubmit.push({
+                                    vehicleNumber: val,
+                                    vehicleType: input.dataset.type
+                                });
+                            }
+                        }
+                    });
 
-                  if (vehiclesToSubmit.length === 0) {
-                      showModal("⚠️ Please fill at least one vehicle number.");
-                      return;
-                  }
+                    if (!isValid) {
+                        showModal("⚠️ Any entered vehicle number must be exactly 10 characters long.");
+                        return;
+                    }
 
-                  submitBtn.disabled = true;
-                  submitBtn.innerText = "Checking duplicates...";
+                    if (vehiclesToSubmit.length === 0) {
+                        showModal("⚠️ Please fill at least one vehicle number.");
+                        return;
+                    }
 
-                  try {
-                      // Added headers: NG_HEADERS here too
-                      const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`, { headers: NG_HEADERS });
-                      const allVehicles = await res.json();
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = "Checking duplicates...";
 
-                      let duplicateFound = null;
-                      for (const subVehicle of vehiclesToSubmit) {
-                          const foundMatch = allVehicles.find(v => 
-                              String(v.vehicleNumber).trim().toUpperCase() === subVehicle.vehicleNumber.toUpperCase() &&
-                              String(v.flatNumber).trim() !== String(flatNumber).trim()
-                          );
-                          if (foundMatch) {
-                              duplicateFound = subVehicle.vehicleNumber;
-                              break;
-                          }
-                      }
+                    try {
+                        const headers = await getAuthHeaders();
+                        const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`, { headers });
+                        const allVehiclesResponse = await res.json();
+                        const allVehicles = Array.isArray(allVehiclesResponse) ? allVehiclesResponse : [];
 
-                      if (duplicateFound) {
-                          showModal(`⚠️ Vehicle number <b>${duplicateFound}</b> is already registered under another flat in this society.`);
-                          submitBtn.disabled = false;
-                          submitBtn.innerText = "Submit Entry";
-                          return;
-                      }
+                        let duplicateFound = null;
+                        for (const subVehicle of vehiclesToSubmit) {
+                            const foundMatch = allVehicles.find(v => 
+                                String(v.vehicleNumber).trim().toUpperCase() === subVehicle.vehicleNumber.toUpperCase() &&
+                                String(v.flatNumber).trim() !== String(flatNumber).trim()
+                            );
+                            if (foundMatch) {
+                                duplicateFound = subVehicle.vehicleNumber;
+                                break;
+                            }
+                        }
 
-                      submitBtn.innerText = "Submitting...";
+                        if (duplicateFound) {
+                            showModal(`⚠️ Vehicle number <b>${duplicateFound}</b> is already registered under another flat in this society.`);
+                            submitBtn.disabled = false;
+                            submitBtn.innerText = "Submit Entry";
+                            return;
+                        }
 
-                      const response = await fetch(`${API_BASE_URL}/vehicles`, {
-                          method: 'POST',
-                          headers: { 
-                              'Content-Type': 'application/json',
-                              ...NG_HEADERS 
-                          },
-                          body: JSON.stringify({
-                              societyName,
-                              flatNumber,
-                              residentType,
-                              mobileNumber,
-                              deviceId,
-                              vehicles: vehiclesToSubmit
-                          })
-                      });
+                        submitBtn.innerText = "Submitting...";
 
-                      if (response.ok) {
-                          showModal("✅ Vehicles registered successfully!");
-                          setTimeout(() => window.location.reload(), 1500);
-                      } else {
-                          const errData = await response.json();
-                          showModal(`❌ Error: ${errData.message || 'Submission failed'}`);
-                          submitBtn.disabled = false;
-                          submitBtn.innerText = "Submit Entry";
-                      }
-                  } catch (err) {
-                      console.error("Submission error:", err);
-                      showModal("❌ Network error while submitting entry.");
-                      submitBtn.disabled = false;
-                      submitBtn.innerText = "Submit Entry";
-                  }
-              });
-          }
-      });
+                        const response = await fetch(`${API_BASE_URL}/vehicles`, {
+                            method: 'POST',
+                            headers,
+                            body: JSON.stringify({
+                                societyName,
+                                flatNumber,
+                                residentType,
+                                mobileNumber,
+                                deviceId,
+                                vehicles: vehiclesToSubmit
+                            })
+                        });
+
+                        if (response.ok) {
+                            showModal("✅ Vehicles registered successfully!");
+                            setTimeout(() => window.location.reload(), 1500);
+                        } else {
+                            const errData = await response.json();
+                            showModal(`❌ Error: ${errData.error || errData.message || 'Submission failed'}`);
+                            submitBtn.disabled = false;
+                            submitBtn.innerText = "Submit Entry";
+                        }
+                    } catch (err) {
+                        console.error("Submission error:", err);
+                        showModal("❌ Network error while submitting entry.");
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Submit Entry";
+                    }
+                });
+            }
+        });
     </script>
     
     <!-- Owl Interactive Effect Widget -->
