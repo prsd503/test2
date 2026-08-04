@@ -75,11 +75,13 @@
 
     async function getAuthHeaders() {
         try {
+            console.log("🛠️ [DEBUG] Requesting auth token...");
             const tokenRes = await fetch(`${API_BASE_URL}/auth/token`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...NG_HEADERS }
             });
             const tokenData = await tokenRes.json();
+            console.log("🛠️ [DEBUG] Token response:", tokenData);
             if (tokenData && tokenData.token) {
                 return {
                     'Content-Type': 'application/json',
@@ -88,7 +90,7 @@
                 };
             }
         } catch (err) {
-            console.error("Failed to acquire auth token:", err);
+            console.error("🛠️ [DEBUG] Failed to acquire auth token:", err);
         }
         return { ...NG_HEADERS };
     }
@@ -104,15 +106,14 @@
         return `${formattedHour}:${minute} ${ampm}`;
     }
 
-    // Robust date matching helper to handle timezone/string discrepancies
     function isSameDate(dateString, targetDateStr) {
         if (!dateString) return false;
-        // Extract YYYY-MM-DD from the booking start string safely
         const bookingDateOnly = dateString.split('T')[0];
         return bookingDateOnly === targetDateStr;
     }
 
     function showSummaryForDate(dateStr, bookings) {
+        console.log(`🛠️ [DEBUG] Showing summary for date ${dateStr} with bookings count:`, bookings.length);
         const summaryContent = document.getElementById('dispSummaryContent');
         const adminContactContainer = document.getElementById('adminContactContainer');
         
@@ -157,13 +158,18 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+        console.log("🛠️ [DEBUG] DOMContentLoaded started for facility.html");
         const header = document.getElementById('societyHeader');
         
         const urlParams = new URLSearchParams(window.location.search);
         const societyId = urlParams.get('societyId') || urlParams.get('society') || localStorage.getItem('savedSocietyId') || localStorage.getItem('selectedSociety');
         const societyName = urlParams.get('societyName') || localStorage.getItem('savedSocietyName') || societyId;
 
+        console.log("🛠️ [DEBUG] Resolved societyId:", societyId);
+        console.log("🛠️ [DEBUG] Resolved societyName:", societyName);
+
         if (!societyId) {
+            console.error("🛠️ [DEBUG] Error: No society selected.");
             header.innerText = "Error: No society selected";
             return;
         }
@@ -173,30 +179,43 @@
         // 1. Fetch Facility Mapping and Admin Details via API with Auth Headers
         try {
             const headers = await getAuthHeaders();
+            console.log(`🛠️ [DEBUG] Fetching facilities for: ${societyId}`);
             const facRes = await fetch(`${API_BASE_URL}/facilities/${encodeURIComponent(societyId)}`, { headers });
+            console.log("🛠️ [DEBUG] Facilities response status:", facRes.status);
             if (facRes.ok) {
                 facilityMap = await facRes.json();
+                console.log("🛠️ [DEBUG] Loaded facilityMap:", facilityMap);
             }
 
+            console.log(`🛠️ [DEBUG] Fetching admin for society: ${societyName}`);
             const adminRes = await fetch(`${API_BASE_URL}/admins?society=${encodeURIComponent(societyName)}`, { headers });
+            console.log("🛠️ [DEBUG] Admin response status:", adminRes.status);
             if (adminRes.ok) {
                 const adminData = await adminRes.json();
                 societyAdminPhone = adminData.phone || "";
+                console.log("🛠️ [DEBUG] Loaded societyAdminPhone:", societyAdminPhone);
             }
         } catch (e) { 
-            console.error("Error loading metadata from API:", e); 
+            console.error("🛠️ [DEBUG] Error loading metadata from API:", e); 
         }
 
         // 2. Fetch Bookings via API BEFORE Rendering Calendar with Auth Headers
         try {
             const headers = await getAuthHeaders();
-            const bookingsRes = await fetch(`${API_BASE_URL}/bookings?society=${encodeURIComponent(societyId)}`, { headers });
+            const bookingsUrl = `${API_BASE_URL}/bookings?society=${encodeURIComponent(societyId)}`;
+            console.log(`🛠️ [DEBUG] Fetching bookings from URL: ${bookingsUrl}`);
+            const bookingsRes = await fetch(bookingsUrl, { headers });
+            console.log("🛠️ [DEBUG] Bookings response status:", bookingsRes.status);
             if (bookingsRes.ok) {
-                allLoadedBookings = await bookingsRes.json();
-                console.log("Loaded bookings:", allLoadedBookings); // Check your console to verify bookings data loaded
+                const rawBookings = await bookingsRes.json();
+                console.log("🛠️ [DEBUG] Raw bookings payload received:", rawBookings);
+                allLoadedBookings = Array.isArray(rawBookings) ? rawBookings : [];
+                console.log("🛠️ [DEBUG] Final parsed allLoadedBookings count:", allLoadedBookings.length);
+            } else {
+                console.warn("🛠️ [DEBUG] Bookings response was not OK:", await bookingsRes.text());
             }
         } catch (e) { 
-            console.error("Error loading bookings from API:", e); 
+            console.error("🛠️ [DEBUG] Error loading bookings from API:", e); 
         }
 
         // 3. Initialize and Render Calendar AFTER Data is Loaded
@@ -206,10 +225,11 @@
             headerToolbar: { left: 'prev,today,next', center: 'title', right: '' },
             
             dayCellDidMount: (info) => {
-                const cellDateStr = info.date.toLocaleDateString('en-CA'); // Outputs YYYY-MM-DD cleanly
+                const cellDateStr = info.date.toLocaleDateString('en-CA');
                 const dayBookings = allLoadedBookings.filter(b => isSameDate(b.start, cellDateStr));
 
                 if (dayBookings.length > 0) {
+                    console.log(`🛠️ [DEBUG] Found ${dayBookings.length} booking(s) for date cell: ${cellDateStr}`);
                     const badge = document.createElement('div');
                     badge.className = 'booking-count-badge';
                     badge.innerText = `${dayBookings.length}📒`;
@@ -231,7 +251,9 @@
         calendar.render();
     });
 </script>
-<div style="text-align: center; width: 100%; margin-top: 15px; font-size: 0.85rem; color: #7f8c8d;">
+    
+    
+    <div style="text-align: center; width: 100%; margin-top: 15px; font-size: 0.85rem; color: #7f8c8d;">
     ⚠️ Disclaimer: Automatically deletes bookings older than 7 days and bookings allowed to show till next 6 months only.
 </div>
 
