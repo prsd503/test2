@@ -269,7 +269,6 @@ body { padding-top: 80px; }
         const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
         const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
-        // Helper function to generate and attach the short-lived auth token headers
         async function getAuthHeaders() {
             try {
                 const tokenResponse = await fetch(`${API_BASE_URL}/auth/token`, {
@@ -360,7 +359,6 @@ body { padding-top: 80px; }
             const noticeDiv = document.getElementById('notice-content');
             try {
                 const headers = await getAuthHeaders();
-                // FIX: Fallback to name or try both safely if societyId format fails backend endpoint routing (404)
                 let response = await fetch(`${API_BASE_URL}/notices/${encodeURIComponent(societyId)}`, { headers });
                 if (!response.ok && currentSociety && currentSociety !== societyId) {
                     response = await fetch(`${API_BASE_URL}/notices/${encodeURIComponent(currentSociety)}`, { headers });
@@ -407,7 +405,6 @@ body { padding-top: 80px; }
             
             try {
                 const headers = await getAuthHeaders();
-                // FIX: Fetch active-guard list robustly, handling both array/object API responses and alternate pathing parameters
                 let listRes = await fetch(`${API_BASE_URL}/societies/${encodeURIComponent(societyIdOrName)}/active-guard`, { headers });
                 if (!listRes.ok && currentSociety && currentSociety !== societyIdOrName) {
                     listRes = await fetch(`${API_BASE_URL}/societies/${encodeURIComponent(currentSociety)}/active-guard`, { headers });
@@ -649,6 +646,7 @@ body { padding-top: 80px; }
             loadGlobalAdsPreLogin();
         }
 
+        // UPDATED: Use the typed society name from input directly as identifier/id
         document.getElementById("verifyBtn").addEventListener("click", async () => {
             const input = document.getElementById("societyInput").value.trim();
             if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
@@ -659,11 +657,15 @@ body { padding-top: 80px; }
                 
                 if (response.ok) {
                     const match = await response.json();
-                    localStorage.setItem("savedSocietyName", match.name || match.id);
-                    localStorage.setItem("savedSocietyId", match.id); 
+                    
+                    // Use the exact typed user input (or fallback to match name) for custom name-based routing
+                    const societyNameToUse = input; 
+                    
+                    localStorage.setItem("savedSocietyName", societyNameToUse);
+                    localStorage.setItem("savedSocietyId", societyNameToUse); 
                     localStorage.setItem("societyLoginTime", Date.now().toString());
                     
-                    showSearchScreen(match.name || match.id, match.id); 
+                    showSearchScreen(societyNameToUse, societyNameToUse); 
                 } else { 
                     showModal("<p>❌ Society not found.</p>"); 
                 }
