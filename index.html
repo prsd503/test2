@@ -628,26 +628,22 @@ body { padding-top: 80px; }
             loadGlobalAdsPreLogin();
         }
 document.getElementById("verifyBtn").addEventListener("click", async () => {
-    const input = document.getElementById("societyInput").value.trim().toLowerCase();
+    const input = document.getElementById("societyInput").value.trim();
     if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
     
     try {
         const headers = await getAuthHeaders();
-        const response = await fetch(`${API_BASE_URL}/societies`, { headers });
+        // Call a direct verification endpoint passing the name as a query parameter
+        const response = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(input)}`, { headers });
         
         if (response.ok) {
-            const societies = await response.json();
-            const match = societies.find(s => s.id.toLowerCase() === input || (s.name && s.name.toLowerCase() === input));
+            const match = await response.json();
             
-            if (match) {
-                localStorage.setItem("savedSocietyName", match.name || match.id);
-                localStorage.setItem("savedSocietyId", match.id); 
-                localStorage.setItem("societyLoginTime", Date.now().toString());
-                
-                showSearchScreen(match.name || match.id, match.id); 
-            } else { 
-                showModal("<p>❌ Society not found.</p>"); 
-            }
+            localStorage.setItem("savedSocietyName", match.name || match.id);
+            localStorage.setItem("savedSocietyId", match.id); 
+            localStorage.setItem("societyLoginTime", Date.now().toString());
+            
+            showSearchScreen(match.name || match.id, match.id); 
         } else { 
             showModal("<p>❌ Society not found.</p>"); 
         }
