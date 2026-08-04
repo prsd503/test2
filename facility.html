@@ -158,8 +158,8 @@
         const header = document.getElementById('societyHeader');
         
         const urlParams = new URLSearchParams(window.location.search);
-        const societyId = urlParams.get('societyId') || urlParams.get('society') || localStorage.getItem('savedSocietyId') || localStorage.getItem('selectedSociety') || 'Aangan';
-        const societyName = urlParams.get('societyName') || localStorage.getItem('savedSocietyName') || societyId;
+        let societyId = urlParams.get('societyId') || urlParams.get('society') || localStorage.getItem('savedSocietyId') || localStorage.getItem('selectedSociety') || 'Aangan';
+        let societyName = urlParams.get('societyName') || localStorage.getItem('savedSocietyName') || societyId;
 
         if (!societyId) {
             header.innerText = "Error: No society selected";
@@ -170,6 +170,8 @@
 
         try {
             const headers = await getAuthHeaders();
+            
+            // Fetch facilities using exact societyId
             const facRes = await fetch(`${API_BASE_URL}/facilities/${encodeURIComponent(societyId)}`, { headers });
             if (facRes.ok) {
                 facilityMap = await facRes.json();
@@ -186,10 +188,23 @@
 
         try {
             const headers = await getAuthHeaders();
-            const bookingsRes = await fetch(`${API_BASE_URL}/bookings?society=${encodeURIComponent(societyId)}`, { headers });
+            
+            // Try fetching bookings with both exact match and capital/lowercase fallbacks
+            let bookingsRes = await fetch(`${API_BASE_URL}/bookings?society=${encodeURIComponent(societyId)}`, { headers });
             if (bookingsRes.ok) {
                 const rawBookings = await bookingsRes.json();
                 allLoadedBookings = Array.isArray(rawBookings) ? rawBookings : [];
+            }
+            
+            // Fallback: If empty, try capitalized version (e.g. "Aangan")
+            if (allLoadedBookings.length === 0 && societyId.toLowerCase() === 'aangan') {
+                const fallbackRes = await fetch(`${API_BASE_URL}/bookings?society=Aangan`, { headers });
+                if (fallbackRes.ok) {
+                    const fallbackData = await fallbackRes.json();
+                    if (Array.isArray(fallbackData) && fallbackData.length > 0) {
+                        allLoadedBookings = fallbackData;
+                    }
+                }
             }
         } catch (e) { 
             console.error("Error loading bookings from API:", e); 
