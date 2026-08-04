@@ -412,7 +412,7 @@ body { padding-top: 80px; }
                     }
                 }
 
-                const response = await fetch(`${API_BASE_URL}/societies/${targetId}`, { headers });
+                const response = await fetch(`${API_BASE_URL}/societies/${targetId}/active-guard`, { headers });
                 
                 if (response.ok) {
                     const societyData = await response.json();
