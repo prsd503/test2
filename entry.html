@@ -100,6 +100,7 @@
     </div>
 
     <!-- Integrated API and Modular Entry Logic -->
+<!-- Integrated API and Modular Entry Logic with Debugger -->
     <script>
         const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
         const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
@@ -107,11 +108,13 @@
         // Helper function to dynamically fetch a fresh short-lived auth token
         async function getAuthHeaders() {
             try {
+                console.log("🛠️ [DEBUG] Requesting auth token...");
                 const tokenRes = await fetch(`${API_BASE_URL}/auth/token`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', ...NG_HEADERS }
                 });
                 const tokenData = await tokenRes.json();
+                console.log("🛠️ [DEBUG] Token response data:", tokenData);
                 if (tokenData && tokenData.token) {
                     return {
                         'Content-Type': 'application/json',
@@ -120,7 +123,7 @@
                     };
                 }
             } catch (err) {
-                console.error("Failed to acquire auth token:", err);
+                console.error("🛠️ [DEBUG] Failed to acquire auth token:", err);
             }
             return { ...NG_HEADERS };
         }
@@ -133,8 +136,10 @@
         window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
 
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log("🛠️ [DEBUG] DOMContentLoaded triggered on entry.html");
             const urlParams = new URLSearchParams(window.location.search);
             const societyName = urlParams.get('societyId') || urlParams.get('society') || localStorage.getItem('selectedSociety') || 'Aangan';
+            console.log("🛠️ [DEBUG] Target societyName resolved to:", societyName);
 
             let deviceId = localStorage.getItem('mockDeviceId');
             if (!deviceId) {
@@ -150,14 +155,24 @@
             let currentSocietyData = null;
 
             try {
-                // FIXED: Include getAuthHeaders() instead of raw NG_HEADERS to prevent 401 Unauthorized
+                console.log("🛠️ [DEBUG] Fetching societies list from backend...");
                 const headers = await getAuthHeaders();
                 const response = await fetch(`${API_BASE_URL}/societies`, { headers });
+                console.log("🛠️ [DEBUG] /societies response status:", response.status);
+                
                 const societies = await response.json();
+                console.log("🛠️ [DEBUG] /societies raw payload:", societies);
+
                 if (Array.isArray(societies)) {
-                    currentSocietyData = societies.find(s => s.id === societyName || s.name === societyName);
+                    // Try case-insensitive matching just in case
+                    currentSocietyData = societies.find(s => 
+                        (s.id && s.id.toLowerCase() === societyName.toLowerCase()) || 
+                        (s.name && s.name.toLowerCase() === societyName.toLowerCase())
+                    );
                 }
                 
+                console.log("🛠️ [DEBUG] Matched currentSocietyData:", currentSocietyData);
+
                 if (currentSocietyData && currentSocietyData.flatList) {
                     const flatSelect = document.getElementById('flatSelect');
                     if (flatSelect) {
@@ -165,10 +180,13 @@
                         currentSocietyData.flatList.forEach(flat => {
                             flatSelect.innerHTML += `<option value="${flat}">${flat}</option>`;
                         });
+                        console.log("🛠️ [DEBUG] Successfully populated flatList with items:", currentSocietyData.flatList.length);
                     }
+                } else {
+                    console.warn("🛠️ [DEBUG] flatList missing or society data could not be matched.");
                 }
             } catch (error) {
-                console.error("Error fetching society data from server:", error);
+                console.error("🛠️ [DEBUG] Error fetching society data from server:", error);
             }
 
             const flatSelect = document.getElementById('flatSelect');
@@ -185,6 +203,7 @@
             if (flatSelect) {
                 flatSelect.addEventListener('change', async () => {
                     const selectedFlat = flatSelect.value;
+                    console.log("🛠️ [DEBUG] Flat selected:", selectedFlat);
                     
                     dynamicContainer.innerHTML = '';
                     restrictionNote.style.display = 'none';
@@ -198,10 +217,9 @@
                         const headers = await getAuthHeaders();
                         const res = await fetch(`${API_BASE_URL}/vehicles?society=${encodeURIComponent(societyName)}`, { headers });
                         const allVehiclesResponse = await res.json();
+                        console.log("🛠️ [DEBUG] Vehicles fetch response:", allVehiclesResponse);
                         
-                        // Safeguard check to ensure response is an array
                         const allVehicles = Array.isArray(allVehiclesResponse) ? allVehiclesResponse : [];
-
                         const existingVehicles = allVehicles.filter(v => String(v.flatNumber).trim() === String(selectedFlat).trim());
 
                         const max2W = currentSocietyData ? (currentSocietyData.max2Wheeler || 0) : 0;
@@ -268,7 +286,7 @@
                         });
 
                     } catch (err) {
-                        console.error("Error loading flat vehicle records:", err);
+                        console.error("🛠️ [DEBUG] Error loading flat vehicle records:", err);
                     }
                 });
             }
@@ -277,6 +295,7 @@
             if (vehicleForm) {
                 vehicleForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    console.log("🛠️ [DEBUG] Form submission intercepted");
                     const flatNumber = flatSelect.value;
                     const residentType = residentTypeSelect.value;
                     const mobileNumber = mobileInput.value.trim();
@@ -357,6 +376,8 @@
                             })
                         });
 
+                        console.log("🛠️ [DEBUG] Submit response status:", response.status);
+
                         if (response.ok) {
                             showModal("✅ Vehicles registered successfully!");
                             setTimeout(() => window.location.reload(), 1500);
@@ -367,7 +388,7 @@
                             submitBtn.innerText = "Submit Entry";
                         }
                     } catch (err) {
-                        console.error("Submission error:", err);
+                        console.error("🛠️ [DEBUG] Submission exception error:", err);
                         showModal("❌ Network error while submitting entry.");
                         submitBtn.disabled = false;
                         submitBtn.innerText = "Submit Entry";
