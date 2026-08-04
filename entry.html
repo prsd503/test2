@@ -150,7 +150,9 @@
             let currentSocietyData = null;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
+                // FIXED: Include getAuthHeaders() instead of raw NG_HEADERS to prevent 401 Unauthorized
+                const headers = await getAuthHeaders();
+                const response = await fetch(`${API_BASE_URL}/societies`, { headers });
                 const societies = await response.json();
                 if (Array.isArray(societies)) {
                     currentSocietyData = societies.find(s => s.id === societyName || s.name === societyName);
