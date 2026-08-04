@@ -73,7 +73,6 @@
     let allLoadedBookings = [];
     let societyAdminPhone = ""; 
 
-    // Helper function to dynamically fetch a fresh short-lived auth token
     async function getAuthHeaders() {
         try {
             const tokenRes = await fetch(`${API_BASE_URL}/auth/token`, {
@@ -103,6 +102,14 @@
         const ampm = h >= 12 ? 'pm' : 'am';
         const formattedHour = h % 12 || 12;
         return `${formattedHour}:${minute} ${ampm}`;
+    }
+
+    // Robust date matching helper to handle timezone/string discrepancies
+    function isSameDate(dateString, targetDateStr) {
+        if (!dateString) return false;
+        // Extract YYYY-MM-DD from the booking start string safely
+        const bookingDateOnly = dateString.split('T')[0];
+        return bookingDateOnly === targetDateStr;
     }
 
     function showSummaryForDate(dateStr, bookings) {
@@ -186,6 +193,7 @@
             const bookingsRes = await fetch(`${API_BASE_URL}/bookings?society=${encodeURIComponent(societyId)}`, { headers });
             if (bookingsRes.ok) {
                 allLoadedBookings = await bookingsRes.json();
+                console.log("Loaded bookings:", allLoadedBookings); // Check your console to verify bookings data loaded
             }
         } catch (e) { 
             console.error("Error loading bookings from API:", e); 
@@ -198,8 +206,8 @@
             headerToolbar: { left: 'prev,today,next', center: 'title', right: '' },
             
             dayCellDidMount: (info) => {
-                const cellDateStr = info.date.toLocaleDateString('en-CA');
-                const dayBookings = allLoadedBookings.filter(b => b.start && b.start.startsWith(cellDateStr));
+                const cellDateStr = info.date.toLocaleDateString('en-CA'); // Outputs YYYY-MM-DD cleanly
+                const dayBookings = allLoadedBookings.filter(b => isSameDate(b.start, cellDateStr));
 
                 if (dayBookings.length > 0) {
                     const badge = document.createElement('div');
@@ -216,14 +224,13 @@
             },
 
             dateClick: (info) => {
-                const dayBookings = allLoadedBookings.filter(b => b.start && b.start.startsWith(info.dateStr));
+                const dayBookings = allLoadedBookings.filter(b => isSameDate(b.start, info.dateStr));
                 showSummaryForDate(info.dateStr, dayBookings);
             }
         });
         calendar.render();
     });
 </script>
-
 <div style="text-align: center; width: 100%; margin-top: 15px; font-size: 0.85rem; color: #7f8c8d;">
     ⚠️ Disclaimer: Automatically deletes bookings older than 7 days and bookings allowed to show till next 6 months only.
 </div>
