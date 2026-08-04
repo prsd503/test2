@@ -423,8 +423,10 @@ body { padding-top: 80px; }
                 }
 
                 console.log(`DEBUG: Fetching society data for ID: ${targetId}`);
-                const response = await fetch(`${API_BASE_URL}/societies/${targetId}`, { ...NG_HEADERS, 
-                       'Authorization': `Bearer ${shortLivedToken}`  });
+                const response = await fetch(`${API_BASE_URL}/societies/${targetId}`, {{ headers: { 
+                       ...NG_HEADERS, 
+                       'Authorization': `Bearer ${shortLivedToken}` 
+                   } );
                 
                 console.log(`DEBUG: API Response status: ${response.status}`);
                 if (response.ok) {
