@@ -776,6 +776,11 @@ body { padding-top: 80px; }
         });
         
         document.getElementById('startButton').addEventListener('click', function() {
+            const welcomeVideo = document.getElementById('welcomeVideo');
+            if (welcomeVideo) {
+                welcomeVideo.pause();
+                welcomeVideo.currentTime = 0;
+            }
             document.getElementById('startOverlay').style.display = 'none';
             const hoot = document.getElementById('hootSound');
             hoot.volume = 0.5;
@@ -896,3 +901,4 @@ function toggleVideoAudio() {
 </script>
 </body>
 </html>
+```[cite: 5]
