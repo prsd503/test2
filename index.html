@@ -544,59 +544,85 @@ body { padding-top: 80px; }
             }
         }
 
-        async function loadAds(societyId) {
-            const slider = document.getElementById("adSlider");
-            const controls = document.getElementById("adControls");
-            if(adInterval) clearInterval(adInterval);
+async function loadAds(societyId) {
+    const slider = document.getElementById("adSlider");
+    const controls = document.getElementById("adControls");
+    if(adInterval) clearInterval(adInterval);
 
-            try {
-                const headers = await getAuthHeaders();
-                let response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId)}`, { headers });
-                
-                // Fallback case-insensitive fetch variants if primary exact match returns 404
-                if (!response.ok) {
-                    response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId.toLowerCase())}`, { headers });
-                }
-                if (!response.ok && currentSociety) {
-                    response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(currentSociety)}`, { headers });
-                }
+    console.log("🛠️ [DEBUG] loadAds called with societyId:", societyId);
 
-                const ads = response.ok ? await response.json() : [];
-
-                if (!Array.isArray(ads) || ads.length === 0) {
-                    slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
-                    if (controls) controls.style.display = "none";
-                    return;
-                }
-
-                slider.innerHTML = "";
-                ads.forEach((adData) => {
-                    if (adData && adData.imageUrl) {
-                        slider.innerHTML += `<img src="${adData.imageUrl}" class="ad-slide" alt="Community Ad">`;
-                    }
-                });
-
-                const slides = slider.getElementsByClassName("ad-slide");
-                totalSlides = slides.length;
-                currentIndex = 0;
-
-                if (totalSlides > 0) {
-                    slides[currentIndex].classList.add("active");
-
-                    if (totalSlides > 1) {
-                        if (controls) controls.style.display = "flex";
-                        startAdTimer();
-                    } else {
-                        if (controls) controls.style.display = "none";
-                    }
-                } else {
-                    slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
-                    if (controls) controls.style.display = "none";
-                }
-            } catch (error) {
-                console.error("Error setting up dynamic ad array: ", error);
-            }
+    try {
+        const headers = await getAuthHeaders();
+        const primaryUrl = `${API_BASE_URL}/ads/local/${encodeURIComponent(societyId)}`;
+        console.log("🛠️ [DEBUG] Fetching primary ad URL:", primaryUrl);
+        
+        let response = await fetch(primaryUrl, { headers });
+        console.log("🛠️ [DEBUG] Primary response status:", response.status);
+        
+        // Fallback case-insensitive fetch variants if primary exact match returns non-ok
+        if (!response.ok) {
+            const fallbackUrl1 = `${API_BASE_URL}/ads/local/${encodeURIComponent(societyId.toLowerCase())}`;
+            console.log("🛠️ [DEBUG] Trying fallback URL 1:", fallbackUrl1);
+            response = await fetch(fallbackUrl1, { headers });
+            console.log("🛠️ [DEBUG] Fallback 1 response status:", response.status);
         }
+        
+        if (!response.ok && currentSociety) {
+            const fallbackUrl2 = `${API_BASE_URL}/ads/local/${encodeURIComponent(currentSociety)}`;
+            console.log("🛠️ [DEBUG] Trying fallback URL 2 (currentSociety):", fallbackUrl2);
+            response = await fetch(fallbackUrl2, { headers });
+            console.log("🛠️ [DEBUG] Fallback 2 response status:", response.status);
+        }
+
+        const rawText = response.ok ? await response.text() : "";
+        console.log("🛠️ [DEBUG] Raw response text:", rawText);
+
+        let ads = [];
+        try {
+            ads = rawText ? JSON.parse(rawText) : [];
+        } catch (parseErr) {
+            console.error("🛠️ [DEBUG] Failed to parse JSON response:", parseErr);
+        }
+
+        console.log("🛠️ [DEBUG] Parsed ads array/object:", ads);
+
+        if (!Array.isArray(ads) || ads.length === 0) {
+            console.warn("🛠️ [DEBUG] No ads found or ads is not an array. Showing placeholder.");
+            slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
+            if (controls) controls.style.display = "none";
+            return;
+        }
+
+        slider.innerHTML = "";
+        ads.forEach((adData, index) => {
+            console.log(`🛠️ [DEBUG] Processing ad item [${index}]:`, adData);
+            if (adData && adData.imageUrl) {
+                slider.innerHTML += `<img src="${adData.imageUrl}" class="ad-slide" alt="Community Ad">`;
+            }
+        });
+
+        const slides = slider.getElementsByClassName("ad-slide");
+        totalSlides = slides.length;
+        currentIndex = 0;
+        console.log("🛠️ [DEBUG] Total valid slides rendered:", totalSlides);
+
+        if (totalSlides > 0) {
+            slides[currentIndex].classList.add("active");
+
+            if (totalSlides > 1) {
+                if (controls) controls.style.display = "flex";
+                startAdTimer();
+            } else {
+                if (controls) controls.style.display = "none";
+            }
+        } else {
+            slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
+            if (controls) controls.style.display = "none";
+        }
+    } catch (error) {
+        console.error("🛠️ [DEBUG] Exception caught inside loadAds: ", error);
+    }
+}
 
         document.getElementById("nextAdBtn").addEventListener("click", () => {
             changeSlide("next");
