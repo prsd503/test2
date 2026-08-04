@@ -73,6 +73,27 @@
     let allLoadedBookings = [];
     let societyAdminPhone = ""; 
 
+    // Helper function to dynamically fetch a fresh short-lived auth token
+    async function getAuthHeaders() {
+        try {
+            const tokenRes = await fetch(`${API_BASE_URL}/auth/token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...NG_HEADERS }
+            });
+            const tokenData = await tokenRes.json();
+            if (tokenData && tokenData.token) {
+                return {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${tokenData.token}`,
+                    ...NG_HEADERS
+                };
+            }
+        } catch (err) {
+            console.error("Failed to acquire auth token:", err);
+        }
+        return { ...NG_HEADERS };
+    }
+
     function formatTimeString(isoString) {
         if (!isoString) return '';
         const timePart = isoString.split('T')[1];
@@ -142,14 +163,15 @@
 
         header.innerText = `${societyName} Facility Calendar`;
 
-        // 1. Fetch Facility Mapping and Admin Details via API
+        // 1. Fetch Facility Mapping and Admin Details via API with Auth Headers
         try {
-            const facRes = await fetch(`${API_BASE_URL}/facilities/${encodeURIComponent(societyId)}`, { headers: NG_HEADERS });
+            const headers = await getAuthHeaders();
+            const facRes = await fetch(`${API_BASE_URL}/facilities/${encodeURIComponent(societyId)}`, { headers });
             if (facRes.ok) {
                 facilityMap = await facRes.json();
             }
 
-            const adminRes = await fetch(`${API_BASE_URL}/admins?society=${encodeURIComponent(societyName)}`, { headers: NG_HEADERS });
+            const adminRes = await fetch(`${API_BASE_URL}/admins?society=${encodeURIComponent(societyName)}`, { headers });
             if (adminRes.ok) {
                 const adminData = await adminRes.json();
                 societyAdminPhone = adminData.phone || "";
@@ -158,9 +180,10 @@
             console.error("Error loading metadata from API:", e); 
         }
 
-        // 2. Fetch Bookings via API BEFORE Rendering Calendar
+        // 2. Fetch Bookings via API BEFORE Rendering Calendar with Auth Headers
         try {
-            const bookingsRes = await fetch(`${API_BASE_URL}/bookings?society=${encodeURIComponent(societyId)}`, { headers: NG_HEADERS });
+            const headers = await getAuthHeaders();
+            const bookingsRes = await fetch(`${API_BASE_URL}/bookings?society=${encodeURIComponent(societyId)}`, { headers });
             if (bookingsRes.ok) {
                 allLoadedBookings = await bookingsRes.json();
             }
