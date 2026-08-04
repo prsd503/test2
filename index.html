@@ -402,14 +402,11 @@ body { padding-top: 80px; }
             
             try {
                 const headers = await getAuthHeaders();
-                //let target;
                 const listRes = await fetch(`${API_BASE_URL}/societies`, { headers });
                 if (listRes.ok) {
                     const societies = await listRes.json();
                     const found = societies.find(s => s.id === societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase());
                     if (found && found.id) {
-                       // target = found;
-                         debugger;
                     const guardName = found.activeGuardName;
                     const guardPhone = found.activeGuardPhone;
 
@@ -631,20 +628,15 @@ body { padding-top: 80px; }
         }
 
         document.getElementById("verifyBtn").addEventListener("click", async () => {
-            const input = document.getElementById("societyInput").value.trim().toLowerCase();
+            const input = document.getElementById("societyInput").value.trim();
             if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
             
             try {
                 const headers = await getAuthHeaders();
-                const response = await fetch(`${API_BASE_URL}/societies`, { headers });
-                const societies = await response.json();
+                const response = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(input)}`, { headers });
                 
-                const match = societies.find(d => 
-                    (d.name && d.name.toLowerCase() === input) || 
-                    (d.id && d.id.toLowerCase() === input)
-                );
-
-                if (match) {
+                if (response.ok) {
+                    const match = await response.json();
                     localStorage.setItem("savedSocietyName", match.name || match.id);
                     localStorage.setItem("savedSocietyId", match.id); 
                     localStorage.setItem("societyLoginTime", Date.now().toString());
