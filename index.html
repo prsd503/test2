@@ -266,13 +266,11 @@ body { padding-top: 80px; }
 </div>
     <script>
         
-// Use a relative path so calls always go to your own hosting server, hiding any external backend URLs
-        const API_BASE_URL = "/api";
+        const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
         const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
         async function getAuthHeaders() {
             try {
-                // Calls your own server route; no secret URLs exposed to the browser inspector
                 const tokenResponse = await fetch(`${API_BASE_URL}/auth/token`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', ...NG_HEADERS }
