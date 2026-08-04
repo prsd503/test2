@@ -646,20 +646,21 @@ body { padding-top: 80px; }
             loadGlobalAdsPreLogin();
         }
 
-        // UPDATED: Use the typed society name from input directly as identifier/id
+        // UPDATED: Case-insensitive match check against backend verification response
         document.getElementById("verifyBtn").addEventListener("click", async () => {
-            const input = document.getElementById("societyInput").value.trim();
-            if (!input) return showModal("<p>⚠️ Please enter a society name.</p>");
+            const inputRaw = document.getElementById("societyInput").value.trim();
+            if (!inputRaw) return showModal("<p>⚠️ Please enter a society name.</p>");
             
             try {
                 const headers = await getAuthHeaders();
-                const response = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(input)}`, { headers });
+                const response = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(inputRaw)}`, { headers });
                 
                 if (response.ok) {
                     const match = await response.json();
                     
-                    // Use the exact typed user input (or fallback to match name) for custom name-based routing
-                    const societyNameToUse = input; 
+                    // Case-insensitive check: Normalize match name or fallback to input
+                    const serverName = match.name || match.id || "";
+                    const societyNameToUse = (serverName.toLowerCase() === inputRaw.toLowerCase()) ? serverName : inputRaw;
                     
                     localStorage.setItem("savedSocietyName", societyNameToUse);
                     localStorage.setItem("savedSocietyId", societyNameToUse); 
