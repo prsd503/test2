@@ -402,8 +402,9 @@ body { padding-top: 80px; }
             
             try {
                 const headers = await getAuthHeaders();
-                const listRes = await fetch(`${API_BASE_URL}/societies`, { headers });
+                const listRes = await fetch(`${API_BASE_URL}/societies/${societyIdOrName}/active-guard`, { headers });
                 if (listRes.ok) {
+                    debugger;
                     const societies = await listRes.json();
                     const found = societies.find(s => s.id === societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase());
                     if (found && found.id) {
