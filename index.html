@@ -186,7 +186,8 @@ body { padding-top: 80px; }
             <span style="background: #111; padding: 5px 10px; border-radius: 8px; border: 1px solid #333; color: #ccc;">📸 Photo Studio</span>
         </div>
 
-      <button id="enterPortalBtn" style="font-family: 'Caveat', cursive; font-size: 1.8rem; padding: 12px 35px; cursor:pointer; background: #8d6e63; color: white; border: none; border-radius: 12px; box-shadow: 3px 3px 0px #5d4037; transition: transform 0.1s;">Enter Portal</button>    </div>
+        <button id="startButton" style="font-family: 'Caveat', cursive; font-size: 1.8rem; padding: 12px 35px; cursor:pointer; background: #8d6e63; color: white; border: none; border-radius: 12px; box-shadow: 3px 3px 0px #5d4037; transition: transform 0.1s;">Enter Portal</button>
+    </div>
 </div>
 
     <div class="card">
@@ -306,27 +307,6 @@ body { padding-top: 80px; }
             const navLinks = document.getElementById('navLinks');
             navLinks.classList.toggle('active');
         });
-
-        // Combined click handler for Enter Portal Button
-        document.getElementById('enterPortalBtn').addEventListener('click', function() {
-            const video = document.getElementById('welcomeVideo');
-            const overlay = document.getElementById('startOverlay');
-            
-            if (video) {
-                video.pause();       // Stops the video/animation playback
-                video.currentTime = 0; // Resets it back to the beginning
-            }
-            
-            if (overlay) {
-                overlay.style.display = 'none'; // Hides the entire welcome overlay
-            }
-
-            const hoot = document.getElementById('hootSound');
-            if (hoot) {
-                hoot.volume = 0.5;
-                hoot.play().catch(e => console.log("Hoot play failed:", e));
-            }
-        });
         
         async function fetchTeamPhone() {
             try {
@@ -414,6 +394,7 @@ body { padding-top: 80px; }
             guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
 
             try {
+                // Fixed: Explicitly look up the ID first to prevent 404 name routing issues
                 let targetId = societyIdOrName;
                 const listRes = await fetch(`${API_BASE_URL}/societies`, { headers: NG_HEADERS });
                 if (listRes.ok) {
@@ -424,12 +405,18 @@ body { padding-top: 80px; }
                     }
                 }
 
+                console.log(`DEBUG: Fetching society data for ID: ${targetId}`);
                 const response = await fetch(`${API_BASE_URL}/societies/${targetId}`, { headers: NG_HEADERS });
                 
+                console.log(`DEBUG: API Response status: ${response.status}`);
                 if (response.ok) {
                     const societyData = await response.json();
+                    console.log("DEBUG: Parsed society data received from server:", societyData);
+
                     const guardName = societyData.activeGuardName;
                     const guardPhone = societyData.activeGuardPhone;
+
+                    console.log(`DEBUG: Extracted guardName: "${guardName}", guardPhone: "${guardPhone}"`);
 
                     if (guardName) {
                         const cleanPhone = guardPhone ? guardPhone.replace(/\D/g, '') : '';
@@ -442,12 +429,15 @@ body { padding-top: 80px; }
                             </div>
                         `;
                     } else {
+                        console.log("DEBUG: guardName was empty or undefined. Showing fallback message.");
                         guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #8d6e63; font-family: sans-serif;">No active security guard assigned currently.</p>`;
                     }
                 } else {
+                    console.warn(`DEBUG: Server returned error status code: ${response.status}`);
                     guardContainer.innerHTML = "";
                 }
             } catch (err) {
+                console.error("DEBUG: Failed to load active guard info due to exception:", err);
                 guardContainer.innerHTML = "";
             }
         }
@@ -783,6 +773,13 @@ body { padding-top: 80px; }
             setTimeout(() => {
                 window.location.reload();
             }, 5 * 60 * 1000);
+        });
+        
+        document.getElementById('startButton').addEventListener('click', function() {
+            document.getElementById('startOverlay').style.display = 'none';
+            const hoot = document.getElementById('hootSound');
+            hoot.volume = 0.5;
+            hoot.play().catch(e => console.log("Hoot play failed:", e));
         });
     </script> 
     
