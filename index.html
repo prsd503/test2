@@ -186,8 +186,7 @@ body { padding-top: 80px; }
             <span style="background: #111; padding: 5px 10px; border-radius: 8px; border: 1px solid #333; color: #ccc;">📸 Photo Studio</span>
         </div>
 
-        <button id="startButton" style="font-family: 'Caveat', cursive; font-size: 1.8rem; padding: 12px 35px; cursor:pointer; background: #8d6e63; color: white; border: none; border-radius: 12px; box-shadow: 3px 3px 0px #5d4037; transition: transform 0.1s;">Enter Portal</button>
-    </div>
+      <button id="enterPortalBtn" style="font-family: 'Caveat', cursive; font-size: 1.8rem; padding: 12px 35px; cursor:pointer; background: #8d6e63; color: white; border: none; border-radius: 12px; box-shadow: 3px 3px 0px #5d4037; transition: transform 0.1s;">Enter Portal</button>    </div>
 </div>
 
     <div class="card">
@@ -307,6 +306,20 @@ body { padding-top: 80px; }
             const navLinks = document.getElementById('navLinks');
             navLinks.classList.toggle('active');
         });
+
+document.getElementById('enterPortalBtn').addEventListener('click', function() {
+    const video = document.getElementById('welcomeVideo');
+    const overlay = document.getElementById('startOverlay');
+    
+    if (video) {
+        video.pause();       // Stops the animation/video playback
+        video.currentTime = 0; // Resets it back to the beginning
+    }
+    
+    if (overlay) {
+        overlay.style.display = 'none'; // Hides the entire welcome overlay
+    }
+});
         
         async function fetchTeamPhone() {
             try {
