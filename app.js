@@ -1,13 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { initializeAppCheck, ReCaptchaV3Provider, getToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
 
-// --- APP CHECK DEBUG ENABLEMENT ---
-self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-
+// TODO: Replace with your actual Firebase project configuration details
 const firebaseConfig = {
-  apiKey: "AIzaSyAO4UNADGQWTyT3F6Si6bhJaFS8uyQAkZI",
+  apiKey: "AIzaSyBEYKHQpy_VjmgjYIwQOPjXth1bghYsf9M",
   authDomain: "finder-owl.firebaseapp.com", 
   projectId: "finder-owl",
   storageBucket: "finder-owl.firebasestorage.app",
@@ -15,11 +13,12 @@ const firebaseConfig = {
   appId: "1:1011347100861:web:24246f9a4eb24d812cd3d4"
 };
 
+// Initialize Firebase services
 const app = initializeApp(firebaseConfig);
 
-// Initialize App Check
+// --- APP CHECK INITIALIZATION ---
 const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LeWv9YqAAAAAFYyYV-yqX8_T-N8X_YyYV-yqX8_T'), 
+  provider: new ReCaptchaV3Provider('6LfyzGwtAAAAAPj_AmQ3jjFhjuyYa5P8fxrxTGFI'),
   isTokenAutoRefreshEnabled: true
 });
 
@@ -27,104 +26,51 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev";
-const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
+// --- SECURED FETCH HELPER (UPDATED FOR 15s SHORT-LIVED JWT) ---
 /**
- * Helper function to retrieve the Firebase App Check token.
- */
-async function getAppCheckToken() {
-  try {
-    if (!appCheck) return "";
-    const appCheckResponse = await getToken(appCheck, false);
-    return appCheckResponse.token;
-  } catch (err) {
-    console.error("Failed to get Firebase App Check token:", err);
-    return "";
-  }
-}
-
-// Cache the guest JWT locally to prevent excessive calls to the guest token endpoint
-let cachedGuestToken = null;
-
-async function getGuestToken(appCheckToken) {
-  if (cachedGuestToken) return cachedGuestToken;
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/guest-token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Firebase-AppCheck': appCheckToken,
-        ...NG_HEADERS
-      }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      cachedGuestToken = data.token;
-      return cachedGuestToken;
-    }
-  } catch (err) {
-    console.warn("Could not fetch guest token:", err);
-  }
-  return "";
-}
-
-/**
- * Universal fetch wrapper that uses the Guest JWT for public GET requests (searches) 
- * and attempts Admin JWT exchange only for write/mutation operations when logged in.
+ * Use this wrapper instead of standard fetch() for protected API endpoints.
+ * It fetches a fresh 15-second short-lived JWT from the backend and injects it.
  */
 export async function authenticatedFetch(url, options = {}) {
   try {
-    const appCheckToken = await getAppCheckToken();
-    let authToken = "";
-
-    const method = (options.method || 'GET').toUpperCase();
-    const isGetRequest = method === 'GET';
-
-    // 1. For public GET requests (searches, lookups) or when no user is logged in, use the Guest Token
-    if (isGetRequest || !auth.currentUser) {
-      authToken = await getGuestToken(appCheckToken);
-    } else {
-      // 2. For write/mutation operations (POST/PUT/DELETE), attempt to get an Admin JWT token
-      try {
-        const firebaseIdToken = await auth.currentUser.getIdToken();
-        const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${firebaseIdToken}`,
-            'X-Firebase-AppCheck': appCheckToken,
-            ...NG_HEADERS
-          }
-        });
-
-        if (tokenResponse.ok) {
-          const tokenData = await tokenResponse.json();
-          if (tokenData && tokenData.token) {
-            authToken = tokenData.token;
-          }
-        }
-      } catch (exchangeErr) {
-        console.warn("Admin token exchange failed. Falling back to guest token.");
-      }
-
-      // Fallback to guest token if admin exchange didn't yield a token
-      if (!authToken) {
-        authToken = await getGuestToken(appCheckToken);
-      }
+    // If the user is not logged in yet, bypass short-lived token fetch and use standard fetch
+    if (!auth.currentUser) {
+      return fetch(url, options);
     }
 
-    // 3. Build headers with the verified JWT and App Check attached
-    options.headers = {
-      ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
-      'X-Firebase-AppCheck': appCheckToken,
-      ...NG_HEADERS,
+    // 1. Request a fresh short-lived JWT from your backend using the correct absolute URL
+    const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      }
+    });
+
+    if (!tokenResponse.ok) {
+      throw new Error("Failed to acquire short-lived authentication token from server.");
+    }
+
+    const tokenData = await tokenResponse.json();
+    const shortLivedToken = tokenData.token;
+
+    console.log("Acquired short-lived JWT. Expires in:", tokenData.expiresin, "seconds");
+
+    // 2. Build headers with the new short-lived token
+    const headers = {
+      'Authorization': `Bearer ${shortLivedToken}`,
+      'ngrok-skip-browser-warning': 'true',
       ...options.headers
     };
 
-    if (options.body && !(options.body instanceof FormData) && !options.headers['Content-Type']) {
-      options.headers['Content-Type'] = 'application/json';
+    if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
     }
 
+    options.headers = headers;
+    
+    // 3. Execute the original fetch request
     return fetch(url, options);
 
   } catch (error) {
