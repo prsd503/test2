@@ -64,28 +64,35 @@ export async function authenticatedFetch(url, options = {}) {
 
     // 1. Get fresh Firebase ID Token
     const firebaseIdToken = await auth.currentUser.getIdToken();
+    let authToken = firebaseIdToken;
 
-    // 2. Request a short-lived backend JWT using the Firebase ID token & App Check token
-    const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${firebaseIdToken}`,
-        'X-Firebase-AppCheck': appCheckToken,
-        ...NG_HEADERS
+    // 2. Try to exchange for a short-lived backend JWT (Optional fallback layer)
+    try {
+      const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${firebaseIdToken}`,
+          'X-Firebase-AppCheck': appCheckToken,
+          ...NG_HEADERS
+        }
+      });
+
+      if (tokenResponse.ok) {
+        const tokenData = await tokenResponse.json();
+        if (tokenData && tokenData.token) {
+          authToken = tokenData.token;
+        }
+      } else {
+        console.warn("Backend token exchange endpoint responded with error status. Falling back to direct Firebase ID token.");
       }
-    });
-
-    if (!tokenResponse.ok) {
-      throw new Error("Failed to acquire short-lived authentication token from server.");
+    } catch (exchangeErr) {
+      console.warn("Network/Server error during token exchange. Falling back to direct Firebase ID token.", exchangeErr);
     }
 
-    const tokenData = await tokenResponse.json();
-    const shortLivedToken = tokenData.token;
-
-    // 3. Attach short-lived JWT authorization header
+    // 3. Attach authorization header with token
     options.headers = {
-      'Authorization': `Bearer ${shortLivedToken}`,
+      'Authorization': `Bearer ${authToken}`,
       ...baseHeaders,
       ...options.headers
     };
