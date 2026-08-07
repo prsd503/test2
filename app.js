@@ -1,3 +1,48 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaV3Provider, getToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
+
+// --- APP CHECK DEBUG ENABLEMENT ---
+self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAO4UNADGQWTyT3F6Si6bhJaFS8uyQAkZI",
+  authDomain: "finder-owl.firebaseapp.com", 
+  projectId: "finder-owl",
+  storageBucket: "finder-owl.firebasestorage.app",
+  messagingSenderId: "1011347100861",
+  appId: "1:1011347100861:web:24246f9a4eb24d812cd3d4"
+};
+
+const app = initializeApp(firebaseConfig);
+
+// Initialize App Check
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LeWv9YqAAAAAFYyYV-yqX8_T-N8X_YyYV-yqX8_T'), 
+  isTokenAutoRefreshEnabled: true
+});
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev";
+const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
+
+/**
+ * Helper function to retrieve the Firebase App Check token.
+ */
+async function getAppCheckToken() {
+  try {
+    if (!appCheck) return "";
+    const appCheckResponse = await getToken(appCheck, false);
+    return appCheckResponse.token;
+  } catch (err) {
+    console.error("Failed to get Firebase App Check token:", err);
+    return "";
+  }
+}
+
 // Cache the guest JWT locally to prevent excessive calls to the guest token endpoint
 let cachedGuestToken = null;
 
@@ -82,7 +127,7 @@ export async function authenticatedFetch(url, options = {}) {
 
     return fetch(url, options);
 
-} catch (error) {
+  } catch (error) {
     console.error("authenticatedFetch Error:", error);
     throw error;
   }
