@@ -1,13 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { initializeAppCheck, ReCaptchaV3Provider, getToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
 
-// --- APP CHECK DEBUG ENABLEMENT ---
-self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-
+// TODO: Replace with your actual Firebase project configuration details
 const firebaseConfig = {
-  apiKey: "AIzaSyAO4UNADGQWTyT3F6Si6bhJaFS8uyQAkZI",
+  apiKey: "AIzaSyBEYKHQpy_VjmgjYIwQOPjXth1bghYsf9M",
   authDomain: "finder-owl.firebaseapp.com", 
   projectId: "finder-owl",
   storageBucket: "finder-owl.firebasestorage.app",
@@ -15,11 +13,12 @@ const firebaseConfig = {
   appId: "1:1011347100861:web:24246f9a4eb24d812cd3d4"
 };
 
+// Initialize Firebase services
 const app = initializeApp(firebaseConfig);
 
-// Initialize App Check
+// --- APP CHECK INITIALIZATION ---
 const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LeWv9YqAAAAAFYyYV-yqX8_T-N8X_YyYV-yqX8_T'), 
+  provider: new ReCaptchaV3Provider('6LfyzGwtAAAAAPj_AmQ3jjFhjuyYa5P8fxrxTGFI'),
   isTokenAutoRefreshEnabled: true
 });
 
@@ -27,52 +26,25 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev";
-const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
+// --- SECURED FETCH HELPER (UPDATED FOR 15s SHORT-LIVED JWT) ---
 /**
- * Helper function to retrieve the Firebase App Check token.
+ * Use this wrapper instead of standard fetch() for protected API endpoints.
+ * It fetches a fresh 15-second short-lived JWT from the backend and injects it.
  */
-async function getAppCheckToken() {
-  try {
-    if (!appCheck) return "";
-    const appCheckResponse = await getToken(appCheck, false);
-    return appCheckResponse.token;
-  } catch (err) {
-    console.error("Failed to get Firebase App Check token:", err);
-    return "";
-  }
-}
-
-// --- SECURED FETCH HELPER ---
 export async function authenticatedFetch(url, options = {}) {
   try {
-    const appCheckToken = await getAppCheckToken();
-
-    // Standard headers for all requests
-    const baseHeaders = {
-      'X-Firebase-AppCheck': appCheckToken,
-      ...NG_HEADERS
-    };
-
+    // If the user is not logged in yet, bypass short-lived token fetch and use standard fetch
     if (!auth.currentUser) {
-      options.headers = { ...baseHeaders, ...options.headers };
-      if (options.body && !(options.body instanceof FormData) && !options.headers['Content-Type']) {
-        options.headers['Content-Type'] = 'application/json';
-      }
       return fetch(url, options);
     }
 
-    // 1. Get fresh Firebase ID Token
-    const firebaseIdToken = await auth.currentUser.getIdToken();
-
-    // 2. Request a short-lived backend JWT using the Firebase ID token & App Check token
+    // 1. Request a fresh short-lived JWT from your backend using the correct absolute URL
     const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${firebaseIdToken}`,
-        'X-Firebase-AppCheck': appCheckToken,
-        ...NG_HEADERS
+        'ngrok-skip-browser-warning': 'true'
       }
     });
 
@@ -83,17 +55,22 @@ export async function authenticatedFetch(url, options = {}) {
     const tokenData = await tokenResponse.json();
     const shortLivedToken = tokenData.token;
 
-    // 3. Attach short-lived JWT authorization header
-    options.headers = {
+    console.log("Acquired short-lived JWT. Expires in:", tokenData.expiresin, "seconds");
+
+    // 2. Build headers with the new short-lived token
+    const headers = {
       'Authorization': `Bearer ${shortLivedToken}`,
-      ...baseHeaders,
+      'ngrok-skip-browser-warning': 'true',
       ...options.headers
     };
 
-    if (options.body && !(options.body instanceof FormData) && !options.headers['Content-Type']) {
-      options.headers['Content-Type'] = 'application/json';
+    if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
     }
 
+    options.headers = headers;
+    
+    // 3. Execute the original fetch request
     return fetch(url, options);
 
   } catch (error) {
