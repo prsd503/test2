@@ -43,57 +43,75 @@ async function getAppCheckToken() {
   }
 }
 
-// --- SECURED FETCH HELPER ---
+// Cache the guest JWT locally so we don't spam the guest token endpoint on every keystroke
+let cachedGuestToken = null;
+
+async function getGuestToken(appCheckToken) {
+  if (cachedGuestToken) return cachedGuestToken;
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/guest-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Firebase-AppCheck': appCheckToken,
+        ...NG_HEADERS
+      }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      cachedGuestToken = data.token;
+      return cachedGuestToken;
+    }
+  } catch (err) {
+    console.warn("Could not fetch guest token:", err);
+  }
+  return "";
+}
+
+/**
+ * Universal fetch wrapper that ensures a JWT token is always attached 
+ * (either from Firebase for logged-in users, or a guest token for public lookups).
+ */
 export async function authenticatedFetch(url, options = {}) {
   try {
     const appCheckToken = await getAppCheckToken();
+    let authToken = "";
 
-    // Standard headers for all requests
-    const baseHeaders = {
-      'X-Firebase-AppCheck': appCheckToken,
-      ...NG_HEADERS
-    };
+    // 1. Determine token source: User login vs Guest Token
+    if (auth.currentUser) {
+      const firebaseIdToken = await auth.currentUser.getIdToken();
+      authToken = firebaseIdToken;
 
-    if (!auth.currentUser) {
-      options.headers = { ...baseHeaders, ...options.headers };
-      if (options.body && !(options.body instanceof FormData) && !options.headers['Content-Type']) {
-        options.headers['Content-Type'] = 'application/json';
+      try {
+        const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${firebaseIdToken}`,
+            'X-Firebase-AppCheck': appCheckToken,
+            ...NG_HEADERS
+          }
+        });
+
+        if (tokenResponse.ok) {
+          const tokenData = await tokenResponse.json();
+          if (tokenData && tokenData.token) {
+            authToken = tokenData.token;
+          }
+        }
+      } catch (exchangeErr) {
+        console.warn("Token exchange failed, falling back to direct Firebase ID token.");
       }
-      return fetch(url, options);
+    } else {
+      // Public visitor: fetch or use cached guest JWT
+      authToken = await getGuestToken(appCheckToken);
     }
 
-    // 1. Get fresh Firebase ID Token
-    const firebaseIdToken = await auth.currentUser.getIdToken();
-    let authToken = firebaseIdToken;
-
-    // 2. Try to exchange for a short-lived backend JWT (Optional fallback layer)
-    try {
-      const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${firebaseIdToken}`,
-          'X-Firebase-AppCheck': appCheckToken,
-          ...NG_HEADERS
-        }
-      });
-
-      if (tokenResponse.ok) {
-        const tokenData = await tokenResponse.json();
-        if (tokenData && tokenData.token) {
-          authToken = tokenData.token;
-        }
-      } else {
-        console.warn("Backend token exchange endpoint responded with error status. Falling back to direct Firebase ID token.");
-      }
-    } catch (exchangeErr) {
-      console.warn("Network/Server error during token exchange. Falling back to direct Firebase ID token.", exchangeErr);
-    }
-
-    // 3. Attach authorization header with token
+    // 2. Build headers with the JWT attached
     options.headers = {
-      'Authorization': `Bearer ${authToken}`,
-      ...baseHeaders,
+      ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
+      'X-Firebase-AppCheck': appCheckToken,
+      ...NG_HEADERS,
       ...options.headers
     };
 
