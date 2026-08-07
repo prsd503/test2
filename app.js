@@ -27,39 +27,43 @@ export const db = getFirestore(app);
 
 const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev";
 
-// --- SECURED FETCH HELPER (UPDATED FOR 15s SHORT-LIVED JWT) ---
+// --- SECURED FETCH HELPER (UPDATED FOR FIREBASE TOKEN VERIFICATION) ---
 /**
  * Use this wrapper instead of standard fetch() for protected API endpoints.
- * It fetches a fresh 15-second short-lived JWT from the backend and injects it.
+ * It fetches a fresh JWT from the backend using the Firebase ID token and injects it[cite: 2].
  */
 export async function authenticatedFetch(url, options = {}) {
   try {
-    // If the user is not logged in yet, bypass short-lived token fetch and use standard fetch
+    // If the user is not logged in yet, bypass token fetch and use standard fetch[cite: 2]
     if (!auth.currentUser) {
       return fetch(url, options);
     }
 
-    // 1. Request a fresh short-lived JWT from your backend using the correct absolute URL
+    // 1. Get the Firebase ID token for the currently logged-in user
+    const idToken = await auth.currentUser.getIdToken();
+
+    // 2. Request a fresh JWT from your backend by verifying the Firebase ID token[cite: 2]
     const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true'
-      }
+      },
+      body: JSON.stringify({ idToken })
     });
 
     if (!tokenResponse.ok) {
-      throw new Error("Failed to acquire short-lived authentication token from server.");
+      throw new Error("Failed to acquire authentication token from server.");
     }
 
     const tokenData = await tokenResponse.json();
-    const shortLivedToken = tokenData.token;
+    const appToken = tokenData.token;
 
-    console.log("Acquired short-lived JWT. Expires in:", tokenData.expiresin, "seconds");
+    console.log("Acquired application JWT. Expires in:", tokenData.expiresin, "seconds");
 
-    // 2. Build headers with the new short-lived token
+    // 3. Build headers with the new token[cite: 2]
     const headers = {
-      'Authorization': `Bearer ${shortLivedToken}`,
+      'Authorization': `Bearer ${appToken}`,
       'ngrok-skip-browser-warning': 'true',
       ...options.headers
     };
@@ -70,7 +74,7 @@ export async function authenticatedFetch(url, options = {}) {
 
     options.headers = headers;
     
-    // 3. Execute the original fetch request
+    // 4. Execute the original fetch request[cite: 2]
     return fetch(url, options);
 
   } catch (error) {
