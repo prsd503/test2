@@ -680,7 +680,7 @@
       animationFrameId = requestAnimationFrame(processTick);
     }
 
-    // --- Save Image to Public Gallery ---
+// --- Save Image to Public Gallery (with Browser Fallback) ---
     window.downloadCollageImage = async function() {
       canvas.discardActiveObject(); 
       const watermark = addBrandWatermark(); 
@@ -691,6 +691,7 @@
       const fileName = `OwlWatcher-${Date.now()}.jpg`;
 
       try {
+        // Attempt Capacitor Native Save
         const tempFile = await Filesystem.writeFile({
           path: fileName,
           data: base64Data,
@@ -703,7 +704,6 @@
         });
 
         document.getElementById('statusLog').innerText = `💾 Saved to your mobile Gallery!`;
-        console.log('Saved photo path:', tempFile.uri);
 
         await Share.share({
           title: 'Your Owl Watcher Image',
@@ -712,15 +712,24 @@
         });
 
       } catch (error) {
-        console.error('Error saving image to gallery:', error);
-        document.getElementById('statusLog').innerText = `⚠️ Failed to save to gallery.`;
+        console.warn('Native storage unavailable, falling back to browser download:', error);
+        
+        // Fallback for standard web browsers
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        document.getElementById('statusLog').innerText = `💾 Downloaded image to your browser!`;
       }
       
       canvas.remove(watermark); 
       canvas.renderAll();
     };
 
-    // --- Save Video to Public Gallery as MP4 ---
+    // --- Save Video to Public Gallery as MP4 (with Browser Fallback) ---
     window.exportCanvasToVideoAnimation = async function() {
       const totalMaxDuration = parseFloat(document.getElementById('videoTimelineDuration').value);
       const progressContainer = document.getElementById('videoProgressContainer');
@@ -769,13 +778,15 @@
         
         if (dataChunks.length > 0) {
           const blob = new Blob(dataChunks, { type: options.mimeType.includes('mp4') ? 'video/mp4' : 'video/webm' });
-          const reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onloadend = async function () {
-            const base64VideoData = reader.result.split(',')[1];
-            const fileName = `OwlWatcher-${Date.now()}.mp4`;
+          const fileName = `OwlWatcher-${Date.now()}.${options.mimeType.includes('mp4') ? 'mp4' : 'webm'}`;
 
-            try {
+          try {
+            // Attempt Capacitor Native Save
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = async function () {
+              const base64VideoData = reader.result.split(',')[1];
+              
               const tempFile = await Filesystem.writeFile({
                 path: fileName,
                 data: base64VideoData,
@@ -787,21 +798,34 @@
                 album: 'Owl Watcher'
               });
 
-              document.getElementById('statusLog').innerText = `🎥 Video saved to 'Owl Watcher' album (.mp4)!`;
-              console.log('Saved video path:', tempFile.uri);
+              document.getElementById('statusLog').innerText = `🎥 Video saved to 'Owl Watcher' album!`;
 
               await Share.share({
                 title: 'Your Owl Watcher Video',
                 url: tempFile.uri,
               });
 
-            } catch (error) {
-              console.error('Error saving video file:', error);
-              document.getElementById('statusLog').innerText = `⚠️ Failed to save video to gallery.`;
-            }
+              progressContainer.style.display = 'none'; 
+              resetPositionsToBase();
+            };
+
+          } catch (error) {
+            console.warn('Native video storage unavailable, falling back to browser download:', error);
+            
+            // Fallback for standard web browsers
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            document.getElementById('statusLog').innerText = `🎥 Video downloaded to your browser!`;
             progressContainer.style.display = 'none'; 
             resetPositionsToBase();
-          };
+          }
         } else {
           progressContainer.style.display = 'none'; 
           resetPositionsToBase();
