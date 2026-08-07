@@ -1,7 +1,8 @@
 import { auth, authenticatedFetch } from "./app.js";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev/api";
+const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 let assignedSociety = "";
 
 window.closeModal = () => { document.getElementById('customModal').style.display = 'none'; };
@@ -10,8 +11,24 @@ window.showModal = (msg) => {
     document.getElementById('customModal').style.display = 'flex'; 
 };
 
+// --- Mobile Menu Toggle ---
+document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    }
+});
+
 async function initializeGuardPortal(email) {
     try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+            await currentUser.getIdToken(true);
+        }
+
         const res = await authenticatedFetch(`${API_BASE}/guards?email=${encodeURIComponent(email)}`);
         const guardsList = await res.json();
         
@@ -54,15 +71,29 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 document.getElementById('loginBtn')?.addEventListener('click', async () => {
-    const email = document.getElementById('email')?.value.trim();
-    const pass = document.getElementById('pass')?.value.trim();
+    const emailInput = document.getElementById('email');
+    const passInput = document.getElementById('pass');
+    if (!emailInput || !passInput) return;
+
+    const email = emailInput.value.trim().toLowerCase();
+    const pass = passInput.value.trim();
     if (!email || !pass) return window.showModal("Please enter email and password.");
     
     try {
+        console.log("Attempting guard login for:", email);
         await signInWithEmailAndPassword(auth, email, pass);
         window.showModal("Login successful!");
     } catch (e) {
-        window.showModal("Invalid Credentials");
+        console.error("Firebase Guard Login Error:", e);
+        let userMsg = `Login failed: ${e.code || "Unknown Error"} (${e.message || ""})`;
+
+        if (e.message?.includes("App Check token is invalid")) {
+            userMsg = "Access Denied: Backend rejected App Check token. Verify the debug token in your Firebase Console.";
+        } else if (e.code === 'auth/invalid-credential') {
+            userMsg = "Invalid email or password.";
+        }
+
+        window.showModal(userMsg);
     }
 });
 
