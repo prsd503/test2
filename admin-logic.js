@@ -458,11 +458,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!newSociety) return window.showModal("Please enter a valid society name.");
         
         try {
-            const res = await fetch(`${API_BASE_URL}/admins?society=${encodeURIComponent(newSociety)}`, {
-                headers: { ...NG_HEADERS }
-            });
-            
-            if (!res.ok) {
+            const res = await authenticatedFetch(`${API_BASE_URL}/admins/verify-society?society=${encodeURIComponent(newSociety)}`);
+            const data = await res.json();
+
+            if (!data.exists) {
                 return window.showModal(`Society "${newSociety}" does not exist in the system.`);
             }
 
@@ -560,16 +559,14 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
+                // Ensure Firebase auth session exists before running authenticated requests
                 const token = await user.getIdToken(true);
                 if (!token) {
                     console.warn("User authenticated, but failed to retrieve a valid ID token.");
                     return;
                 }
 
-                const res = await fetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(user.email)}`, {
-                    headers: { ...NG_HEADERS }
-                });
-                
+                const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(user.email)}`);
                 if (res.ok) {
                     const adminData = await res.json();
                     assignedSociety = adminData.society || "";
@@ -615,33 +612,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('loginBtn')?.addEventListener('click', async () => {
         const emailInput = document.getElementById('email');
         const passInput = document.getElementById('pass');
+
         if (!emailInput || !passInput) return;
 
         const email = emailInput.value.trim().toLowerCase();
         const pass = passInput.value.trim();
 
         if (!email || !pass) {
-            window.showModal("Please enter email and password.");
+            window.showModal("Pls enter email id");
             return;
         }
 
         try {
             await signInWithEmailAndPassword(auth, email, pass);
-            localStorage.setItem("adminLoggedIn", "true");
-            window.showModal("Login successful!");
-        } catch (e) {
-            console.error("Login Failure Details:", e);
-            let userMsg = "Login failed. Please try again.";
-            
-            if (e.message?.includes("App Check token is invalid") || e.message?.includes("app-check")) {
-                userMsg = "Security validation failed. Please ensure you are using an official app build.";
-            } else if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') {
-                userMsg = "Incorrect email or password.";
-            } else if (e.code === 'auth/network-request-failed') {
-                userMsg = "Network error. Check your internet connection.";
-            }
 
-            window.showModal(userMsg);
+            localStorage.setItem("adminLoggedIn", "true");
+            window.showModal("Login successful");
+        } catch (e) {
+            console.error("Full Login Error:", e);
+            window.showModal("Login error: " + (e.message || e));
         }
     });
 
@@ -655,9 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const res = await fetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(email)}`, {
-                headers: { ...NG_HEADERS }
-            });
+            const res = await authenticatedFetch(`${API_BASE_URL}/admins?email=${encodeURIComponent(email)}`);
             if (!res.ok) {
                 window.showModal("Invalid credentials");
                 return;
