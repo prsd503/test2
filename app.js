@@ -43,7 +43,7 @@ async function getAppCheckToken() {
   }
 }
 
-// Cache the guest JWT locally so we don't spam the guest token endpoint on every keystroke
+// Cache the guest JWT locally to prevent excessive calls to the guest token endpoint
 let cachedGuestToken = null;
 
 async function getGuestToken(appCheckToken) {
@@ -69,20 +69,18 @@ async function getGuestToken(appCheckToken) {
 }
 
 /**
- * Universal fetch wrapper that ensures a JWT token is always attached 
- * (either from Firebase for logged-in users, or a guest token for public lookups).
+ * Universal fetch wrapper that attaches a valid backend JWT (Admin JWT or Guest JWT) 
+ * and Firebase App Check headers to every request.
  */
 export async function authenticatedFetch(url, options = {}) {
   try {
     const appCheckToken = await getAppCheckToken();
     let authToken = "";
 
-    // 1. Determine token source: User login vs Guest Token
+    // 1. If a user is logged in, attempt to get an Admin JWT token
     if (auth.currentUser) {
-      const firebaseIdToken = await auth.currentUser.getIdToken();
-      authToken = firebaseIdToken;
-
       try {
+        const firebaseIdToken = await auth.currentUser.getIdToken();
         const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
           method: 'POST',
           headers: {
@@ -100,14 +98,16 @@ export async function authenticatedFetch(url, options = {}) {
           }
         }
       } catch (exchangeErr) {
-        console.warn("Token exchange failed, falling back to direct Firebase ID token.");
+        console.warn("Admin token exchange skipped/failed (user is not admin). Using guest token.");
       }
-    } else {
-      // Public visitor: fetch or use cached guest JWT
+    }
+
+    // 2. Fallback to guest JWT if no admin token was acquired (guests or non-admin logged-in users)
+    if (!authToken) {
       authToken = await getGuestToken(appCheckToken);
     }
 
-    // 2. Build headers with the JWT attached
+    // 3. Build headers with the verified JWT and App Check attached
     options.headers = {
       ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
       'X-Firebase-AppCheck': appCheckToken,
