@@ -729,7 +729,7 @@
       canvas.renderAll();
     };
 
-    // --- Save Video to Public Gallery as MP4 (with Browser Fallback) ---
+// --- Save Video to Public Gallery as MP4 (with Browser Fallback) ---
     window.exportCanvasToVideoAnimation = async function() {
       const totalMaxDuration = parseFloat(document.getElementById('videoTimelineDuration').value);
       const progressContainer = document.getElementById('videoProgressContainer');
@@ -781,33 +781,32 @@
           const fileName = `OwlWatcher-${Date.now()}.${options.mimeType.includes('mp4') ? 'mp4' : 'webm'}`;
 
           try {
+            // Helper to convert Blob to base64 cleanly with async/await
+            const base64VideoData = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result.split(',')[1]);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+
             // Attempt Capacitor Native Save
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = async function () {
-              const base64VideoData = reader.result.split(',')[1];
-              
-              const tempFile = await Filesystem.writeFile({
-                path: fileName,
-                data: base64VideoData,
-                directory: Directory.Cache
-              });
+            const tempFile = await Filesystem.writeFile({
+              path: fileName,
+              data: base64VideoData,
+              directory: Directory.Cache
+            });
 
-              await Media.saveVideo({ 
-                path: tempFile.uri, 
-                album: 'Owl Watcher'
-              });
+            await Media.saveVideo({ 
+              path: tempFile.uri, 
+              album: 'Owl Watcher'
+            });
 
-              document.getElementById('statusLog').innerText = `🎥 Video saved to 'Owl Watcher' album!`;
+            document.getElementById('statusLog').innerText = `🎥 Video saved to 'Owl Watcher' album!`;
 
-              await Share.share({
-                title: 'Your Owl Watcher Video',
-                url: tempFile.uri,
-              });
-
-              progressContainer.style.display = 'none'; 
-              resetPositionsToBase();
-            };
+            await Share.share({
+              title: 'Your Owl Watcher Video',
+              url: tempFile.uri,
+            });
 
           } catch (error) {
             console.warn('Native video storage unavailable, falling back to browser download:', error);
@@ -823,6 +822,7 @@
             URL.revokeObjectURL(url);
 
             document.getElementById('statusLog').innerText = `🎥 Video downloaded to your browser!`;
+          } finally {
             progressContainer.style.display = 'none'; 
             resetPositionsToBase();
           }
