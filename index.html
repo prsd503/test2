@@ -163,10 +163,16 @@
             </div>
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
-        <!-- Interactive Santoor & Color Box -->
-<div id="santoorBox" style="margin-top: 15px; padding: 18px; border-radius: 12px; background: linear-gradient(135deg, #ff7e5f, #feb47b); color: white; cursor: pointer; user-select: none; touch-action: none; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background 0.3s ease;">
-    <p style="margin: 0; font-family: 'Caveat', cursive; font-size: 1.5rem; font-weight: bold; color: #fff;">🎶 Touch & Slide for Santoor Music 🎶</p>
-    <p style="margin: 5px 0 0 0; font-family: sans-serif; font-size: 0.85rem; color: #fdf6e3;">Move your finger left or right to change notes & colors</p>
+ <!-- Mini Arcade Catching Game -->
+<div id="miniGameBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: linear-gradient(135deg, #1e1e2f, #2d2d44); color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; overflow: hidden; user-select: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: sans-serif; font-size: 0.9rem;">
+        <span>🎮 Owl Catcher Arcade</span>
+        <span>Score: <b id="gameScore" style="color: #ffd700;">0</b></span>
+    </div>
+    <div id="gamePlayArea" style="width: 100%; height: 110px; background: rgba(0,0,0,0.3); border-radius: 8px; position: relative; overflow: hidden; cursor: pointer; touch-action: none;">
+        <div id="gameItem" style="width: 32px; height: 32px; position: absolute; font-size: 24px; display: flex; align-items: center; justify-content: center; top: 0px; left: 50%; transition: transform 0.1s;">⭐</div>
+    </div>
+    <button id="gameStartBtn" style="margin-top: 8px; background: #ff4757; color: white; border: none; padding: 6px 16px; border-radius: 8px; font-family: 'Caveat', cursive; font-size: 1.1rem; cursor: pointer;">Start Game</button>
 </div>
     </div>
 
@@ -332,80 +338,69 @@
             localAdLink.innerText = `Contact for Posting Paid Content in ${societyName}!`;
         }
     }
-// Santoor & Color Box Interactive Logic
-const santoorBox = document.getElementById('santoorBox');
-const santoorColors = [
-    'linear-gradient(135deg, #ff9966, #ff5e62)',
-    'linear-gradient(135deg, #00c6ff, #0072ff)',
-    'linear-gradient(135deg, #f7ff00, #db36a4)',
-    'linear-gradient(135deg, #4facfe, #00f2fe)',
-    'linear-gradient(135deg, #43e97b, #38f9d7)',
-    'linear-gradient(135deg, #fa709a, #fee140)',
-    'linear-gradient(135deg, #667eea, #764ba2)'
-];
 
-// Classical Indian scale frequencies (Santoor notes mapping)
-const santoorFrequencies = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25];
-let lastSantoorNoteTime = 0;
+    // Addictive Mini Arcade Game Logic
+let gameScore = 0;
+let gameInterval = null;
+let itemFallInterval = null;
+let itemX = 50;
+let itemY = 0;
+let isPlaying = false;
 
-function playSantoorNote(freq) {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
+const gameItem = document.getElementById('gameItem');
+const gameScoreEl = document.getElementById('gameScore');
+const gameStartBtn = document.getElementById('gameStartBtn');
+const gamePlayArea = document.getElementById('gamePlayArea');
 
-        // Triangle wave mimics hammered string resonance of a santoor
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-        // Quick decay envelope for string pluck/strike
-        gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
-
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.7);
-    } catch(e) {
-        console.log("Audio context error:", e);
-    }
-}
-
-function handleSantoorInteraction(clientX, rect) {
-    const xPos = clientX - rect.left;
-    const percentage = Math.max(0, Math.min(1, xPos / rect.width));
+function spawnItem() {
+    itemX = Math.floor(Math.random() * 80) + 10; // percentage
+    itemY = 0;
+    gameItem.style.top = itemY + 'px';
+    gameItem.style.left = itemX + '%';
     
-    // Change background gradient based on touch position
-    const colorIndex = Math.floor(percentage * santoorColors.length);
-    santoorBox.style.background = santoorColors[colorIndex % santoorColors.length];
-
-    // Trigger corresponding santoor note frequency
-    const noteIndex = Math.floor(percentage * santoorFrequencies.length);
-    const freq = santoorFrequencies[Math.min(noteIndex, santoorFrequencies.length - 1)];
-
-    const now = Date.now();
-    if (now - lastSantoorNoteTime > 80) {
-        playSantoorNote(freq);
-        lastSantoorNoteTime = now;
-    }
+    // Randomize item type
+    const icons = ['⭐', '🦉', '💎', '🔥'];
+    gameItem.innerText = icons[Math.floor(Math.random() * icons.length)];
 }
 
-if (santoorBox) {
-    santoorBox.addEventListener('pointerdown', (e) => {
-        const rect = santoorBox.getBoundingClientRect();
-        handleSantoorInteraction(e.clientX, rect);
-    });
+function startGame() {
+    if (isPlaying) return;
+    isPlaying = true;
+    gameScore = 0;
+    gameScoreEl.innerText = gameScore;
+    gameStartBtn.innerText = "Playing...";
+    gameStartBtn.style.background = "#2ed573";
 
-    santoorBox.addEventListener('pointermove', (e) => {
-        if (e.buttons > 0 || e.pointerType === 'touch') {
-            const rect = santoorBox.getBoundingClientRect();
-            if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
-                handleSantoorInteraction(e.clientX, rect);
-            }
+    spawnItem();
+
+    // Fall loop
+    itemFallInterval = setInterval(() => {
+        itemY += 4;
+        if (itemY > 80) {
+            // Missed item penalty or reset
+            spawnItem();
         }
-    });
+        gameItem.style.top = itemY + 'px';
+    }, 30);
 }
+
+// Click or tap to catch the item
+gameItem.addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+    if (!isPlaying) return;
+    gameScore += 10;
+    gameScoreEl.innerText = gameScore;
+    
+    // Pop effect
+    gameItem.style.transform = 'scale(1.4)';
+    setTimeout(() => { gameItem.style.transform = 'scale(1)'; }, 100);
+    
+    spawnItem();
+});
+
+gameStartBtn.addEventListener('click', () => {
+    startGame();
+});
     async function loadNotice(societyId) {
         const noticeDiv = document.getElementById('notice-content');
         try {
