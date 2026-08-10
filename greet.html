@@ -85,12 +85,12 @@
             padding: 0;
         }
 
-        /* Decorative top gradient bar for Ad cards */
+        /* Decorative top gradient bar for Ad cards - Updated to Brown */
         body.ad-theme .greeting-card::before {
             content: "";
             display: block;
             height: 6px;
-            background: linear-gradient(90deg, #06b6d4, #3b82f6, #6366f1);
+            background: linear-gradient(90deg, #a1887f, #8d6e63, #5d4037);
             width: 100%;
         }
 
@@ -111,15 +111,16 @@
             line-height: 1.1;
         }
 
+        /* Ad Title Style: Updated to Brown color and Caveat font */
         body.ad-theme h1 {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 1.75rem;
+            font-family: 'Caveat', cursive;
+            font-size: 2.25rem;
             font-weight: 700;
-            color: #0f172a;
+            color: #5d4037;
             text-shadow: none;
             margin-top: 0;
             margin-bottom: 20px;
-            letter-spacing: -0.025em;
+            letter-spacing: 1px;
         }
 
         p { 
@@ -277,14 +278,14 @@
                     greetMessage.innerText = "Explore professional advertisement details and campaign insights here.";
                 }
                 actionBtn.style.display = 'inline-block';
-                actionBtn.innerText = "← Return";
+                actionBtn.innerText = "← Return to Dashboard";
             }
             loadAdData();
 
         } else if (type === 'wish') {
             fireworksCanvas.style.display = 'block';
             actionBtn.style.display = 'inline-block';
-            actionBtn.innerText = "⬅ Back";
+            actionBtn.innerText = "⬅ Back to Portal";
 
             async function loadGreetingData() {
                 try {
