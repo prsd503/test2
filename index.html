@@ -163,28 +163,29 @@
             </div>
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
-<!-- Mini Drawing Whiteboard Box -->
+<!-- Mini Drawing Whiteboard Box with Paint Bucket Tool -->
 <div id="whiteboardBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: #ffffff; border: 2px dashed #8d6e63; color: #5d4037; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); user-select: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: 'Caveat', cursive; font-size: 1.3rem;">
         <span>🎨 Mini Whiteboard Studio</span>
         <button id="clearCanvasBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Clear</button>
     </div>
     
-    <!-- Drawing Tools Toolbar -->
-    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
-        <button type="button" class="tool-btn active-tool" data-tool="pencil" style="background: #8d6e63; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 0;">Pencil</button>
-        <button type="button" class="tool-btn" data-tool="brush" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 0;">Brush</button>
-        <input type="color" id="drawColorPicker" value="#ff4757" style="width: 30px; height: 26px; border: none; border-radius: 4px; cursor: pointer; vertical-align: middle; background: none;" title="Pick Color">
+    <!-- Drawing & Fill Tools Toolbar -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+        <button type="button" class="tool-btn active-tool" data-tool="pencil" style="background: #8d6e63; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Pencil</button>
+        <button type="button" class="tool-btn" data-tool="brush" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Brush</button>
+        <button type="button" class="tool-btn" data-tool="bucket" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🪣 Bucket</button>
+        <input type="color" id="drawColorPicker" value="#ff4757" style="width: 28px; height: 24px; border: none; border-radius: 4px; cursor: pointer; vertical-align: middle; background: none;" title="Pick Color">
     </div>
 
     <!-- Canvas Area -->
-    <div style="width: 100%; height: 160px; background: #fdf6e3; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden; touch-action: none;">
+    <div style="width: 100%; height: 160px; background: #ffffff; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden; touch-action: none;">
         <canvas id="miniWhiteboardCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
     </div>
 </div>
-    </div>
-
-    <div id="vehicle-search" style="display:none;">
+        
+        
+        <div id="vehicle-search" style="display:none;">
         <p style="display: flex; justify-content: center; align-items: center; gap: 8px;">
             <span>Society: <span id="displaySocietyName" style="font-weight:bold;"></span></span>
             <button id="switchSocietyBtn" class="switch-btn">Change</button>
@@ -347,16 +348,32 @@
         }
     }
 
- // Mini Whiteboard Drawing Logic
+// Mini Whiteboard Drawing & Flood Fill Logic
 const wbCanvas = document.getElementById('miniWhiteboardCanvas');
 if (wbCanvas) {
-    const wbCtx = wbCanvas.getContext('2d');
+    const wbCtx = wbCanvas.getContext('2d', { willReadFrequently: true });
     
-    // Set internal resolution match layout dimensions
     function resizeWbCanvas() {
         const rect = wbCanvas.getBoundingClientRect();
+        // Keep existing drawing when resizing if possible, or initialize white background
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = wbCanvas.width;
+        tempCanvas.height = wbCanvas.height;
+        if (wbCanvas.width > 0 && wbCanvas.height > 0) {
+            tempCtx.drawImage(wbCanvas, 0, 0);
+        }
+
         wbCanvas.width = rect.width;
         wbCanvas.height = rect.height;
+        
+        // Fill white background initially
+        wbCtx.fillStyle = "#ffffff";
+        wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+        
+        if (tempCanvas.width > 0) {
+            wbCtx.drawImage(tempCanvas, 0, 0);
+        }
     }
     resizeWbCanvas();
     window.addEventListener('resize', resizeWbCanvas);
@@ -365,7 +382,6 @@ if (wbCanvas) {
     let currentTool = 'pencil';
     let currentColor = '#ff4757';
 
-    // Tool switching handlers
     const toolButtons = document.querySelectorAll('.tool-btn');
     toolButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -391,7 +407,8 @@ if (wbCanvas) {
     const clearBtn = document.getElementById('clearCanvasBtn');
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
-            wbCtx.clearRect(0, 0, wbCanvas.width, wbCanvas.height);
+            wbCtx.fillStyle = "#ffffff";
+            wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
         });
     }
 
@@ -400,21 +417,77 @@ if (wbCanvas) {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return {
-            x: clientX - rect.left,
-            y: clientY - rect.top
+            x: Math.floor(clientX - rect.left),
+            y: Math.floor(clientY - rect.top)
         };
     }
 
+    // Flood Fill (Paint Bucket) Algorithm
+    function hexToRgba(hex) {
+        let c = hex.replace('#', '');
+        if (c.length === 3) c = c.split('').map(x => x + x).join('');
+        const num = parseInt(c, 16);
+        return [num >> 16, (num >> 8) & 255, num & 255, 255];
+    }
+
+    function floodFill(startX, startY, fillColorHex) {
+        const imgData = wbCtx.getImageData(0, 0, wbCanvas.width, wbCanvas.height);
+        const pixels = imgData.data;
+        const targetIdx = (startY * wbCanvas.width + startX) * 4;
+        
+        const targetR = pixels[targetIdx];
+        const targetG = pixels[targetIdx + 1];
+        const targetB = pixels[targetIdx + 2];
+        const targetA = pixels[targetIdx + 3];
+
+        const [fillR, fillG, fillB, fillA] = hexToRgba(fillColorHex);
+
+        if (targetR === fillR && targetG === fillG && targetB === fillB && targetA === fillA) return;
+
+        const queue = [[startX, startY]];
+        const width = wbCanvas.width;
+        const height = wbCanvas.height;
+
+        while (queue.length > 0) {
+            const [x, y] = queue.pop();
+            const idx = (y * width + x) * 4;
+
+            if (
+                pixels[idx] === targetR &&
+                pixels[idx + 1] === targetG &&
+                pixels[idx + 2] === targetB &&
+                pixels[idx + 3] === targetA
+            ) {
+                pixels[idx] = fillR;
+                pixels[idx + 1] = fillG;
+                pixels[idx + 2] = fillB;
+                pixels[idx + 3] = fillA;
+
+                if (x > 0) queue.push([x - 1, y]);
+                if (x < width - 1) queue.push([x + 1, y]);
+                if (y > 0) queue.push([x, y - 1]);
+                if (y < height - 1) queue.push([x, y + 1]);
+            }
+        }
+        wbCtx.putImageData(imgData, 0, 0);
+    }
+
     function startDraw(e) {
-        isDrawing = true;
         const pos = getMousePos(e);
+        if (currentTool === 'bucket') {
+            floodFill(pos.x, pos.y, currentColor);
+            e.preventDefault();
+            return;
+        }
+
+        isDrawing = true;
         wbCtx.beginPath();
         wbCtx.moveTo(pos.x, pos.y);
         e.preventDefault();
     }
 
     function draw(e) {
-        if (!isDrawing) return;
+        if (!isDrawing || currentTool === 'bucket') return;
         const pos = getMousePos(e);
         
         wbCtx.strokeStyle = currentColor;
@@ -438,17 +511,14 @@ if (wbCanvas) {
         wbCtx.beginPath();
     }
 
-    // Mouse Events
     wbCanvas.addEventListener('mousedown', startDraw);
     wbCanvas.addEventListener('mousemove', draw);
     window.addEventListener('mouseup', stopDraw);
 
-    // Touch Support for Mobile
     wbCanvas.addEventListener('touchstart', startDraw, { passive: false });
     wbCanvas.addEventListener('touchmove', draw, { passive: false });
     window.addEventListener('touchend', stopDraw);
-}
-    
+}    
     
     
     
