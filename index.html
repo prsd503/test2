@@ -228,6 +228,17 @@
             </div>
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
+
+        <!-- The Hindu Live News Feed Widget placed right below the Global Ad page view -->
+        <div class="news-ticker-box">
+            <div class="news-header">
+                <span>📰 The Hindu Live Updates</span>
+                <span style="font-size: 0.9rem; font-family: sans-serif; color: #e74c3c; font-weight: bold;">● LIVE</span>
+            </div>
+            <div id="hinduNewsContent">
+                <div class="news-item" style="color: #7f8c8d; font-style: italic;">Loading live updates from The Hindu...</div>
+            </div>
+        </div>
     </div>
         
     <div id="vehicle-search" style="display:none;">
@@ -242,17 +253,6 @@
         <br>
     
         <div id="guard-container" style="margin-top:20px;"></div>
-        
-        <!-- Replaced Mini Whiteboard with The Hindu Live News Feed Widget -->
-        <div class="news-ticker-box">
-            <div class="news-header">
-                <span>📰 The Hindu Live Updates</span>
-                <span style="font-size: 0.9rem; font-family: sans-serif; color: #e74c3c; font-weight: bold;">● LIVE</span>
-            </div>
-            <div id="hinduNewsContent">
-                <div class="news-item" style="color: #7f8c8d; font-style: italic;">Loading live updates from The Hindu...</div>
-            </div>
-        </div>
 
         <div id="ad-billboard">
             <h4 style="margin: 0 0 10px 0; font-family: 'Caveat', cursive; color: #8d6e63;">Birthday/Anniversary Wishes, Offers, Ads & More</h4>
@@ -405,7 +405,6 @@
         if (!newsContentDiv) return;
 
         try {
-            // Fetching India national news feed from The Hindu via rss2json API
             const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.thehindu.com%2Fnews%2Fnational%2Ffeeder%2Fdefault.rss');
             const data = await response.json();
 
@@ -667,7 +666,6 @@
         if (globalAdInterval) clearInterval(globalAdInterval);
         
         setupGuard(societyId || societyName);
-        loadTheHinduNews();
         loadAds(societyId || societyName);
     }
 
@@ -685,6 +683,7 @@
         document.getElementById("society-verification").style.display = "block";
         updateAdLinks();
         loadGlobalAdsPreLogin();
+        loadTheHinduNews();
     }
 
     document.getElementById("verifyBtn").addEventListener("click", async () => {
@@ -775,6 +774,7 @@
             }
         } else {
             loadGlobalAdsPreLogin();
+            loadTheHinduNews();
         }
     });
     
