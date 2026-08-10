@@ -163,16 +163,24 @@
             </div>
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
- <!-- Mini Arcade Catching Game -->
-<div id="miniGameBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: linear-gradient(135deg, #1e1e2f, #2d2d44); color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; overflow: hidden; user-select: none;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: sans-serif; font-size: 0.9rem;">
-        <span>🎮 Owl Catcher Arcade</span>
-        <span>Score: <b id="gameScore" style="color: #ffd700;">0</b></span>
+<!-- Mini Drawing Whiteboard Box -->
+<div id="whiteboardBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: #ffffff; border: 2px dashed #8d6e63; color: #5d4037; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); user-select: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: 'Caveat', cursive; font-size: 1.3rem;">
+        <span>🎨 Mini Whiteboard Studio</span>
+        <button id="clearCanvasBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Clear</button>
     </div>
-    <div id="gamePlayArea" style="width: 100%; height: 110px; background: rgba(0,0,0,0.3); border-radius: 8px; position: relative; overflow: hidden; cursor: pointer; touch-action: none;">
-        <div id="gameItem" style="width: 32px; height: 32px; position: absolute; font-size: 24px; display: flex; align-items: center; justify-content: center; top: 0px; left: 50%; transition: transform 0.1s;">⭐</div>
+    
+    <!-- Drawing Tools Toolbar -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+        <button type="button" class="tool-btn active-tool" data-tool="pencil" style="background: #8d6e63; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 0;">Pencil</button>
+        <button type="button" class="tool-btn" data-tool="brush" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 0;">Brush</button>
+        <input type="color" id="drawColorPicker" value="#ff4757" style="width: 30px; height: 26px; border: none; border-radius: 4px; cursor: pointer; vertical-align: middle; background: none;" title="Pick Color">
     </div>
-    <button id="gameStartBtn" style="margin-top: 8px; background: #ff4757; color: white; border: none; padding: 6px 16px; border-radius: 8px; font-family: 'Caveat', cursive; font-size: 1.1rem; cursor: pointer;">Start Game</button>
+
+    <!-- Canvas Area -->
+    <div style="width: 100%; height: 160px; background: #fdf6e3; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden; touch-action: none;">
+        <canvas id="miniWhiteboardCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+    </div>
 </div>
     </div>
 
@@ -339,68 +347,111 @@
         }
     }
 
-    // Addictive Mini Arcade Game Logic
-let gameScore = 0;
-let gameInterval = null;
-let itemFallInterval = null;
-let itemX = 50;
-let itemY = 0;
-let isPlaying = false;
-
-const gameItem = document.getElementById('gameItem');
-const gameScoreEl = document.getElementById('gameScore');
-const gameStartBtn = document.getElementById('gameStartBtn');
-const gamePlayArea = document.getElementById('gamePlayArea');
-
-function spawnItem() {
-    itemX = Math.floor(Math.random() * 80) + 10; // percentage
-    itemY = 0;
-    gameItem.style.top = itemY + 'px';
-    gameItem.style.left = itemX + '%';
+ // Mini Whiteboard Drawing Logic
+const wbCanvas = document.getElementById('miniWhiteboardCanvas');
+if (wbCanvas) {
+    const wbCtx = wbCanvas.getContext('2d');
     
-    // Randomize item type
-    const icons = ['⭐', '🦉', '💎', '🔥'];
-    gameItem.innerText = icons[Math.floor(Math.random() * icons.length)];
-}
+    // Set internal resolution match layout dimensions
+    function resizeWbCanvas() {
+        const rect = wbCanvas.getBoundingClientRect();
+        wbCanvas.width = rect.width;
+        wbCanvas.height = rect.height;
+    }
+    resizeWbCanvas();
+    window.addEventListener('resize', resizeWbCanvas);
 
-function startGame() {
-    if (isPlaying) return;
-    isPlaying = true;
-    gameScore = 0;
-    gameScoreEl.innerText = gameScore;
-    gameStartBtn.innerText = "Playing...";
-    gameStartBtn.style.background = "#2ed573";
+    let isDrawing = false;
+    let currentTool = 'pencil';
+    let currentColor = '#ff4757';
 
-    spawnItem();
+    // Tool switching handlers
+    const toolButtons = document.querySelectorAll('.tool-btn');
+    toolButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            toolButtons.forEach(b => {
+                b.classList.remove('active-tool');
+                b.style.background = '#dcdde1';
+                b.style.color = '#2f3640';
+            });
+            btn.classList.add('active-tool');
+            btn.style.background = '#8d6e63';
+            btn.style.color = 'white';
+            currentTool = btn.getAttribute('data-tool');
+        });
+    });
 
-    // Fall loop
-    itemFallInterval = setInterval(() => {
-        itemY += 4;
-        if (itemY > 80) {
-            // Missed item penalty or reset
-            spawnItem();
+    const colorPicker = document.getElementById('drawColorPicker');
+    if (colorPicker) {
+        colorPicker.addEventListener('input', (e) => {
+            currentColor = e.target.value;
+        });
+    }
+
+    const clearBtn = document.getElementById('clearCanvasBtn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            wbCtx.clearRect(0, 0, wbCanvas.width, wbCanvas.height);
+        });
+    }
+
+    function getMousePos(e) {
+        const rect = wbCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function startDraw(e) {
+        isDrawing = true;
+        const pos = getMousePos(e);
+        wbCtx.beginPath();
+        wbCtx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        const pos = getMousePos(e);
+        
+        wbCtx.strokeStyle = currentColor;
+        wbCtx.lineCap = 'round';
+        wbCtx.lineJoin = 'round';
+
+        if (currentTool === 'pencil') {
+            wbCtx.lineWidth = 2;
+        } else if (currentTool === 'brush') {
+            wbCtx.lineWidth = 10;
         }
-        gameItem.style.top = itemY + 'px';
-    }, 30);
+
+        wbCtx.lineTo(pos.x, pos.y);
+        wbCtx.stroke();
+        e.preventDefault();
+    }
+
+    function stopDraw() {
+        if (!isDrawing) return;
+        isDrawing = false;
+        wbCtx.beginPath();
+    }
+
+    // Mouse Events
+    wbCanvas.addEventListener('mousedown', startDraw);
+    wbCanvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDraw);
+
+    // Touch Support for Mobile
+    wbCanvas.addEventListener('touchstart', startDraw, { passive: false });
+    wbCanvas.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('touchend', stopDraw);
 }
-
-// Click or tap to catch the item
-gameItem.addEventListener('pointerdown', (e) => {
-    e.stopPropagation();
-    if (!isPlaying) return;
-    gameScore += 10;
-    gameScoreEl.innerText = gameScore;
     
-    // Pop effect
-    gameItem.style.transform = 'scale(1.4)';
-    setTimeout(() => { gameItem.style.transform = 'scale(1)'; }, 100);
     
-    spawnItem();
-});
-
-gameStartBtn.addEventListener('click', () => {
-    startGame();
-});
+    
+    
     async function loadNotice(societyId) {
         const noticeDiv = document.getElementById('notice-content');
         try {
