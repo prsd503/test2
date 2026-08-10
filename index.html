@@ -102,56 +102,35 @@
             animation-delay: 0.3s;
         }
 
-        /* The Hindu Live News Feed Widget Specific Styles */
-        .news-ticker-box {
+        /* Chrome Dino Game Widget Styles */
+        .dino-game-box {
             margin-top: 25px;
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
             background: #ffffff;
             border: 1px solid #dcdde1;
-            color: #2f3640;
-            text-align: left;
+            text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .news-header {
+        .dino-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-family: 'Caveat', cursive;
             font-size: 1.5rem;
             color: #5d4037;
             border-bottom: 2px solid #8d6e63;
             padding-bottom: 5px;
         }
-        .news-item {
-            font-family: sans-serif;
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f1f2f6;
-        }
-        .news-item:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-        .news-item a {
-            color: #2c3e50;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .news-item a:hover {
-            text-decoration: underline;
-            color: #8d6e63;
-        }
-        .news-time {
-            font-size: 0.75rem;
-            color: #7f8c8d;
+        #dinoCanvas {
+            background: #f7f7f7;
+            border: 2px solid #8d6e63;
+            border-radius: 10px;
             display: block;
-            margin-top: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin: 0 auto;
+            max-width: 100%;
+            cursor: pointer;
         }
 
         /* Owl Animation Specific Styles Scoped to Search Page */
@@ -229,15 +208,14 @@
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
 
-        <!-- The Hindu Live News Feed Widget placed right below the Global Ad page view -->
-        <div class="news-ticker-box">
-            <div class="news-header">
-                <span>📰 The Hindu Live Updates</span>
-                <span style="font-size: 0.9rem; font-family: sans-serif; color: #e74c3c; font-weight: bold;">● LIVE</span>
+        <!-- Chrome Dino Game Widget placed below Global Ad page view -->
+        <div class="dino-game-box">
+            <div class="dino-header">
+                <span>🦖 Dino Jump Game</span>
+                <span id="dinoHighScore" style="font-size: 0.9rem; font-family: sans-serif; color: #8d6e63; font-weight: bold;">HI: 00000</span>
             </div>
-            <div id="hinduNewsContent">
-                <div class="news-item" style="color: #7f8c8d; font-style: italic;">Loading live updates from The Hindu...</div>
-            </div>
+            <canvas id="dinoCanvas" width="600" height="150"></canvas>
+            <p style="font-family: sans-serif; font-size: 0.85rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 0;">Press <b>Spacebar</b>, <b>Up Arrow</b>, or Click canvas to Jump/Start</p>
         </div>
     </div>
         
@@ -399,34 +377,156 @@
         }
     }
 
-    // Fetch and display live news feed from The Hindu using rss2json proxy for their public RSS feed
-    async function loadTheHinduNews() {
-        const newsContentDiv = document.getElementById('hinduNewsContent');
-        if (!newsContentDiv) return;
+    // Chrome Dino Game Engine Logic
+    let dinoGameInterval = null;
+    let dinoGameRunning = false;
+    let dinoHighScoreVal = 0;
 
-        try {
-            const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.thehindu.com%2Fnews%2Fnational%2Ffeeder%2Fdefault.rss');
-            const data = await response.json();
+    function initDinoGame() {
+        const canvas = document.getElementById('dinoCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
 
-            if (data && data.items && data.items.length > 0) {
-                newsContentDiv.innerHTML = '';
-                const topArticles = data.items.slice(0, 4); // Display top 4 headlines
-                topArticles.forEach(article => {
-                    const pubTime = new Date(article.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    newsContentDiv.innerHTML += `
-                        <div class="news-item">
-                            <a href="${article.link}" target="_blank" rel="noopener noreferrer">${article.title}</a>
-                            <span class="news-time">The Hindu • ${pubTime}</span>
-                        </div>
-                    `;
-                });
-            } else {
-                newsContentDiv.innerHTML = `<div class="news-item" style="color: #7f8c8d;">Unable to load latest news updates at the moment.</div>`;
-            }
-        } catch (err) {
-            console.error("Failed to fetch The Hindu live news:", err);
-            newsContentDiv.innerHTML = `<div class="news-item" style="color: #7f8c8d;">Check back shortly for live news updates.</div>`;
+        let dino = {
+            x: 50,
+            y: 100,
+            width: 20,
+            height: 25,
+            vy: 0,
+            gravity: 0.6,
+            jumpPower: -10,
+            isJumping: false
+        };
+
+        let obstacles = [];
+        let score = 0;
+        let gameSpeed = 5;
+        let frameCount = 0;
+
+        function resetGame() {
+            dino.y = 100;
+            dino.vy = 0;
+            dino.isJumping = false;
+            obstacles = [];
+            score = 0;
+            gameSpeed = 5;
+            frameCount = 0;
+            dinoGameRunning = true;
+            if (dinoGameInterval) clearInterval(dinoGameInterval);
+            dinoGameInterval = setInterval(updateDinoGame, 1000 / 60);
         }
+
+        function jump() {
+            if (!dinoGameRunning) {
+                resetGame();
+                return;
+            }
+            if (!dino.isJumping) {
+                dino.vy = dino.jumpPower;
+                dino.isJumping = true;
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && document.getElementById('society-verification').style.display !== 'none') {
+                e.preventDefault();
+                jump();
+            }
+        });
+
+        canvas.addEventListener('click', () => {
+            jump();
+        });
+
+        function updateDinoGame() {
+            frameCount++;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Ground line
+            ctx.strokeStyle = '#5d4037';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 125);
+            ctx.lineTo(canvas.width, 125);
+            ctx.stroke();
+
+            // Dino physics
+            dino.vy += dino.gravity;
+            dino.y += dino.vy;
+            if (dino.y > 100) {
+                dino.y = 100;
+                dino.vy = 0;
+                dino.isJumping = false;
+            }
+
+            // Draw Dino
+            ctx.fillStyle = '#5d4037';
+            ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+
+            // Spawn obstacles
+            if (frameCount % 100 === 0) {
+                const obsHeight = Math.floor(Math.random() * 20) + 15;
+                obstacles.push({
+                    x: canvas.width,
+                    y: 125 - obsHeight,
+                    width: 15,
+                    height: obsHeight
+                });
+            }
+
+            // Move and draw obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= gameSpeed;
+                ctx.fillStyle = '#8d6e63';
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+
+                // Collision detection
+                if (
+                    dino.x < obstacles[i].x + obstacles[i].width &&
+                    dino.x + dino.width > obstacles[i].x &&
+                    dino.y < obstacles[i].y + obstacles[i].height &&
+                    dino.y + dino.height > obstacles[i].y
+                ) {
+                    dinoGameRunning = false;
+                    clearInterval(dinoGameInterval);
+                }
+
+                // Remove off-screen obstacles
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    score += 10;
+                    if (score > dinoHighScoreVal) {
+                        dinoHighScoreVal = score;
+                        document.getElementById('dinoHighScore').innerText = `HI: ${String(dinoHighScoreVal).padStart(5, '0')}`;
+                    }
+                }
+            }
+
+            // Increase speed slightly over time
+            gameSpeed = 5 + Math.floor(score / 100);
+
+            // Draw Score
+            ctx.fillStyle = '#5d4037';
+            ctx.font = '16px sans-serif';
+            ctx.fillText(`SCORE: ${String(score).padStart(5, '0')}`, canvas.width - 120, 25);
+
+            if (!dinoGameRunning) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER - Click or Space to Restart', canvas.width / 2, canvas.height / 2);
+                ctx.textAlign = 'left';
+            }
+        }
+
+        // Draw initial static state instructions
+        ctx.fillStyle = '#5d4037';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Click or Press Space to Start Game', canvas.width / 2, canvas.height / 2);
+        ctx.textAlign = 'left';
     }
 
     async function setupGuard(societyIdOrName) {
@@ -655,6 +755,7 @@
 
     function showSearchScreen(societyName, societyId) {
         currentSociety = societyName;
+        if (dinoGameInterval) clearInterval(dinoGameInterval);
         document.getElementById("society-verification").style.display = "none";
         document.getElementById("vehicle-search").style.display = "block";
         document.getElementById("displaySocietyName").innerText = currentSociety;
@@ -683,7 +784,7 @@
         document.getElementById("society-verification").style.display = "block";
         updateAdLinks();
         loadGlobalAdsPreLogin();
-        loadTheHinduNews();
+        initDinoGame();
     }
 
     document.getElementById("verifyBtn").addEventListener("click", async () => {
@@ -774,7 +875,7 @@
             }
         } else {
             loadGlobalAdsPreLogin();
-            loadTheHinduNews();
+            initDinoGame();
         }
     });
     
