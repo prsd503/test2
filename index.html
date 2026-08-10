@@ -550,7 +550,7 @@ ads.forEach((adData) => {
                        titleLower.includes('wish');
 
         let actionLinkHtml = "";
-        const targetId = adData.greetingId || adData.id || 'society_alpha_bday';
+        const targetId = adData.greetingId || adData.id || 'society_default';
 
         // Explicitly enforce type parameter based on whether it is a wish or ad
         if (isWish) {
