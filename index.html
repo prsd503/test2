@@ -102,8 +102,8 @@
             animation-delay: 0.3s;
         }
 
-        /* Chrome Dino Game Widget Styles */
-        .dino-game-box {
+        /* Marble Maze Game Widget Styles */
+        .maze-game-box {
             margin-top: 25px;
             padding: 15px;
             border-radius: 15px;
@@ -112,7 +112,7 @@
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .dino-header {
+        .maze-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -123,14 +123,13 @@
             border-bottom: 2px solid #8d6e63;
             padding-bottom: 5px;
         }
-        #dinoCanvas {
+        #mazeCanvas {
             background: #f7f7f7;
             border: 2px solid #8d6e63;
             border-radius: 10px;
             display: block;
             margin: 0 auto;
             max-width: 100%;
-            cursor: pointer;
         }
 
         /* Owl Animation Specific Styles Scoped to Search Page */
@@ -208,14 +207,14 @@
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
 
-        <!-- Chrome Dino Game Widget placed below Global Ad page view -->
-        <div class="dino-game-box">
-            <div class="dino-header">
-                <span>🦖 Dino Jump Game</span>
-                <span id="dinoHighScore" style="font-size: 0.9rem; font-family: sans-serif; color: #8d6e63; font-weight: bold;">HI: 00000</span>
+        <!-- Marble Maze Game Widget placed below Global Ad page view -->
+        <div class="maze-game-box">
+            <div class="maze-header">
+                <span>🌀 Marble Maze Game</span>
+                <span id="mazeStatus" style="font-size: 0.9rem; font-family: sans-serif; color: #8d6e63; font-weight: bold;">Guide Marble to Goal 🟩</span>
             </div>
-            <canvas id="dinoCanvas" width="600" height="150"></canvas>
-            <p style="font-family: sans-serif; font-size: 0.85rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 0;">Press <b>Spacebar</b>, <b>Up Arrow</b>, or Click canvas to Jump/Start</p>
+            <canvas id="mazeCanvas" width="400" height="300"></canvas>
+            <p style="font-family: sans-serif; font-size: 0.85rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 0;">Use <b>Arrow Keys</b> or <b>WASD</b> to roll the marble through the maze.</p>
         </div>
     </div>
         
@@ -377,156 +376,138 @@
         }
     }
 
-    // Chrome Dino Game Engine Logic
-    let dinoGameInterval = null;
-    let dinoGameRunning = false;
-    let dinoHighScoreVal = 0;
+    // Marble Maze Game Engine Logic
+    let mazeGameInterval = null;
 
-    function initDinoGame() {
-        const canvas = document.getElementById('dinoCanvas');
+    function initMazeGame() {
+        const canvas = document.getElementById('mazeCanvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
-        let dino = {
-            x: 50,
-            y: 100,
-            width: 20,
-            height: 25,
-            vy: 0,
-            gravity: 0.6,
-            jumpPower: -10,
-            isJumping: false
+        const cols = 10;
+        const rows = 8;
+        const tileSize = 40;
+
+        // 1 represents wall, 0 represents open path
+        const mazeGrid = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 2, 1], // 2 is the goal
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ];
+
+        let marble = {
+            x: 1 * tileSize + tileSize / 2,
+            y: 1 * tileSize + tileSize / 2,
+            radius: 10,
+            speed: 3
         };
 
-        let obstacles = [];
-        let score = 0;
-        let gameSpeed = 5;
-        let frameCount = 0;
-
-        function resetGame() {
-            dino.y = 100;
-            dino.vy = 0;
-            dino.isJumping = false;
-            obstacles = [];
-            score = 0;
-            gameSpeed = 5;
-            frameCount = 0;
-            dinoGameRunning = true;
-            if (dinoGameInterval) clearInterval(dinoGameInterval);
-            dinoGameInterval = setInterval(updateDinoGame, 1000 / 60);
-        }
-
-        function jump() {
-            if (!dinoGameRunning) {
-                resetGame();
-                return;
-            }
-            if (!dino.isJumping) {
-                dino.vy = dino.jumpPower;
-                dino.isJumping = true;
-            }
-        }
+        let keys = {};
 
         window.addEventListener('keydown', (e) => {
-            if ((e.code === 'Space' || e.code === 'ArrowUp') && document.getElementById('society-verification').style.display !== 'none') {
-                e.preventDefault();
-                jump();
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space'].includes(e.code)) {
+                if (document.getElementById('society-verification').style.display !== 'none') {
+                    e.preventDefault();
+                }
             }
+            keys[e.code] = true;
         });
 
-        canvas.addEventListener('click', () => {
-            jump();
+        window.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
         });
 
-        function updateDinoGame() {
-            frameCount++;
+        let gameWon = false;
+
+        function updateMaze() {
+            if (gameWon) return;
+
+            let dx = 0;
+            let dy = 0;
+
+            if (keys['ArrowUp'] || keys['KeyW']) dy -= marble.speed;
+            if (keys['ArrowDown'] || keys['KeyS']) dy += marble.speed;
+            if (keys['ArrowLeft'] || keys['KeyA']) dx -= marble.speed;
+            if (keys['ArrowRight'] || keys['KeyD']) dx += marble.speed;
+
+            // Simple collision detection against wall tiles
+            // Test X movement
+            let newX = marble.x + dx;
+            let checkColX = Math.floor(newX / tileSize);
+            let checkRowY = Math.floor(marble.y / tileSize);
+            if (checkColX >= 0 && checkColX < cols && checkRowY >= 0 && checkRowY < rows) {
+                if (mazeGrid[checkRowY][checkColX] !== 1) {
+                    marble.x = newX;
+                }
+            }
+
+            // Test Y movement
+            let newY = marble.y + dy;
+            let checkColX2 = Math.floor(marble.x / tileSize);
+            let checkRowY2 = Math.floor(newY / tileSize);
+            if (checkColX2 >= 0 && checkColX2 < cols && checkRowY2 >= 0 && checkRowY2 < rows) {
+                if (mazeGrid[checkRowY2][checkColX2] !== 1) {
+                    marble.y = newY;
+                }
+            }
+
+            // Check goal condition (value 2)
+            let currentTileCol = Math.floor(marble.x / tileSize);
+            let currentTileRow = Math.floor(marble.y / tileSize);
+            if (mazeGrid[currentTileRow][currentTileCol] === 2) {
+                gameWon = true;
+                document.getElementById('mazeStatus').innerText = '🎉 You Won! Maze Solved!';
+            }
+
+            // Render
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Ground line
-            ctx.strokeStyle = '#5d4037';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, 125);
-            ctx.lineTo(canvas.width, 125);
-            ctx.stroke();
-
-            // Dino physics
-            dino.vy += dino.gravity;
-            dino.y += dino.vy;
-            if (dino.y > 100) {
-                dino.y = 100;
-                dino.vy = 0;
-                dino.isJumping = false;
-            }
-
-            // Draw Dino
-            ctx.fillStyle = '#5d4037';
-            ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
-
-            // Spawn obstacles
-            if (frameCount % 100 === 0) {
-                const obsHeight = Math.floor(Math.random() * 20) + 15;
-                obstacles.push({
-                    x: canvas.width,
-                    y: 125 - obsHeight,
-                    width: 15,
-                    height: obsHeight
-                });
-            }
-
-            // Move and draw obstacles
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= gameSpeed;
-                ctx.fillStyle = '#8d6e63';
-                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
-
-                // Collision detection
-                if (
-                    dino.x < obstacles[i].x + obstacles[i].width &&
-                    dino.x + dino.width > obstacles[i].x &&
-                    dino.y < obstacles[i].y + obstacles[i].height &&
-                    dino.y + dino.height > obstacles[i].y
-                ) {
-                    dinoGameRunning = false;
-                    clearInterval(dinoGameInterval);
-                }
-
-                // Remove off-screen obstacles
-                if (obstacles[i].x + obstacles[i].width < 0) {
-                    obstacles.splice(i, 1);
-                    score += 10;
-                    if (score > dinoHighScoreVal) {
-                        dinoHighScoreVal = score;
-                        document.getElementById('dinoHighScore').innerText = `HI: ${String(dinoHighScoreVal).padStart(5, '0')}`;
+            // Draw Maze Grid
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (mazeGrid[r][c] === 1) {
+                        ctx.fillStyle = '#8d6e63';
+                        ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                    } else if (mazeGrid[r][c] === 2) {
+                        ctx.fillStyle = '#2ecc71';
+                        ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                    } else {
+                        ctx.fillStyle = '#f7f7f7';
+                        ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                        ctx.strokeStyle = '#e0e0e0';
+                        ctx.strokeRect(c * tileSize, r * tileSize, tileSize, tileSize);
                     }
                 }
             }
 
-            // Increase speed slightly over time
-            gameSpeed = 5 + Math.floor(score / 100);
+            // Draw Marble
+            ctx.beginPath();
+            ctx.arc(marble.x, marble.y, marble.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#d32f2f';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#5d4037';
+            ctx.stroke();
+            ctx.closePath();
 
-            // Draw Score
-            ctx.fillStyle = '#5d4037';
-            ctx.font = '16px sans-serif';
-            ctx.fillText(`SCORE: ${String(score).padStart(5, '0')}`, canvas.width - 120, 25);
-
-            if (!dinoGameRunning) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            if (gameWon) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 20px sans-serif';
+                ctx.font = 'bold 22px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('GAME OVER - Click or Space to Restart', canvas.width / 2, canvas.height / 2);
+                ctx.fillText('🏆 LEVEL COMPLETED!', canvas.width / 2, canvas.height / 2);
                 ctx.textAlign = 'left';
             }
         }
 
-        // Draw initial static state instructions
-        ctx.fillStyle = '#5d4037';
-        ctx.font = '16px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Click or Press Space to Start Game', canvas.width / 2, canvas.height / 2);
-        ctx.textAlign = 'left';
+        if (mazeGameInterval) clearInterval(mazeGameInterval);
+        mazeGameInterval = setInterval(updateMaze, 1000 / 60);
     }
 
     async function setupGuard(societyIdOrName) {
@@ -755,7 +736,7 @@
 
     function showSearchScreen(societyName, societyId) {
         currentSociety = societyName;
-        if (dinoGameInterval) clearInterval(dinoGameInterval);
+        if (mazeGameInterval) clearInterval(mazeGameInterval);
         document.getElementById("society-verification").style.display = "none";
         document.getElementById("vehicle-search").style.display = "block";
         document.getElementById("displaySocietyName").innerText = currentSociety;
@@ -784,7 +765,7 @@
         document.getElementById("society-verification").style.display = "block";
         updateAdLinks();
         loadGlobalAdsPreLogin();
-        initDinoGame();
+        initMazeGame();
     }
 
     document.getElementById("verifyBtn").addEventListener("click", async () => {
@@ -875,7 +856,7 @@
             }
         } else {
             loadGlobalAdsPreLogin();
-            initDinoGame();
+            initMazeGame();
         }
     });
     
