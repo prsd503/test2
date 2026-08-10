@@ -102,6 +102,55 @@
             animation-delay: 0.3s;
         }
 
+        /* Live News Feed Widget Specific Styles */
+        .news-ticker-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 2px dashed #8d6e63;
+            color: #5d4037;
+            text-align: left;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-family: 'Caveat', cursive;
+            font-size: 1.4rem;
+            border-bottom: 1px solid #d7ccc8;
+            padding-bottom: 4px;
+        }
+        .news-item {
+            font-family: sans-serif;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .news-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .news-item a {
+            color: #5d4037;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .news-item a:hover {
+            text-decoration: underline;
+            color: #8d6e63;
+        }
+        .news-time {
+            font-size: 0.75rem;
+            color: #8c8c8c;
+            display: block;
+            margin-top: 2px;
+        }
+
         /* Owl Animation Specific Styles Scoped to Search Page */
         #owl-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
         #owl-icon { font-size: 60px; cursor: pointer; user-select: none; transition: transform 0.3s ease; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2)); }
@@ -177,31 +226,14 @@
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
 
-        <!-- Mini Drawing Whiteboard Box (Auto Scroll-Lock via touch-action) -->
-        <div id="whiteboardBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: #ffffff; border: 2px dashed #8d6e63; color: #5d4037; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); user-select: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: 'Caveat', cursive; font-size: 1.3rem;">
-                <span>🎨 Mini Whiteboard Studio</span>
-                <div>
-                    <button id="clearCanvasBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Clear</button>
-                </div>
+        <!-- Live News Feed Widget -->
+        <div class="news-ticker-box">
+            <div class="news-header">
+                <span>📰 Live Tech & Global News</span>
+                <span style="font-size: 0.9rem; font-family: sans-serif; color: #8d6e63; font-weight: bold;">LIVE</span>
             </div>
-            
-            <!-- Drawing Tools Toolbar -->
-            <div style="display: flex; justify-content: center; align-items: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
-                <button type="button" class="tool-btn active-tool" data-tool="pencil" style="background: #8d6e63; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Pencil</button>
-                <button type="button" class="tool-btn" data-tool="brush" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Brush</button>
-                <button type="button" class="tool-btn" data-tool="eraser" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🧹 Eraser</button>
-                <button type="button" class="tool-btn" data-tool="bucket" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🪣 Bucket</button>
-                
-                <label for="drawColorPicker" style="background: #dcdde1; color: #2f3640; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 0;" title="Pick Color">
-                    🎨 <span id="colorIndicator" style="width: 12px; height: 12px; background: #ff4757; border-radius: 50%; display: inline-block; border: 1px solid #fff;"></span>
-                    <input type="color" id="drawColorPicker" value="#ff4757" style="opacity: 0; width: 0; height: 0; position: absolute; pointer-events: none;">
-                </label>
-            </div>
-
-            <!-- Canvas Area (touch-action: none prevents scrolling while drawing) -->
-            <div style="width: 100%; height: 160px; background: #ffffff; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden; touch-action: none;" id="canvasWrapper">
-                <canvas id="miniWhiteboardCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none;"></canvas>
+            <div id="liveNewsContainer">
+                <div class="news-item" style="color: #a1887f; font-style: italic;">Loading latest headlines...</div>
             </div>
         </div>
     </div>
@@ -369,181 +401,38 @@
         }
     }
 
-    // Mini Whiteboard Logic (Auto-lock scroll when drawing via touch-action: none)
-    const wbCanvas = document.getElementById('miniWhiteboardCanvas');
+    // Live News Feed Integration using free public RSS-to-JSON or news API endpoint
+    async function loadLiveNews() {
+        const newsContainer = document.getElementById('liveNewsContainer');
+        if (!newsContainer) return;
 
-    if (wbCanvas) {
-        const wbCtx = wbCanvas.getContext('2d', { willReadFrequently: true });
-        
-        function resizeWbCanvas() {
-            const rect = wbCanvas.getBoundingClientRect();
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = wbCanvas.width;
-            tempCanvas.height = wbCanvas.height;
-            if (wbCanvas.width > 0 && wbCanvas.height > 0) {
-                tempCtx.drawImage(wbCanvas, 0, 0);
-            }
+        try {
+            // Using Hacker News top stories or public tech RSS converted via api (e.g. RSS2JSON)
+            const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://news.ycombinator.com/rss');
+            const data = await response.json();
 
-            wbCanvas.width = rect.width;
-            wbCanvas.height = rect.height;
-            
-            wbCtx.fillStyle = "#ffffff";
-            wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
-            
-            if (tempCanvas.width > 0) {
-                wbCtx.drawImage(tempCanvas, 0, 0);
-            }
-        }
-        resizeWbCanvas();
-        window.addEventListener('resize', resizeWbCanvas);
-
-        let isDrawing = false;
-        let currentTool = 'pencil';
-        let currentColor = '#ff4757';
-
-        const toolButtons = document.querySelectorAll('.tool-btn');
-        toolButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                toolButtons.forEach(b => {
-                    b.classList.remove('active-tool');
-                    b.style.background = '#dcdde1';
-                    b.style.color = '#2f3640';
+            if (data && data.items && data.items.length > 0) {
+                newsContainer.innerHTML = '';
+                // Display top 4 news items
+                const topItems = data.items.slice(0, 4);
+                topItems.forEach(item => {
+                    const pubDate = new Date(item.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    newsContainer.innerHTML += `
+                        <div class="news-item">
+                            <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
+                            <span class="news-time">Hacker News • ${pubDate}</span>
+                        </div>
+                    `;
                 });
-                btn.classList.add('active-tool');
-                btn.style.background = '#8d6e63';
-                btn.style.color = 'white';
-                currentTool = btn.getAttribute('data-tool');
-            });
-        });
-
-        const colorPicker = document.getElementById('drawColorPicker');
-        const colorIndicator = document.getElementById('colorIndicator');
-        if (colorPicker) {
-            colorPicker.addEventListener('input', (e) => {
-                currentColor = e.target.value;
-                if (colorIndicator) colorIndicator.style.background = currentColor;
-            });
-        }
-
-        const clearBtn = document.getElementById('clearCanvasBtn');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-                wbCtx.fillStyle = "#ffffff";
-                wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
-            });
-        }
-
-        function getMousePos(e) {
-            const rect = wbCanvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: Math.floor(clientX - rect.left),
-                y: Math.floor(clientY - rect.top)
-            };
-        }
-
-        function hexToRgba(hex) {
-            let c = hex.replace('#', '');
-            if (c.length === 3) c = c.split('').map(x => x + x).join('');
-            const num = parseInt(c, 16);
-            return [num >> 16, (num >> 8) & 255, num & 255, 255];
-        }
-
-        function floodFill(startX, startY, fillColorHex) {
-            const imgData = wbCtx.getImageData(0, 0, wbCanvas.width, wbCanvas.height);
-            const pixels = imgData.data;
-            const targetIdx = (startY * wbCanvas.width + startX) * 4;
-            
-            const targetR = pixels[targetIdx];
-            const targetG = pixels[targetIdx + 1];
-            const targetB = pixels[targetIdx + 2];
-            const targetA = pixels[targetIdx + 3];
-
-            const [fillR, fillG, fillB, fillA] = hexToRgba(fillColorHex);
-
-            if (targetR === fillR && targetG === fillG && targetB === fillB && targetA === fillA) return;
-
-            const queue = [[startX, startY]];
-            const width = wbCanvas.width;
-            const height = wbCanvas.height;
-
-            while (queue.length > 0) {
-                const [x, y] = queue.pop();
-                const idx = (y * width + x) * 4;
-
-                if (
-                    pixels[idx] === targetR &&
-                    pixels[idx + 1] === targetG &&
-                    pixels[idx + 2] === targetB &&
-                    pixels[idx + 3] === targetA
-                ) {
-                    pixels[idx] = fillR;
-                    pixels[idx + 1] = fillG;
-                    pixels[idx + 2] = fillB;
-                    pixels[idx + 3] = fillA;
-
-                    if (x > 0) queue.push([x - 1, y]);
-                    if (x < width - 1) queue.push([x + 1, y]);
-                    if (y > 0) queue.push([x, y - 1]);
-                    if (y < height - 1) queue.push([x, y + 1]);
-                }
+            } else {
+                newsContainer.innerHTML = `<div class="news-item" style="color: #a1887f;">Unable to fetch current headlines right now.</div>`;
             }
-            wbCtx.putImageData(imgData, 0, 0);
+        } catch (err) {
+            console.error("Failed to fetch live news:", err);
+            newsContainer.innerHTML = `<div class="news-item" style="color: #a1887f;">Stay tuned for real-time tech updates.</div>`;
         }
-
-        function startDraw(e) {
-            const pos = getMousePos(e);
-            if (currentTool === 'bucket') {
-                floodFill(pos.x, pos.y, currentColor);
-                e.preventDefault();
-                return;
-            }
-
-            isDrawing = true;
-            wbCtx.beginPath();
-            wbCtx.moveTo(pos.x, pos.y);
-            e.preventDefault();
-        }
-
-        function draw(e) {
-            if (!isDrawing || currentTool === 'bucket') return;
-            const pos = getMousePos(e);
-            
-            wbCtx.lineCap = 'round';
-            wbCtx.lineJoin = 'round';
-
-            if (currentTool === 'pencil') {
-                wbCtx.strokeStyle = currentColor;
-                wbCtx.lineWidth = 2;
-            } else if (currentTool === 'brush') {
-                wbCtx.strokeStyle = currentColor;
-                wbCtx.lineWidth = 10;
-            } else if (currentTool === 'eraser') {
-                wbCtx.strokeStyle = '#ffffff';
-                wbCtx.lineWidth = 16;
-            }
-
-            wbCtx.lineTo(pos.x, pos.y);
-            wbCtx.stroke();
-            e.preventDefault();
-        }
-
-        function stopDraw() {
-            if (!isDrawing) return;
-            isDrawing = false;
-            wbCtx.beginPath();
-        }
-
-        wbCanvas.addEventListener('mousedown', startDraw);
-        wbCanvas.addEventListener('mousemove', draw);
-        window.addEventListener('mouseup', stopDraw);
-
-        wbCanvas.addEventListener('touchstart', startDraw, { passive: false });
-        wbCanvas.addEventListener('touchmove', draw, { passive: false });
-        window.addEventListener('touchend', stopDraw);
     }
+    loadLiveNews();
     
     async function loadNotice(societyId) {
         const noticeDiv = document.getElementById('notice-content');
@@ -840,6 +729,7 @@
         document.getElementById("society-verification").style.display = "block";
         updateAdLinks();
         loadGlobalAdsPreLogin();
+        loadLiveNews();
     }
 
     document.getElementById("verifyBtn").addEventListener("click", async () => {
