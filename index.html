@@ -6,8 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
     <title>Owl Watcher | Home</title>
     <style>
-
-/* Professional Navigation */
+        /* Professional Navigation */
         .main-nav {
             display: flex;
             justify-content: center;
@@ -33,77 +32,38 @@
             font-family: 'Caveat', cursive; 
             font-size: 1.4rem;             
         }
-/* Mobile Menu Button */
-.menu-btn { display: none; background: #8d6e63; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-family: 'Caveat', cursive; font-size: 1.1rem; }
-
-/* Responsive Mobile View */
-@media (max-width: 768px) {
-    .menu-btn { display: block; }
-    .nav-links { 
-        display: none; 
-        flex-direction: column; 
-        position: absolute; 
-        top: 70px; 
-        width: 100%; 
-        background: #fdf6e3; 
-        padding: 20px; 
-        z-index: 999;
-    }
-    .nav-links.active { display: flex; }
-}
-
-body { padding-top: 80px; }
         
-.hamburger { 
-    display: none; 
-    background: none; 
-    border: none; 
-    font-size: 28px; 
-    cursor: pointer; 
-    color: #000; 
-    z-index: 1001; 
-}
+        /* Mobile Menu Button */
+        .menu-btn { display: none; background: #8d6e63; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-family: 'Caveat', cursive; font-size: 1.1rem; }
 
-@media (max-width: 768px) {
-    .hamburger { display: block; }
-    
-    .nav-links {
-        display: none;
-        position: absolute;
-        top: 60px;
-        left: 0;
-        width: 100%;
-        background: #fdf6e3; 
-        flex-direction: column;
-        padding: 20px;
-        border-bottom: 2px solid #8d6e63;
-        z-index: 999; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-    }
-    
-    .nav-links.active { display: flex; }
-}
+        /* Responsive Mobile View */
+        @media (max-width: 768px) {
+            .menu-btn { display: block; }
+            .nav-links { 
+                display: none; 
+                flex-direction: column; 
+                position: absolute; 
+                top: 70px; 
+                left: 0;
+                width: 100%; 
+                background: #fdf6e3; 
+                padding: 20px; 
+                z-index: 999;
+                border-bottom: 2px solid #8d6e63;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            .nav-links.active { display: flex; }
+        }
 
-.nav-links { display: flex; }
-.menu-btn { display: none; }
-
-@media (max-width: 768px) {
-    .nav-links { 
-        display: none; 
-        flex-direction: column;
-        position: absolute;
-        top: 80px;
-        left: 0;
-        width: 100%;
-        background: #fdf6e3;
-        max-width: 85%;
-        z-index: 999;
-    }
-    .menu-btn { display: block; } 
-    .nav-links.active { display: flex; }
-}
-
-        body { font-family: 'Caveat', cursive; background: #fdf6e3; color: #5d4037; text-align: center; padding: 20px; }
+        body { 
+            font-family: 'Caveat', cursive; 
+            background: #fdf6e3; 
+            color: #5d4037; 
+            text-align: center; 
+            padding: 20px; 
+            padding-top: 80px; 
+        }
+        
         .card { max-width: 100vw; margin: 0px 5px; }
         input { width: 85%; padding: 10px; border: 2px solid #8d6e63; border-radius: 10px; font-size: 1.2rem; margin-bottom: 10px; }
         button { background: #8d6e63; color: white; border: none; padding: 10px 25px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; margin-top:10px; }
@@ -136,8 +96,6 @@ body { padding-top: 80px; }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .card { animation: subtleFocus 3s infinite ease-in-out; }
-
         #society-verification > * {
             opacity: 0;
             animation: fadeInSlide 0.6s ease-out forwards;
@@ -146,12 +104,10 @@ body { padding-top: 80px; }
     </style>
 </head>
 <body>
+
 <div id="startOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; box-sizing: border-box;">
-    
     <div style="max-width: 500px; width: 90%; text-align: center;">
-        
         <div style="position: relative; margin-bottom: 15px;">
-           <div hidden> <img style="max-width:200px" src="test.gif"/> </div>
             <video id="welcomeVideo" autoplay muted loop playsinline style="width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; display: block;">
                 <source src="animate.mp4" type="video/mp4">
                 Your browser does not support the video tag.
@@ -177,38 +133,37 @@ body { padding-top: 80px; }
     </div>
 </div>
 
-    <div class="card">
-        <nav class="main-nav" style="margin-top: 50px;">
-            <div class="nav-logo">Owl Watcher 🦉</div>
-            <button class="menu-btn" id="menuToggle">☰</button>
-            <div class="nav-links" id="navLinks">
-                <a href="index.html" style="background-color: yellow;">Home</a>
-                <a href="admin.html">Admin Portal</a>
-                <a href="guard.html">Security Guard Portal</a>
-                <a href="studio.html">Photo Studio Portal</a>
-                <a href="https://wa.me/919033406816">Contact Us</a>
-            </div>
-        </nav>
-        
-        <div id="society-verification">
-            <input type="text" id="societyInput" placeholder="Enter Society Name">
-            <br>
-            <button id="verifyBtn">Proceed</button>
-            <br>
-            <div id="ad-billboard-global">
-                <h4 style="margin: 0 0 10px 0; font-family: 'Caveat', cursive; color: #8d6e63;">✨ Global Billboard ✨</h4>
-                <div class="global-ad-slider-container" id="globalAdSlider">
-                    <p id="global-ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>
-                </div>
-                
-                <div class="ad-controls" id="globalAdControls" style="display: none;">
-                    <button class="ad-nav-btn" id="prevGlobalAdBtn">❮ Prev</button>
-                    <button class="ad-nav-btn" id="nextGlobalAdBtn">Next ❯</button>
-                </div>
-                <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
-            </div>
+<div class="card">
+    <nav class="main-nav" style="margin-top: 50px;">
+        <div class="nav-logo">Owl Watcher 🦉</div>
+        <button class="menu-btn" id="menuToggle">☰</button>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html" style="background-color: yellow;">Home</a>
+            <a href="admin.html">Admin Portal</a>
+            <a href="guard.html">Security Guard Portal</a>
+            <a href="studio.html">Photo Studio Portal</a>
+            <a href="https://wa.me/919033406816">Contact Us</a>
         </div>
+    </nav>
     
+    <div id="society-verification">
+        <input type="text" id="societyInput" placeholder="Enter Society Name">
+        <br>
+        <button id="verifyBtn">Proceed</button>
+        <br>
+        <div id="ad-billboard-global">
+            <h4 style="margin: 0 0 10px 0; font-family: 'Caveat', cursive; color: #8d6e63;">✨ Global Billboard ✨</h4>
+            <div class="global-ad-slider-container" id="globalAdSlider">
+                <p id="global-ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>
+            </div>
+            
+            <div class="ad-controls" id="globalAdControls" style="display: none;">
+                <button class="ad-nav-btn" id="prevGlobalAdBtn">❮ Prev</button>
+                <button class="ad-nav-btn" id="nextGlobalAdBtn">Next ❯</button>
+            </div>
+            <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
+        </div>
+    </div>
 
     <div id="vehicle-search" style="display:none;">
         <p style="display: flex; justify-content: center; align-items: center; gap: 8px;">
@@ -226,13 +181,12 @@ body { padding-top: 80px; }
         <div id="notice-board">
             <h3 style="margin-top: 0; font-family: 'Caveat', cursive; border-bottom: 2px solid #8d6e63; padding-bottom: 5px;">📢 Notice Board</h3>
             <div id="notice-content">Loading...</div>
-         </div>
+        </div>
 
         <div id="ad-billboard">
-            <h4 style="margin: 0 0 10px 0; font-family: 'Caveat', cursive; color: #8d6e63;">Birthday/Anniversay Wishes, Offers, Ads & More</h4>
+            <h4 style="margin: 0 0 10px 0; font-family: 'Caveat', cursive; color: #8d6e63;">Birthday/Anniversary Wishes, Offers, Ads & More</h4>
             <div class="ad-slider-container" id="adSlider">
                 <p id="ad-placeholder" style="color: #a1887f;">Space Available</p>
-                <br>
             </div>
             
             <div class="ad-controls" id="adControls" style="display: none;">
@@ -244,11 +198,11 @@ body { padding-top: 80px; }
         </div>
 
         <div style="margin-top: 25px; border-top: 2px dashed #8d6e63; padding-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-            <a id="factlityPage" href="#" style="background: #8d6e63; color: white; padding: 12px 20px; text-decoration: none; border-radius: 12px; font-family: 'Caveat', cursive; font-size: 1.3rem; box-shadow: 3px 3px 0px #5d4037; display: inline-block; transition: transform 0.2s;">
+            <a id="factlityPage" href="#" style="background: #8d6e63; color: white; padding: 12px 20px; text-decoration: none; border-radius: 12px; font-family: 'Caveat', cursive; font-size: 1.3rem; box-shadow: 3px 3px 0px #5d4037; display: inline-block;">
                📅 Go to Facility Booking
             </a>
             <a id="addVehiclePageBtn" href="#" style="background: #8d6e63; color: white; padding: 12px 20px; text-decoration: none; border-radius: 12px; font-family: 'Caveat', cursive; font-size: 1.3rem; box-shadow: 3px 3px 0px #5d4037; display: inline-block;">
-                   🚗 Add Vehicle
+               🚗 Add Vehicle
             </a>
             
             <button id="backToHomeBtn" style="font-family: 'Caveat', cursive; font-size: 1.3rem; background: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; box-shadow: 3px 3px 0px #5d4037; margin-top: 0;">
@@ -264,351 +218,358 @@ body { padding-top: 80px; }
         </div>
     </div>
 </div>
-    <script>
-        
-        const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
-        const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
-        async function getAuthHeaders() {
+<script>
+    const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
+    const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
+
+    // Function incorporating Firebase App Check token acquisition flow
+    async function getAppCheckHeaders() {
+        let appCheckToken = "";
+        
+        // Simulating/Integrating client-side Firebase App Check retrieval pattern
+        if (typeof firebase !== 'undefined' && firebase.appCheck) {
             try {
-                const tokenResponse = await fetch(`${API_BASE_URL}/auth/token`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...NG_HEADERS }
-                });
-                if (tokenResponse.ok) {
-                    const tokenData = await tokenResponse.json();
-                    if (tokenData && tokenData.token) {
-                        return {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${tokenData.token}`,
-                            ...NG_HEADERS
-                        };
-                    }
-                }
+                const appCheckResponse = await firebase.appCheck().getToken(false);
+                appCheckToken = appCheckResponse.token;
             } catch (err) {
-                console.error("Failed to acquire auth token:", err);
+                console.error("Failed to get Firebase App Check token:", err);
             }
-            return { 'Content-Type': 'application/json', ...NG_HEADERS };
         }
 
-        const themeAudio = new Audio('tapenter.mp3'); 
-        
-        const modal = document.getElementById("resultModal");
-        let currentSociety = "";
-        let guardUnsubscribe = null;
-        let adInterval = null;
-        let globalAdInterval = null;
-        
-        let owlWatcherTeamPhone = "919033406816";
-        
-        let currentIndex = 0;
-        let totalSlides = 0;
-        let currentGlobalIndex = 0;
-        let totalGlobalSlides = 0;
+        return {
+            'X-Firebase-AppCheck': appCheckToken
+        };
+    }
 
-        function showModal(content) { document.getElementById("result").innerHTML = content; modal.style.display = "block"; }
-        window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
-
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            const navLinks = document.getElementById('navLinks');
-            navLinks.classList.toggle('active');
-        });
+    async function getAuthHeaders() {
+        try {
+            const tokenResponse = await fetch(`${API_BASE_URL}/auth/token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...NG_HEADERS }
+            });
+            if (tokenResponse.ok) {
+                const tokenData = await tokenResponse.json();
+                if (tokenData && tokenData.token) {
+                    const appCheckHeaders = await getAppCheckHeaders();
+                    return {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${tokenData.token}`,
+                        ...appCheckHeaders,
+                        ...NG_HEADERS
+                    };
+                }
+            }
+        } catch (err) {
+            console.error("Failed to acquire auth token:", err);
+        }
         
-        async function fetchTeamPhone() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/config`, { headers: NG_HEADERS });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.teamPhone) {
-                        owlWatcherTeamPhone = data.teamPhone.replace(/\D/g, '');
-                    }
-                    if (data.welcomeMessage) {
-                        const welcomeEl = document.getElementById('overlayWelcomeText');
-                        if (welcomeEl) {
-                            welcomeEl.innerHTML = data.welcomeMessage.replace(/\n/g, '<br>');
-                        }
+        const fallbackAppCheck = await getAppCheckHeaders();
+        return { 
+            'Content-Type': 'application/json', 
+            ...fallbackAppCheck,
+            ...NG_HEADERS 
+        };
+    }
+
+    const modal = document.getElementById("resultModal");
+    let currentSociety = "";
+    let guardUnsubscribe = null;
+    let adInterval = null;
+    let globalAdInterval = null;
+    
+    let owlWatcherTeamPhone = "919033406816";
+    
+    let currentIndex = 0;
+    let totalSlides = 0;
+    let currentGlobalIndex = 0;
+    let totalGlobalSlides = 0;
+
+    function showModal(content) { document.getElementById("result").innerHTML = content; modal.style.display = "block"; }
+    window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
+
+    document.getElementById('menuToggle').addEventListener('click', function() {
+        const navLinks = document.getElementById('navLinks');
+        navLinks.classList.toggle('active');
+    });
+    
+    async function fetchTeamPhone() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/config`, { headers: NG_HEADERS });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.teamPhone) {
+                    owlWatcherTeamPhone = data.teamPhone.replace(/\D/g, '');
+                }
+                if (data.welcomeMessage) {
+                    const welcomeEl = document.getElementById('overlayWelcomeText');
+                    if (welcomeEl) {
+                        welcomeEl.innerHTML = data.welcomeMessage.replace(/\n/g, '<br>');
                     }
                 }
-            } catch (err) {
-                console.error("Failed to fetch dynamic master admin phone, using fallback.", err);
             }
+        } catch (err) {
+            console.error("Failed to fetch dynamic master admin phone, using fallback.", err);
+        }
+    }
+
+    function updateAdLinks(societyName = "") {
+        const globalAdLink = document.getElementById("globalAdLink");
+        if (globalAdLink) {
+            const globalText = encodeURIComponent("Hi I want to apply for global ad in Owl Watcher");
+            globalAdLink.href = `https://wa.me/${owlWatcherTeamPhone}?text=${globalText}`;
         }
 
-        function updateAdLinks(societyName = "") {
-            const globalAdLink = document.getElementById("globalAdLink");
-            if (globalAdLink) {
-                const globalText = encodeURIComponent("Hi I want to apply for global ad in Owl Watcher");
-                globalAdLink.href = `https://wa.me/${owlWatcherTeamPhone}?text=${globalText}`;
-            }
-
-            const registerBtn = document.getElementById("registerSocietyBtn");
-            if (registerBtn) {
-                const regText = encodeURIComponent("Hi, I want to register my society/organisation in Owl Watcher app");
-                registerBtn.href = `https://wa.me/${owlWatcherTeamPhone}?text=${regText}`;
-            }
-
-            const localAdLink = document.getElementById("localAdLink");
-            if (localAdLink && societyName) {
-                const localText = encodeURIComponent(`Hi I want to apply for local-society post in Owl Watcher for ${societyName}`);
-                localAdLink.href = `https://wa.me/${owlWatcherTeamPhone}?text=${localText}`;
-                localAdLink.innerText = `Contact for Posting Paid Content in ${societyName}!`;
-            }
+        const localAdLink = document.getElementById("localAdLink");
+        if (localAdLink && societyName) {
+            const localText = encodeURIComponent(`Hi I want to apply for local-society post in Owl Watcher for ${societyName}`);
+            localAdLink.href = `https://wa.me/${owlWatcherTeamPhone}?text=${localText}`;
+            localAdLink.innerText = `Contact for Posting Paid Content in ${societyName}!`;
         }
+    }
 
-        async function loadNotice(societyId) {
-            const noticeDiv = document.getElementById('notice-content');
-            try {
-                const headers = await getAuthHeaders();
-                let response = await fetch(`${API_BASE_URL}/notices/${encodeURIComponent(societyId)}`, { headers });
-                if (!response.ok && currentSociety && currentSociety !== societyId) {
-                    response = await fetch(`${API_BASE_URL}/notices/${encodeURIComponent(currentSociety)}`, { headers });
-                }
+    async function loadNotice(societyId) {
+        const noticeDiv = document.getElementById('notice-content');
+        try {
+            const headers = await getAuthHeaders();
+            let response = await fetch(`${API_BASE_URL}/notices/${encodeURIComponent(societyId)}`, { headers });
+            if (!response.ok && currentSociety && currentSociety !== societyId) {
+                response = await fetch(`${API_BASE_URL}/notices/${encodeURIComponent(currentSociety)}`, { headers });
+            }
 
-                const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
-                const formatter = new Intl.DateTimeFormat('en-CA', options);
-                const currentIstDateStr = formatter.format(new Date());
+            const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
+            const formatter = new Intl.DateTimeFormat('en-CA', options);
+            const currentIstDateStr = formatter.format(new Date());
 
-                if (response.ok) {
-                    let data = await response.json();
-                    let todayMsg = data.todayMessage || "";
+            if (response.ok) {
+                let data = await response.json();
+                let todayMsg = data.todayMessage || "";
 
-                    if (todayMsg) {
-                        const characterLimit = 60; 
-                        let previewText = todayMsg;
-                        let readMoreLink = "";
+                if (todayMsg) {
+                    const characterLimit = 60; 
+                    let previewText = todayMsg;
+                    let readMoreLink = "";
 
-                        if (todayMsg.length > characterLimit) {
-                            previewText = todayMsg.substring(0, characterLimit).trim() + "...";
-                            readMoreLink = ` <a href="notice.html?id=${encodeURIComponent(societyId)}" style="color: #8d6e63; font-weight: bold; text-decoration: underline; font-family: sans-serif; font-size: 0.9rem;">Read More</a>`;
-                        }
-
-                        noticeDiv.innerHTML = `<p class="notice-date">${currentIstDateStr}</p><div>${previewText}${readMoreLink}</div>`;
-                    } else {
-                        noticeDiv.innerText = "No notices for today.";
+                    if (todayMsg.length > characterLimit) {
+                        previewText = todayMsg.substring(0, characterLimit).trim() + "...";
+                        readMoreLink = ` <a href="notice.html?id=${encodeURIComponent(societyId)}" style="color: #8d6e63; font-weight: bold; text-decoration: underline; font-family: sans-serif; font-size: 0.9rem;">Read More</a>`;
                     }
+
+                    noticeDiv.innerHTML = `<p class="notice-date">${currentIstDateStr}</p><div>${previewText}${readMoreLink}</div>`;
                 } else {
                     noticeDiv.innerText = "No notices for today.";
                 }
-            } catch (err) {
-                console.error("Failed to load notice:", err);
+            } else {
                 noticeDiv.innerText = "No notices for today.";
             }
+        } catch (err) {
+            console.error("Failed to load notice:", err);
+            noticeDiv.innerText = "No notices for today.";
         }
+    }
 
-        async function setupGuard(societyIdOrName) {
-            const guardContainer = document.getElementById("guard-container");
-            if (!guardContainer) {
+    async function setupGuard(societyIdOrName) {
+        const guardContainer = document.getElementById("guard-container");
+        if (!guardContainer) return;
+
+        guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
+        
+        try {
+            const headers = await getAuthHeaders();
+            let listRes = await fetch(`${API_BASE_URL}/societies/${encodeURIComponent(societyIdOrName)}/active-guard`, { headers });
+            if (!listRes.ok && currentSociety && currentSociety !== societyIdOrName) {
+                listRes = await fetch(`${API_BASE_URL}/societies/${encodeURIComponent(currentSociety)}/active-guard`, { headers });
+            }
+
+            if (listRes.ok) {
+                const resultData = await listRes.json();
+                let found = null;
+
+                if (Array.isArray(resultData)) {
+                    found = resultData.find(s => s.id == societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase() || (currentSociety && s.name?.toLowerCase() === currentSociety.toLowerCase()));
+                } else if (resultData && typeof resultData === 'object') {
+                    found = resultData;
+                }
+
+                if (found && (found.activeGuardName || found.name || found.id)) {
+                    const guardName = found.activeGuardName;
+                    const guardPhone = found.activeGuardPhone;
+
+                    if (guardName) {
+                        const cleanPhone = guardPhone ? guardPhone.replace(/\D/g, '') : '';
+                        guardContainer.innerHTML = `
+                            <div style="background: #fff8f5; border: 2px dashed #8d6e63; padding: 12px; border-radius: 12px; display: inline-block; max-width: 90%; font-family: sans-serif;">
+                                <span style="font-family: 'Caveat', cursive; font-size: 1.3rem; color: #5d4037; display: block; margin-bottom: 4px;">🛡️ Live Security Guard on Duty</span>
+                                <span style="font-size: 1.05rem; font-weight: bold; color: #2f3640;">${guardName}</span>
+                                ${cleanPhone ? `<br><a href="tel:${cleanPhone}" style="background: #25D366; color: white; padding: 6px 14px; text-decoration: none; border-radius: 8px; font-size: 0.9rem; display: inline-block; margin-top: 8px;">📞 Call Guard</a>` : ''}
+                            </div>
+                        `;
+                        return;
+                    }
+                }
+            }
+            guardContainer.innerHTML = "";
+        } catch (err) {
+            console.error("Failed to load active guard info:", err);
+            guardContainer.innerHTML = "";
+        }
+    }
+
+function changeSlide(direction) {
+    const slider = document.getElementById("adSlider");
+    const slides = slider.getElementsByClassName("ad-slide");
+    if (slides.length <= 1) return;
+
+    slides[currentIndex].style.display = "none";
+    slides[currentIndex].classList.remove("active");
+    
+    if (direction === "next") {
+        currentIndex = (currentIndex + 1) % slides.length;
+    } else if (direction === "prev") {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+    }
+    
+    slides[currentIndex].style.display = "flex";
+    slides[currentIndex].classList.add("active");
+}
+
+    function changeGlobalSlide(direction) {
+        const slider = document.getElementById("globalAdSlider");
+        const slides = slider.getElementsByClassName("global-ad-slide");
+        if (slides.length <= 1) return;
+
+        slides[currentGlobalIndex].classList.remove("active");
+        if (direction === "next") {
+            currentGlobalIndex = (currentGlobalIndex + 1) % slides.length;
+        } else if (direction === "prev") {
+            currentGlobalIndex = (currentGlobalIndex - 1 + slides.length) % slides.length;
+        }
+        slides[currentGlobalIndex].classList.add("active");
+    }
+
+    function startAdTimer() {
+        if (adInterval) clearInterval(adInterval);
+        const slider = document.getElementById("adSlider");
+        const slides = slider.getElementsByClassName("ad-slide");
+        if (slides.length > 1) {
+            adInterval = setInterval(() => { changeSlide("next"); }, 5000);
+        }
+    }
+
+    function startGlobalAdTimer() {
+        if (globalAdInterval) clearInterval(globalAdInterval);
+        const slider = document.getElementById("globalAdSlider");
+        const slides = slider.getElementsByClassName("global-ad-slide");
+        if (slides.length > 1) {
+            globalAdInterval = setInterval(() => { changeGlobalSlide("next"); }, 5000);
+        }
+    }
+
+    async function loadGlobalAdsPreLogin() {
+        const slider = document.getElementById("globalAdSlider");
+        const controls = document.getElementById("globalAdControls");
+        if (globalAdInterval) clearInterval(globalAdInterval);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/ads/global`, { headers: NG_HEADERS });
+            const ads = await response.json();
+
+            if (!Array.isArray(ads) || ads.length === 0) {
+                slider.innerHTML = `<p id="global-ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
+                if (controls) controls.style.display = "none";
                 return;
             }
 
-            guardContainer.innerHTML = `<p style="font-size: 0.95rem; color: #795548;">Loading active guard info...</p>`;
-            
-            try {
-                const headers = await getAuthHeaders();
-                let listRes = await fetch(`${API_BASE_URL}/societies/${encodeURIComponent(societyIdOrName)}/active-guard`, { headers });
-                if (!listRes.ok && currentSociety && currentSociety !== societyIdOrName) {
-                    listRes = await fetch(`${API_BASE_URL}/societies/${encodeURIComponent(currentSociety)}/active-guard`, { headers });
+            slider.innerHTML = "";
+            ads.forEach((adData) => {
+                if (adData && adData.imageUrl) {
+                    slider.innerHTML += `<img src="${adData.imageUrl}" class="global-ad-slide" alt="Global Promotion">`;
                 }
+            });
 
-                if (listRes.ok) {
-                    const resultData = await listRes.json();
-                    let found = null;
-
-                    if (Array.isArray(resultData)) {
-                        found = resultData.find(s => s.id == societyIdOrName || s.name?.toLowerCase() === societyIdOrName.toLowerCase() || (currentSociety && s.name?.toLowerCase() === currentSociety.toLowerCase()));
-                    } else if (resultData && typeof resultData === 'object') {
-                        found = resultData;
-                    }
-
-                    if (found && (found.activeGuardName || found.name || found.id)) {
-                        const guardName = found.activeGuardName;
-                        const guardPhone = found.activeGuardPhone;
-
-                        if (guardName) {
-                            const cleanPhone = guardPhone ? guardPhone.replace(/\D/g, '') : '';
-                            
-                            guardContainer.innerHTML = `
-                                <div style="background: #fff8f5; border: 2px dashed #8d6e63; padding: 12px; border-radius: 12px; display: inline-block; max-width: 90%; font-family: sans-serif;">
-                                    <span style="font-family: 'Caveat', cursive; font-size: 1.3rem; color: #5d4037; display: block; margin-bottom: 4px;">🛡️ Live Security Guard on Duty</span>
-                                    <span style="font-size: 1.05rem; font-weight: bold; color: #2f3640;">${guardName}</span>
-                                    ${cleanPhone ? `<br><a href="tel:${cleanPhone}" style="background: #25D366; color: white; padding: 6px 14px; text-decoration: none; border-radius: 8px; font-size: 0.9rem; display: inline-block; margin-top: 8px;">📞 Call Guard</a>` : ''}
-                                </div>
-                            `;
-                            return;
-                        }
-                    }
-                }
-                guardContainer.innerHTML = "";
-            } catch (err) {
-                console.error("Failed to load active guard info due to exception:", err);
-                guardContainer.innerHTML = "";
-            }
-        }
-
-        function changeSlide(direction) {
-            const slider = document.getElementById("adSlider");
-            const slides = slider.getElementsByClassName("ad-slide");
-            if (slides.length <= 1) return;
-
-            slides[currentIndex].classList.remove("active");
-            
-            if (direction === "next") {
-                currentIndex = (currentIndex + 1) % slides.length;
-            } else if (direction === "prev") {
-                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-            }
-            
-            slides[currentIndex].classList.add("active");
-        }
-
-        function changeGlobalSlide(direction) {
-            const slider = document.getElementById("globalAdSlider");
             const slides = slider.getElementsByClassName("global-ad-slide");
-            if (slides.length <= 1) return;
+            totalGlobalSlides = slides.length;
+            currentGlobalIndex = 0;
 
-            slides[currentGlobalIndex].classList.remove("active");
-            
-            if (direction === "next") {
-                currentGlobalIndex = (currentGlobalIndex + 1) % slides.length;
-            } else if (direction === "prev") {
-                currentGlobalIndex = (currentGlobalIndex - 1 + slides.length) % slides.length;
-            }
-            
-            slides[currentGlobalIndex].classList.add("active");
-        }
-
-        function startAdTimer() {
-            if (adInterval) clearInterval(adInterval);
-            const slider = document.getElementById("adSlider");
-            const slides = slider.getElementsByClassName("ad-slide");
-            
-            if (slides.length > 1) {
-                adInterval = setInterval(() => {
-                    changeSlide("next");
-                }, 5000);
-            }
-        }
-
-        function startGlobalAdTimer() {
-            if (globalAdInterval) clearInterval(globalAdInterval);
-            const slider = document.getElementById("globalAdSlider");
-            const slides = slider.getElementsByClassName("global-ad-slide");
-            
-            if (slides.length > 1) {
-                globalAdInterval = setInterval(() => {
-                    changeGlobalSlide("next");
-                }, 5000);
-            }
-        }
-
-        async function loadGlobalAdsPreLogin() {
-            const slider = document.getElementById("globalAdSlider");
-            const controls = document.getElementById("globalAdControls");
-            if(globalAdInterval) clearInterval(globalAdInterval);
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/ads/global`, { headers: NG_HEADERS });
-                const ads = await response.json();
-
-                if (!Array.isArray(ads) || ads.length === 0) {
-                    slider.innerHTML = `<p id="global-ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
-                    if (controls) controls.style.display = "none";
-                    return;
-                }
-
-                slider.innerHTML = "";
-                ads.forEach((adData) => {
-                    if (adData && adData.imageUrl) {
-                        slider.innerHTML += `<img src="${adData.imageUrl}" class="global-ad-slide" alt="Global Promotion">`;
-                    }
-                });
-
-                const slides = slider.getElementsByClassName("global-ad-slide");
-                totalGlobalSlides = slides.length;
-                currentGlobalIndex = 0;
-
-                if (totalGlobalSlides > 0) {
-                    slides[currentGlobalIndex].classList.add("active");
-                    if (totalGlobalSlides > 1) {
-                        if (controls) controls.style.display = "flex";
-                        startGlobalAdTimer();
-                    } else {
-                        if (controls) controls.style.display = "none";
-                    }
+            if (totalGlobalSlides > 0) {
+                slides[currentGlobalIndex].classList.add("active");
+                if (totalGlobalSlides > 1) {
+                    if (controls) controls.style.display = "flex";
+                    startGlobalAdTimer();
                 } else {
-                    slider.innerHTML = `<p id="global-ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
                     if (controls) controls.style.display = "none";
                 }
-            } catch (error) {
-                console.error("Error setting up pre-login global ad banner: ", error);
+            } else {
+                slider.innerHTML = `<p id="global-ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
+                if (controls) controls.style.display = "none";
             }
+        } catch (error) {
+            console.error("Error setting up pre-login global ad banner:", error);
         }
+    }
 
-async function loadAds(societyId) {
+    async function loadAds(societyId) {
     const slider = document.getElementById("adSlider");
     const controls = document.getElementById("adControls");
-    if(adInterval) clearInterval(adInterval);
-
-    console.log("🛠️ [DEBUG] loadAds called with societyId:", societyId);
+    if (adInterval) clearInterval(adInterval);
 
     try {
         const headers = await getAuthHeaders();
-        const primaryUrl = `${API_BASE_URL}/ads/local/${encodeURIComponent(societyId)}`;
-        console.log("🛠️ [DEBUG] Fetching primary ad URL:", primaryUrl);
+        let response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId)}`, { headers });
         
-        let response = await fetch(primaryUrl, { headers });
-        console.log("🛠️ [DEBUG] Primary response status:", response.status);
-        
-        // Fallback case-insensitive fetch variants if primary exact match returns non-ok
         if (!response.ok) {
-            const fallbackUrl1 = `${API_BASE_URL}/ads/local/${encodeURIComponent(societyId.toLowerCase())}`;
-            console.log("🛠️ [DEBUG] Trying fallback URL 1:", fallbackUrl1);
-            response = await fetch(fallbackUrl1, { headers });
-            console.log("🛠️ [DEBUG] Fallback 1 response status:", response.status);
+            response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId.toLowerCase())}`, { headers });
         }
-        
         if (!response.ok && currentSociety) {
-            const fallbackUrl2 = `${API_BASE_URL}/ads/local/${encodeURIComponent(currentSociety)}`;
-            console.log("🛠️ [DEBUG] Trying fallback URL 2 (currentSociety):", fallbackUrl2);
-            response = await fetch(fallbackUrl2, { headers });
-            console.log("🛠️ [DEBUG] Fallback 2 response status:", response.status);
+            response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(currentSociety)}`, { headers });
         }
 
         const rawText = response.ok ? await response.text() : "";
-        console.log("🛠️ [DEBUG] Raw response text:", rawText);
-
         let ads = [];
         try {
             ads = rawText ? JSON.parse(rawText) : [];
         } catch (parseErr) {
-            console.error("🛠️ [DEBUG] Failed to parse JSON response:", parseErr);
+            console.error("Failed to parse ads JSON:", parseErr);
         }
 
-        console.log("🛠️ [DEBUG] Parsed ads array/object:", ads);
-
         if (!Array.isArray(ads) || ads.length === 0) {
-            console.warn("🛠️ [DEBUG] No ads found or ads is not an array. Showing placeholder.");
-            slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
+            slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available</p>`;
             if (controls) controls.style.display = "none";
             return;
         }
 
         slider.innerHTML = "";
-        ads.forEach((adData, index) => {
-            console.log(`🛠️ [DEBUG] Processing ad item [${index}]:`, adData);
+        ads.forEach((adData) => {
             if (adData && adData.imageUrl) {
-                slider.innerHTML += `<img src="${adData.imageUrl}" class="ad-slide" alt="Community Ad">`;
+                // Check if the ad is a wish (birthday, anniversary, etc.)
+                const titleLower = (adData.title || "").toLowerCase();
+                const isWish = adData.type === 'wish' || adData.isWish || 
+                               titleLower.includes('birthday') || 
+                               titleLower.includes('anniversary') || 
+                               titleLower.includes('congrats') ||
+                               titleLower.includes('wish');
+
+                let greetingLinkHtml = "";
+                if (isWish) {
+                    const greetingId = adData.id || encodeURIComponent(societyId);
+                    greetingLinkHtml = `<br><a href="greet.html?id=${greetingId}" class="ad-link" style="font-weight: bold; color: #d32f2f; font-size: 1.1rem; text-decoration: underline;">✨ Check Greetings! ✨</a>`;
+                }
+
+                slider.innerHTML += `
+                    <div class="ad-slide" style="width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center;">
+                        <img src="${adData.imageUrl}" style="max-height: 260px; max-width: 100%; object-fit: contain; border-radius: 10px;" alt="Community Ad">
+                        ${greetingLinkHtml}
+                    </div>`;
             }
         });
 
         const slides = slider.getElementsByClassName("ad-slide");
         totalSlides = slides.length;
         currentIndex = 0;
-        console.log("🛠️ [DEBUG] Total valid slides rendered:", totalSlides);
 
         if (totalSlides > 0) {
+            slides[currentIndex].style.display = "flex";
             slides[currentIndex].classList.add("active");
-
             if (totalSlides > 1) {
                 if (controls) controls.style.display = "flex";
                 startAdTimer();
@@ -616,201 +577,217 @@ async function loadAds(societyId) {
                 if (controls) controls.style.display = "none";
             }
         } else {
-            slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available for Your Content</p>`;
+            slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available</p>`;
             if (controls) controls.style.display = "none";
         }
     } catch (error) {
-        console.error("🛠️ [DEBUG] Exception caught inside loadAds: ", error);
+        console.error("Exception caught inside loadAds:", error);
     }
 }
 
-        document.getElementById("nextAdBtn").addEventListener("click", () => {
-            changeSlide("next");
-            startAdTimer();
-        });
+    document.getElementById("nextAdBtn").addEventListener("click", () => { changeSlide("next"); startAdTimer(); });
+    document.getElementById("prevAdBtn").addEventListener("click", () => { changeSlide("prev"); startAdTimer(); });
+    document.getElementById("nextGlobalAdBtn").addEventListener("click", () => { changeGlobalSlide("next"); startGlobalAdTimer(); });
+    document.getElementById("prevGlobalAdBtn").addEventListener("click", () => { changeGlobalSlide("prev"); startGlobalAdTimer(); });
 
-        document.getElementById("prevAdBtn").addEventListener("click", () => {
-            changeSlide("prev");
-            startAdTimer();
-        });
+    function showSearchScreen(societyName, societyId) {
+        currentSociety = societyName;
+        document.getElementById("society-verification").style.display = "none";
+        document.getElementById("vehicle-search").style.display = "block";
+        document.getElementById("displaySocietyName").innerText = currentSociety;
 
-        document.getElementById("nextGlobalAdBtn").addEventListener("click", () => {
-            changeGlobalSlide("next");
-            startGlobalAdTimer();
-        });
+        document.getElementById("factlityPage").href = "facility.html";
+        document.getElementById("addVehiclePageBtn").href = `entry.html?societyId=${encodeURIComponent(societyId)}`;
 
-        document.getElementById("prevGlobalAdBtn").addEventListener("click", () => {
-            changeGlobalSlide("prev");
-            startGlobalAdTimer();
-        });
+        updateAdLinks(societyName);
+        if (globalAdInterval) clearInterval(globalAdInterval);
+        
+        setupGuard(societyId || societyName);
+        loadNotice(societyId || societyName);
+        loadAds(societyId || societyName);
+    }
 
-        function showSearchScreen(societyName, societyId) {
-            currentSociety = societyName;
-            document.getElementById("society-verification").style.display = "none";
-            document.getElementById("vehicle-search").style.display = "block";
-            document.getElementById("displaySocietyName").innerText = currentSociety;
+    function clearSocietySession() {
+        localStorage.removeItem("savedSocietyName");
+        localStorage.removeItem("savedSocietyId");
+        localStorage.removeItem("societyLoginTime");
+        localStorage.removeItem("authToken");
+        if (guardUnsubscribe) guardUnsubscribe();
+        if (adInterval) clearInterval(adInterval);
+        currentSociety = "";
+        document.getElementById("vehicleInput").value = "";
+        document.getElementById("societyInput").value = "";
+        document.getElementById("vehicle-search").style.display = "none";
+        document.getElementById("society-verification").style.display = "block";
+        updateAdLinks();
+        loadGlobalAdsPreLogin();
+    }
 
-            document.getElementById("factlityPage").href = "facility.html";
-            document.getElementById("addVehiclePageBtn").href = `entry.html?societyId=${encodeURIComponent(societyId)}`;
-
-            updateAdLinks(societyName);
-
-            if (globalAdInterval) clearInterval(globalAdInterval);
+    document.getElementById("verifyBtn").addEventListener("click", async () => {
+        const inputRaw = document.getElementById("societyInput").value.trim();
+        if (!inputRaw) return showModal("<p>⚠️ Please enter a society name.</p>");
+        
+        try {
+            const headers = await getAuthHeaders();
+            const response = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(inputRaw)}`, { headers });
             
-            setupGuard(societyId || societyName);
-            loadNotice(societyId || societyName);
-            loadAds(societyId || societyName);
+            if (response.ok) {
+                const match = await response.json();
+                const serverName = match.name || match.id || inputRaw;
+                
+                localStorage.setItem("savedSocietyName", serverName);
+                localStorage.setItem("savedSocietyId", serverName); 
+                localStorage.setItem("societyLoginTime", Date.now().toString());
+                
+                showSearchScreen(serverName, serverName); 
+            } else { 
+                showModal("<p>❌ Society not found.</p>"); 
+            }
+        } catch (err) {
+            showModal("<p>❌ Error connecting to server.</p>");
         }
+    });
 
-        function clearSocietySession() {
-            localStorage.removeItem("savedSocietyName");
-            localStorage.removeItem("savedSocietyId");
-            localStorage.removeItem("societyLoginTime");
-            localStorage.removeItem("authToken");
-            if (guardUnsubscribe) guardUnsubscribe();
-            if (adInterval) clearInterval(adInterval);
-            currentSociety = "";
-            document.getElementById("vehicleInput").value = "";
-            document.getElementById("societyInput").value = "";
-            document.getElementById("vehicle-search").style.display = "none";
-            document.getElementById("society-verification").style.display = "block";
-            updateAdLinks();
+    document.getElementById("searchBtn").addEventListener("click", async () => {
+        const vNum = document.getElementById("vehicleInput").value.trim().toUpperCase();
+        if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
+        
+        try {
+           const headers = await getAuthHeaders();
+           const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { headers });
+
+           if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
+
+           const matches = await response.json();
+           if (matches.length > 0) {
+               let htmlContent = "";
+               matches.forEach(data => {
+                   const msg = encodeURIComponent(`(Using: Owl-Watcher) Hello, vehicle ${data.vehicleNumber} of ${data.flatNumber}`);
+                   htmlContent += `<div style="margin-bottom:15px; font-family: sans-serif;">✅ Vehicle: <b>${data.vehicleNumber}</b><br>Flat/Name: <b>${data.flatNumber}</b><br><div hidden><a href="https://wa.me/${data.mobileNumber?.replace(/\D/g, '')}?text=${msg}" target="_blank" class="btn-msg">💬 Message Admin</a></div></div>`;
+               });
+               showModal(htmlContent);
+           } else { 
+               showModal("<p>❌ Vehicle not found.</p>"); 
+           }
+        } catch (err) {
+           showModal("<p>❌ Error searching vehicle.</p>");
+        }
+    });
+
+    document.getElementById("switchSocietyBtn").addEventListener("click", clearSocietySession);
+    document.getElementById("backToHomeBtn").addEventListener("click", clearSocietySession);
+    
+    async function updateContactUsWhatsAppLink() {
+        try {
+            await fetchTeamPhone();
+            const whatsappLinks = document.querySelectorAll('a[href*="wa.me"]');
+            whatsappLinks.forEach(link => {
+                const urlObj = new URL(link.href);
+                link.href = `https://wa.me/${owlWatcherTeamPhone}${urlObj.search}`;
+            });
+        } catch (err) {
+            console.error("Failed to update WhatsApp links:", err);
+        }
+    }
+    
+    window.addEventListener("DOMContentLoaded", async () => {
+        await fetchTeamPhone();
+        await updateContactUsWhatsAppLink();
+        updateAdLinks();
+
+        const savedName = localStorage.getItem("savedSocietyName");
+        const savedId = localStorage.getItem("savedSocietyId");
+        const loginTime = localStorage.getItem("societyLoginTime");
+        
+        if (savedName && savedId && loginTime) {
+            const elapsed = Date.now() - parseInt(loginTime, 10);
+            const fifteenMinutes = 15 * 60 * 1000;
+
+            if (elapsed >= fifteenMinutes) {
+                clearSocietySession();
+            } else {
+                showSearchScreen(savedName, savedId);
+                setTimeout(clearSocietySession, fifteenMinutes - elapsed);
+            }
+        } else {
             loadGlobalAdsPreLogin();
         }
+    });
+    
+    document.getElementById('startButton').addEventListener('click', function() {
+        const welcomeVideo = document.getElementById('welcomeVideo');
+        if (welcomeVideo) {
+            welcomeVideo.pause();
+            welcomeVideo.currentTime = 0;
+        }
+        document.getElementById('startOverlay').style.display = 'none';
+    });
 
-        // Updated verification handler using correct server name casing/fallback preservation
-        document.getElementById("verifyBtn").addEventListener("click", async () => {
-            const inputRaw = document.getElementById("societyInput").value.trim();
-            if (!inputRaw) return showModal("<p>⚠️ Please enter a society name.</p>");
-            
-            try {
-                const headers = await getAuthHeaders();
-                const response = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(inputRaw)}`, { headers });
-                
-                if (response.ok) {
-                    const match = await response.json();
-                    
-                    const serverName = match.name || match.id || inputRaw;
-                    
-                    localStorage.setItem("savedSocietyName", serverName);
-                    localStorage.setItem("savedSocietyId", serverName); 
-                    localStorage.setItem("societyLoginTime", Date.now().toString());
-                    
-                    showSearchScreen(serverName, serverName); 
-                } else { 
-                    showModal("<p>❌ Society not found.</p>"); 
-                }
-            } catch (err) {
-                showModal("<p>❌ Error connecting to server.</p>");
-            }
-        });
+    function toggleVideoAudio() {
+        const video = document.getElementById("welcomeVideo");
+        const btn = document.getElementById("audioToggleBtn");
+        
+        if (video.muted) {
+            video.muted = false;
+            btn.innerText = "🔊";
+            btn.title = "Mute Video";
+        } else {
+            video.muted = true;
+            btn.innerText = "🔇";
+            btn.title = "Unmute Video";
+        }
+    }
 
-        document.getElementById("searchBtn").addEventListener("click", async () => {
-            themeAudio.currentTime = 0;
-            themeAudio.play().catch(e => console.error("Audio playback failed:", e));
+    function activateOwlEffect() {
+        const container = document.getElementById('owl-container');
+        const audio = document.getElementById('owl-audio');
 
-            const vNum = document.getElementById("vehicleInput").value.trim().toUpperCase();
-            if (!vNum) return showModal("<p>⚠️ Please enter a vehicle number.</p>");
-            
-            try {
-               const headers = await getAuthHeaders();
+        if (container.classList.contains('active-effect')) return;
 
-               const response = await fetch(`${API_BASE_URL}/vehicles?societyName=${encodeURIComponent(currentSociety)}&vehicleNumber=${encodeURIComponent(vNum)}`, { headers });
+        audio.currentTime = 0;
+        audio.play().catch(error => { console.log("Audio playback blocked:", error); });
 
-               if (!response.ok) {
-                   throw new Error(`Server responded with status ${response.status}`);
-               }
+        container.classList.add('active-effect');
+        setTimeout(() => { container.classList.remove('active-effect'); }, 2000);
 
-               const matches = await response.json();
+        const canvas = document.getElementById('fireCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.style.display = 'block';
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-               if (matches.length > 0) {
-                   let htmlContent = "";
-                   matches.forEach(data => {
-                       const msg = encodeURIComponent(`(Using: Owl-Watcher) Hello, vehicle ${data.vehicleNumber} of ${data.flatNumber}`);
-                       htmlContent += `<div style="margin-bottom:15px; font-family: sans-serif;">✅ Vehicle: <b>${data.vehicleNumber}</b><br>Flat/Name: <b>${data.flatNumber}</b><br><div hidden><a href="https://wa.me/${data.mobileNumber?.replace(/\D/g, '')}?text=${msg}" target="_blank" class="btn-msg">💬 Message Admin</a></div></div>`;
-                   });
-                   showModal(htmlContent);
-               } else { 
-                   showModal("<p>❌ Vehicle not found.</p>"); 
-               }
-            } catch (err) {
-               showModal("<p>❌ Error searching vehicle.</p>");
-            }
-        });
-
-        document.getElementById("switchSocietyBtn").addEventListener("click", () => {
-            clearSocietySession();
-        });
-
-        const studioPortalBtn = document.getElementById("studioPortalBtn");
-        if (studioPortalBtn) {
-            studioPortalBtn.addEventListener("click", () => {
-                window.open("studio.html", "_self");
+        let particles = [];
+        for (let i = 0; i < 150; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: canvas.height + Math.random() * 100,
+                size: Math.random() * 5 + 2,
+                speedY: Math.random() * 5 + 2,
+                color: '#e67e22'
             });
         }
 
-        document.getElementById("backToHomeBtn").addEventListener("click", () => {
-            clearSocietySession();
-        });
-        
-        async function updateContactUsWhatsAppLink() {
-            try {
-                await fetchTeamPhone();
-                const whatsappLinks = document.querySelectorAll('a[href*="wa.me"]');
-                whatsappLinks.forEach(link => {
-                    const urlObj = new URL(link.href);
-                    link.href = `https://wa.me/${owlWatcherTeamPhone}${urlObj.search}`;
-                });
-            } catch (err) {
-                console.error("Failed to fetch team phone for WhatsApp link:", err);
+        function animateFlames() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.y -= p.speedY;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            if (particles[0] && particles[0].y > -50) {
+                requestAnimationFrame(animateFlames);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.style.display = 'none';
             }
         }
-        
-        window.addEventListener("DOMContentLoaded", async () => {
-            await fetchTeamPhone();
-            await updateContactUsWhatsAppLink();
-            updateAdLinks();
+        animateFlames();
+    }
+</script> 
 
-            const savedName = localStorage.getItem("savedSocietyName");
-            const savedId = localStorage.getItem("savedSocietyId");
-            const loginTime = localStorage.getItem("societyLoginTime");
-            
-            if (savedName && savedId && loginTime) {
-                const elapsed = Date.now() - parseInt(loginTime, 10);
-                const fifteenMinutes = 15 * 60 * 1000;
-
-                if (elapsed >= fifteenMinutes) {
-                    clearSocietySession();
-                } else {
-                    showSearchScreen(savedName, savedId);
-                    setTimeout(() => {
-                        clearSocietySession();
-                    }, fifteenMinutes - elapsed);
-                }
-            } else {
-                loadGlobalAdsPreLogin();
-            }
-
-            setTimeout(() => {
-                window.location.reload();
-            }, 5 * 60 * 1000);
-        });
-        
-        document.getElementById('startButton').addEventListener('click', function() {
-            const welcomeVideo = document.getElementById('welcomeVideo');
-            if (welcomeVideo) {
-                welcomeVideo.pause();
-                welcomeVideo.currentTime = 0;
-            }
-            document.getElementById('startOverlay').style.display = 'none';
-            const hoot = document.getElementById('hootSound');
-            hoot.volume = 0.5;
-            hoot.play().catch(e => console.log("Hoot play failed:", e));
-        });
-    </script> 
-    
-    <canvas id="fireCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; display:none;"></canvas>
-    <audio id="hootSound" src="tapenter.mp3" preload="auto"></audio>
+<canvas id="fireCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; display:none;"></canvas>
 
 <div id="owl-container">
   <div id="owl-icon" onclick="activateOwlEffect()">🦉</div>
@@ -818,25 +795,9 @@ async function loadAds(societyId) {
 </div>
 
 <style>
-  #owl-container {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 9999;
-  }
-
-  #owl-icon {
-    font-size: 60px;
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.3s ease;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
-  }
-
-  #owl-icon:hover {
-    transform: scale(1.15);
-  }
-
+  #owl-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
+  #owl-icon { font-size: 60px; cursor: pointer; user-select: none; transition: transform 0.3s ease; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2)); }
+  #owl-icon:hover { transform: scale(1.15); }
   @keyframes enlargeAndShrinkTwice {
     0% { transform: scale(1); }
     25% { transform: scale(1.6); }
@@ -844,80 +805,8 @@ async function loadAds(societyId) {
     75% { transform: scale(1.6); }
     100% { transform: scale(1); }
   }
-
-  .active-effect {
-    animation: enlargeAndShrinkTwice 2s ease-in-out forwards;
-  }
+  .active-effect { animation: enlargeAndShrinkTwice 2s ease-in-out forwards; }
 </style>
 
-<script>
-function toggleVideoAudio() {
-    const video = document.getElementById("welcomeVideo");
-    const btn = document.getElementById("audioToggleBtn");
-    
-    if (video.muted) {
-        video.muted = false;
-        btn.innerText = "🔊";
-        btn.title = "Mute Video";
-    } else {
-        video.muted = true;
-        btn.innerText = "🔇";
-        btn.title = "Unmute Video";
-    }
-}
-    
-  function activateOwlEffect() {
-    const container = document.getElementById('owl-container');
-    const audio = document.getElementById('owl-audio');
-
-    if (container.classList.contains('active-effect')) return;
-
-    audio.currentTime = 0;
-    audio.play().catch(error => {
-      console.log("Audio playback blocked or file not found:", error);
-    });
-
-    container.classList.add('active-effect');
-
-    setTimeout(() => {
-      container.classList.remove('active-effect');
-    }, 2000);
-
-    const canvas = document.getElementById('fireCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.style.display = 'block';
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    let particles = [];
-    for(let i = 0; i < 150; i++) {
-        particles.push({
-            x: Math.random() * canvas.width,
-            y: canvas.height + Math.random() * 100,
-            size: Math.random() * 5 + 2,
-            speedY: Math.random() * 5 + 2,
-            color: '#e67e22'
-        });
-    }
-
-    function animateFlames() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-            p.y -= p.speedY;
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-        });
-        if(particles[0] && particles[0].y > -50) {
-            requestAnimationFrame(animateFlames);
-        } else {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            canvas.style.display = 'none';
-        }
-    }
-    animateFlames();
-  }
-</script>
 </body>
 </html>
