@@ -101,6 +101,19 @@
             animation: fadeInSlide 0.6s ease-out forwards;
             animation-delay: 0.3s;
         }
+
+        /* Owl Animation Specific Styles Scoped to Search Page */
+        #owl-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
+        #owl-icon { font-size: 60px; cursor: pointer; user-select: none; transition: transform 0.3s ease; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2)); }
+        #owl-icon:hover { transform: scale(1.15); }
+        @keyframes enlargeAndShrinkTwice {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.6); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.6); }
+            100% { transform: scale(1); }
+        }
+        .active-effect { animation: enlargeAndShrinkTwice 2s ease-in-out forwards; }
     </style>
 </head>
 <body>
@@ -162,43 +175,39 @@
                 <button class="ad-nav-btn" id="nextGlobalAdBtn">Next ❯</button>
             </div>
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
-
-  
         </div>
 
-        
-    <!-- Mini Drawing Whiteboard Box with Fixed Scroll Lock -->
-<div id="whiteboardBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: #ffffff; border: 2px dashed #8d6e63; color: #5d4037; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); user-select: none;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: 'Caveat', cursive; font-size: 1.3rem;">
-        <span>🎨 Mini Whiteboard Studio</span>
-        <div>
-            <button id="lockScrollBtn" style="background: #2ed573; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-right: 4px; margin-top: 0;" title="Lock page scroll while drawing">🔒 Lock Scroll</button>
-            <button id="clearCanvasBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Clear</button>
+        <!-- Mini Drawing Whiteboard Box with Lock/Unlock Scroll Toggle -->
+        <div id="whiteboardBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: #ffffff; border: 2px dashed #8d6e63; color: #5d4037; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); user-select: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: 'Caveat', cursive; font-size: 1.3rem;">
+                <span>🎨 Mini Whiteboard Studio</span>
+                <div>
+                    <button id="lockScrollBtn" style="background: #2ed573; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-right: 4px; margin-top: 0;" title="Lock page scroll while drawing">🔒 Lock Scroll</button>
+                    <button id="clearCanvasBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Clear</button>
+                </div>
+            </div>
+            
+            <!-- Drawing Tools Toolbar -->
+            <div style="display: flex; justify-content: center; align-items: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
+                <button type="button" class="tool-btn active-tool" data-tool="pencil" style="background: #8d6e63; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Pencil</button>
+                <button type="button" class="tool-btn" data-tool="brush" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Brush</button>
+                <button type="button" class="tool-btn" data-tool="eraser" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🧹 Eraser</button>
+                <button type="button" class="tool-btn" data-tool="bucket" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🪣 Bucket</button>
+                
+                <label for="drawColorPicker" style="background: #dcdde1; color: #2f3640; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 0;" title="Pick Color">
+                    🎨 <span id="colorIndicator" style="width: 12px; height: 12px; background: #ff4757; border-radius: 50%; display: inline-block; border: 1px solid #fff;"></span>
+                    <input type="color" id="drawColorPicker" value="#ff4757" style="opacity: 0; width: 0; height: 0; position: absolute; pointer-events: none;">
+                </label>
+            </div>
+
+            <!-- Canvas Area -->
+            <div style="width: 100%; height: 160px; background: #ffffff; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden; touch-action: auto;" id="canvasWrapper">
+                <canvas id="miniWhiteboardCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+            </div>
         </div>
     </div>
-    
-    <!-- Drawing Tools Toolbar -->
-    <div style="display: flex; justify-content: center; align-items: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
-        <button type="button" class="tool-btn active-tool" data-tool="pencil" style="background: #8d6e63; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Pencil</button>
-        <button type="button" class="tool-btn" data-tool="brush" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Brush</button>
-        <button type="button" class="tool-btn" data-tool="eraser" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🧹 Eraser</button>
-        <button type="button" class="tool-btn" data-tool="bucket" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🪣 Bucket</button>
         
-        <label for="drawColorPicker" style="background: #dcdde1; color: #2f3640; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 0;" title="Pick Color">
-            🎨 <span id="colorIndicator" style="width: 12px; height: 12px; background: #ff4757; border-radius: 50%; display: inline-block; border: 1px solid #fff;"></span>
-            <input type="color" id="drawColorPicker" value="#ff4757" style="opacity: 0; width: 0; height: 0; position: absolute; pointer-events: none;">
-        </label>
-    </div>
-
-    <!-- Canvas Area -->
-    <div style="width: 100%; height: 160px; background: #ffffff; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden;" id="canvasWrapper">
-        <canvas id="miniWhiteboardCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
-    </div>
-</div>
-        
-        
-        
-        <div id="vehicle-search" style="display:none;">
+    <div id="vehicle-search" style="display:none;">
         <p style="display: flex; justify-content: center; align-items: center; gap: 8px;">
             <span>Society: <span id="displaySocietyName" style="font-weight:bold;"></span></span>
             <button id="switchSocietyBtn" class="switch-btn">Change</button>
@@ -241,10 +250,13 @@
             <button id="backToHomeBtn" style="font-family: 'Caveat', cursive; font-size: 1.3rem; background: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; box-shadow: 3px 3px 0px #5d4037; margin-top: 0;">
                🔍 Society Search
             </button>
-
-  
         </div>
-
+ 
+        <!-- Owl Animation Container Placed Exclusively Inside Vehicle Search Page -->
+        <div id="owl-container">
+            <div id="owl-icon" onclick="activateOwlEffect()">🦉</div>
+            <audio id="owl-audio" src="theme.mp3" preload="auto"></audio>
+        </div>
     </div>
 
     <div id="resultModal" class="modal">
@@ -259,11 +271,8 @@
     const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
     const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
-    // Function incorporating Firebase App Check token acquisition flow
     async function getAppCheckHeaders() {
         let appCheckToken = "";
-        
-        // Simulating/Integrating client-side Firebase App Check retrieval pattern
         if (typeof firebase !== 'undefined' && firebase.appCheck) {
             try {
                 const appCheckResponse = await firebase.appCheck().getToken(false);
@@ -272,10 +281,7 @@
                 console.error("Failed to get Firebase App Check token:", err);
             }
         }
-
-        return {
-            'X-Firebase-AppCheck': appCheckToken
-        };
+        return { 'X-Firebase-AppCheck': appCheckToken };
     }
 
     async function getAuthHeaders() {
@@ -364,212 +370,199 @@
         }
     }
 
+    // Mini Whiteboard Logic with Scroll Lock Support
+    const wbCanvas = document.getElementById('miniWhiteboardCanvas');
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    const lockScrollBtn = document.getElementById('lockScrollBtn');
 
-    
-// Mini Whiteboard Logic with Complete Mobile Screen Scroll Lock Support
-const wbCanvas = document.getElementById('miniWhiteboardCanvas');
-const canvasWrapper = document.getElementById('canvasWrapper');
-const lockScrollBtn = document.getElementById('lockScrollBtn');
-
-if (wbCanvas) {
-    const wbCtx = wbCanvas.getContext('2d', { willReadFrequently: true });
-    let isScrollLocked = false;
-    
-    function resizeWbCanvas() {
-        const rect = wbCanvas.getBoundingClientRect();
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCanvas.width = wbCanvas.width;
-        tempCanvas.height = wbCanvas.height;
-        if (wbCanvas.width > 0 && wbCanvas.height > 0) {
-            tempCtx.drawImage(wbCanvas, 0, 0);
-        }
-
-        wbCanvas.width = rect.width;
-        wbCanvas.height = rect.height;
+    if (wbCanvas) {
+        const wbCtx = wbCanvas.getContext('2d', { willReadFrequently: true });
+        let isScrollLocked = false;
         
-        wbCtx.fillStyle = "#ffffff";
-        wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
-        
-        if (tempCanvas.width > 0) {
-            wbCtx.drawImage(tempCanvas, 0, 0);
-        }
-    }
-    resizeWbCanvas();
-    window.addEventListener('resize', resizeWbCanvas);
-
-    // Prevent window scrolling globally on touchmove when locked and touching canvas
-    function preventDefaultScroll(e) {
-        if (isScrollLocked) {
-            e.preventDefault();
-        }
-    }
-
-    wbCanvas.addEventListener('touchstart', preventDefaultScroll, { passive: false });
-    wbCanvas.addEventListener('touchmove', preventDefaultScroll, { passive: false });
-
-    // Toggle Scroll Lock Button
-    if (lockScrollBtn && canvasWrapper) {
-        lockScrollBtn.addEventListener('click', () => {
-            isScrollLocked = !isScrollLocked;
-            if (isScrollLocked) {
-                lockScrollBtn.style.background = "#ff4757";
-                lockScrollBtn.innerText = "🔓 Unlock Scroll";
-            } else {
-                lockScrollBtn.style.background = "#2ed573";
-                lockScrollBtn.innerText = "🔒 Lock Scroll";
+        function resizeWbCanvas() {
+            const rect = wbCanvas.getBoundingClientRect();
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = wbCanvas.width;
+            tempCanvas.height = wbCanvas.height;
+            if (wbCanvas.width > 0 && wbCanvas.height > 0) {
+                tempCtx.drawImage(wbCanvas, 0, 0);
             }
-        });
-    }
 
-    let isDrawing = false;
-    let currentTool = 'pencil';
-    let currentColor = '#ff4757';
-
-    const toolButtons = document.querySelectorAll('.tool-btn');
-    toolButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            toolButtons.forEach(b => {
-                b.classList.remove('active-tool');
-                b.style.background = '#dcdde1';
-                b.style.color = '#2f3640';
-            });
-            btn.classList.add('active-tool');
-            btn.style.background = '#8d6e63';
-            btn.style.color = 'white';
-            currentTool = btn.getAttribute('data-tool');
-        });
-    });
-
-    const colorPicker = document.getElementById('drawColorPicker');
-    const colorIndicator = document.getElementById('colorIndicator');
-    if (colorPicker) {
-        colorPicker.addEventListener('input', (e) => {
-            currentColor = e.target.value;
-            if (colorIndicator) colorIndicator.style.background = currentColor;
-        });
-    }
-
-    const clearBtn = document.getElementById('clearCanvasBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
+            wbCanvas.width = rect.width;
+            wbCanvas.height = rect.height;
+            
             wbCtx.fillStyle = "#ffffff";
             wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
-        });
-    }
-
-    function getMousePos(e) {
-        const rect = wbCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return {
-            x: Math.floor(clientX - rect.left),
-            y: Math.floor(clientY - rect.top)
-        };
-    }
-
-    function hexToRgba(hex) {
-        let c = hex.replace('#', '');
-        if (c.length === 3) c = c.split('').map(x => x + x).join('');
-        const num = parseInt(c, 16);
-        return [num >> 16, (num >> 8) & 255, num & 255, 255];
-    }
-
-    function floodFill(startX, startY, fillColorHex) {
-        const imgData = wbCtx.getImageData(0, 0, wbCanvas.width, wbCanvas.height);
-        const pixels = imgData.data;
-        const targetIdx = (startY * wbCanvas.width + startX) * 4;
-        
-        const targetR = pixels[targetIdx];
-        const targetG = pixels[targetIdx + 1];
-        const targetB = pixels[targetIdx + 2];
-        const targetA = pixels[targetIdx + 3];
-
-        const [fillR, fillG, fillB, fillA] = hexToRgba(fillColorHex);
-
-        if (targetR === fillR && targetG === fillG && targetB === fillB && targetA === fillA) return;
-
-        const queue = [[startX, startY]];
-        const width = wbCanvas.width;
-        const height = wbCanvas.height;
-
-        while (queue.length > 0) {
-            const [x, y] = queue.pop();
-            const idx = (y * width + x) * 4;
-
-            if (
-                pixels[idx] === targetR &&
-                pixels[idx + 1] === targetG &&
-                pixels[idx + 2] === targetB &&
-                pixels[idx + 3] === targetA
-            ) {
-                pixels[idx] = fillR;
-                pixels[idx + 1] = fillG;
-                pixels[idx + 2] = fillB;
-                pixels[idx + 3] = fillA;
-
-                if (x > 0) queue.push([x - 1, y]);
-                if (x < width - 1) queue.push([x + 1, y]);
-                if (y > 0) queue.push([x, y - 1]);
-                if (y < height - 1) queue.push([x, y + 1]);
+            
+            if (tempCanvas.width > 0) {
+                wbCtx.drawImage(tempCanvas, 0, 0);
             }
         }
-        wbCtx.putImageData(imgData, 0, 0);
-    }
+        resizeWbCanvas();
+        window.addEventListener('resize', resizeWbCanvas);
 
-    function startDraw(e) {
-        const pos = getMousePos(e);
-        if (currentTool === 'bucket') {
-            floodFill(pos.x, pos.y, currentColor);
+        if (lockScrollBtn && canvasWrapper) {
+            lockScrollBtn.addEventListener('click', () => {
+                isScrollLocked = !isScrollLocked;
+                if (isScrollLocked) {
+                    lockScrollBtn.style.background = "#ff4757";
+                    lockScrollBtn.innerText = "🔓 Unlock Scroll";
+                    canvasWrapper.style.touchAction = "none";
+                } else {
+                    lockScrollBtn.style.background = "#2ed573";
+                    lockScrollBtn.innerText = "🔒 Lock Scroll";
+                    canvasWrapper.style.touchAction = "auto";
+                }
+            });
+        }
+
+        let isDrawing = false;
+        let currentTool = 'pencil';
+        let currentColor = '#ff4757';
+
+        const toolButtons = document.querySelectorAll('.tool-btn');
+        toolButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toolButtons.forEach(b => {
+                    b.classList.remove('active-tool');
+                    b.style.background = '#dcdde1';
+                    b.style.color = '#2f3640';
+                });
+                btn.classList.add('active-tool');
+                btn.style.background = '#8d6e63';
+                btn.style.color = 'white';
+                currentTool = btn.getAttribute('data-tool');
+            });
+        });
+
+        const colorPicker = document.getElementById('drawColorPicker');
+        const colorIndicator = document.getElementById('colorIndicator');
+        if (colorPicker) {
+            colorPicker.addEventListener('input', (e) => {
+                currentColor = e.target.value;
+                if (colorIndicator) colorIndicator.style.background = currentColor;
+            });
+        }
+
+        const clearBtn = document.getElementById('clearCanvasBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                wbCtx.fillStyle = "#ffffff";
+                wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+            });
+        }
+
+        function getMousePos(e) {
+            const rect = wbCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: Math.floor(clientX - rect.left),
+                y: Math.floor(clientY - rect.top)
+            };
+        }
+
+        function hexToRgba(hex) {
+            let c = hex.replace('#', '');
+            if (c.length === 3) c = c.split('').map(x => x + x).join('');
+            const num = parseInt(c, 16);
+            return [num >> 16, (num >> 8) & 255, num & 255, 255];
+        }
+
+        function floodFill(startX, startY, fillColorHex) {
+            const imgData = wbCtx.getImageData(0, 0, wbCanvas.width, wbCanvas.height);
+            const pixels = imgData.data;
+            const targetIdx = (startY * wbCanvas.width + startX) * 4;
+            
+            const targetR = pixels[targetIdx];
+            const targetG = pixels[targetIdx + 1];
+            const targetB = pixels[targetIdx + 2];
+            const targetA = pixels[targetIdx + 3];
+
+            const [fillR, fillG, fillB, fillA] = hexToRgba(fillColorHex);
+
+            if (targetR === fillR && targetG === fillG && targetB === fillB && targetA === fillA) return;
+
+            const queue = [[startX, startY]];
+            const width = wbCanvas.width;
+            const height = wbCanvas.height;
+
+            while (queue.length > 0) {
+                const [x, y] = queue.pop();
+                const idx = (y * width + x) * 4;
+
+                if (
+                    pixels[idx] === targetR &&
+                    pixels[idx + 1] === targetG &&
+                    pixels[idx + 2] === targetB &&
+                    pixels[idx + 3] === targetA
+                ) {
+                    pixels[idx] = fillR;
+                    pixels[idx + 1] = fillG;
+                    pixels[idx + 2] = fillB;
+                    pixels[idx + 3] = fillA;
+
+                    if (x > 0) queue.push([x - 1, y]);
+                    if (x < width - 1) queue.push([x + 1, y]);
+                    if (y > 0) queue.push([x, y - 1]);
+                    if (y < height - 1) queue.push([x, y + 1]);
+                }
+            }
+            wbCtx.putImageData(imgData, 0, 0);
+        }
+
+        function startDraw(e) {
+            const pos = getMousePos(e);
+            if (currentTool === 'bucket') {
+                floodFill(pos.x, pos.y, currentColor);
+                e.preventDefault();
+                return;
+            }
+
+            isDrawing = true;
+            wbCtx.beginPath();
+            wbCtx.moveTo(pos.x, pos.y);
             e.preventDefault();
-            return;
         }
 
-        isDrawing = true;
-        wbCtx.beginPath();
-        wbCtx.moveTo(pos.x, pos.y);
-        e.preventDefault();
-    }
+        function draw(e) {
+            if (!isDrawing || currentTool === 'bucket') return;
+            const pos = getMousePos(e);
+            
+            wbCtx.lineCap = 'round';
+            wbCtx.lineJoin = 'round';
 
-    function draw(e) {
-        if (!isDrawing || currentTool === 'bucket') return;
-        const pos = getMousePos(e);
-        
-        wbCtx.lineCap = 'round';
-        wbCtx.lineJoin = 'round';
+            if (currentTool === 'pencil') {
+                wbCtx.strokeStyle = currentColor;
+                wbCtx.lineWidth = 2;
+            } else if (currentTool === 'brush') {
+                wbCtx.strokeStyle = currentColor;
+                wbCtx.lineWidth = 10;
+            } else if (currentTool === 'eraser') {
+                wbCtx.strokeStyle = '#ffffff';
+                wbCtx.lineWidth = 16;
+            }
 
-        if (currentTool === 'pencil') {
-            wbCtx.strokeStyle = currentColor;
-            wbCtx.lineWidth = 2;
-        } else if (currentTool === 'brush') {
-            wbCtx.strokeStyle = currentColor;
-            wbCtx.lineWidth = 10;
-        } else if (currentTool === 'eraser') {
-            wbCtx.strokeStyle = '#ffffff';
-            wbCtx.lineWidth = 16;
+            wbCtx.lineTo(pos.x, pos.y);
+            wbCtx.stroke();
+            e.preventDefault();
         }
 
-        wbCtx.lineTo(pos.x, pos.y);
-        wbCtx.stroke();
-        e.preventDefault();
+        function stopDraw() {
+            if (!isDrawing) return;
+            isDrawing = false;
+            wbCtx.beginPath();
+        }
+
+        wbCanvas.addEventListener('mousedown', startDraw);
+        wbCanvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDraw);
+
+        wbCanvas.addEventListener('touchstart', startDraw, { passive: false });
+        wbCanvas.addEventListener('touchmove', draw, { passive: false });
+        window.addEventListener('touchend', stopDraw);
     }
-
-    function stopDraw() {
-        if (!isDrawing) return;
-        isDrawing = false;
-        wbCtx.beginPath();
-    }
-
-    wbCanvas.addEventListener('mousedown', startDraw);
-    wbCanvas.addEventListener('mousemove', draw);
-    window.addEventListener('mouseup', stopDraw);
-
-    wbCanvas.addEventListener('touchstart', startDraw, { passive: false });
-    wbCanvas.addEventListener('touchmove', draw, { passive: false });
-    window.addEventListener('touchend', stopDraw);
-}
-    
-    
     
     async function loadNotice(societyId) {
         const noticeDiv = document.getElementById('notice-content');
@@ -658,23 +651,23 @@ if (wbCanvas) {
         }
     }
 
-function changeSlide(direction) {
-    const slider = document.getElementById("adSlider");
-    const slides = slider.getElementsByClassName("ad-slide");
-    if (slides.length <= 1) return;
+    function changeSlide(direction) {
+        const slider = document.getElementById("adSlider");
+        const slides = slider.getElementsByClassName("ad-slide");
+        if (slides.length <= 1) return;
 
-    slides[currentIndex].style.display = "none";
-    slides[currentIndex].classList.remove("active");
-    
-    if (direction === "next") {
-        currentIndex = (currentIndex + 1) % slides.length;
-    } else if (direction === "prev") {
-        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        slides[currentIndex].style.display = "none";
+        slides[currentIndex].classList.remove("active");
+        
+        if (direction === "next") {
+            currentIndex = (currentIndex + 1) % slides.length;
+        } else if (direction === "prev") {
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        }
+        
+        slides[currentIndex].style.display = "flex";
+        slides[currentIndex].classList.add("active");
     }
-    
-    slides[currentIndex].style.display = "flex";
-    slides[currentIndex].classList.add("active");
-}
 
     function changeGlobalSlide(direction) {
         const slider = document.getElementById("globalAdSlider");
@@ -752,85 +745,83 @@ function changeSlide(direction) {
     }
 
     async function loadAds(societyId) {
-    const slider = document.getElementById("adSlider");
-    const controls = document.getElementById("adControls");
-    if (adInterval) clearInterval(adInterval);
+        const slider = document.getElementById("adSlider");
+        const controls = document.getElementById("adControls");
+        if (adInterval) clearInterval(adInterval);
 
-    try {
-        const headers = await getAuthHeaders();
-        let response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId)}`, { headers });
-        
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId.toLowerCase())}`, { headers });
-        }
-        if (!response.ok && currentSociety) {
-            response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(currentSociety)}`, { headers });
-        }
-
-        const rawText = response.ok ? await response.text() : "";
-        let ads = [];
         try {
-            ads = rawText ? JSON.parse(rawText) : [];
-        } catch (parseErr) {
-            console.error("Failed to parse ads JSON:", parseErr);
-        }
+            const headers = await getAuthHeaders();
+            let response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId)}`, { headers });
+            
+            if (!response.ok) {
+                response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(societyId.toLowerCase())}`, { headers });
+            }
+            if (!response.ok && currentSociety) {
+                response = await fetch(`${API_BASE_URL}/ads/local/${encodeURIComponent(currentSociety)}`, { headers });
+            }
 
-        if (!Array.isArray(ads) || ads.length === 0) {
-            slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available</p>`;
-            if (controls) controls.style.display = "none";
-            return;
-        }
+            const rawText = response.ok ? await response.text() : "";
+            let ads = [];
+            try {
+                ads = rawText ? JSON.parse(rawText) : [];
+            } catch (parseErr) {
+                console.error("Failed to parse ads JSON:", parseErr);
+            }
 
-slider.innerHTML = "";
-ads.forEach((adData) => {
-    if (adData && adData.imageUrl) {
-        // Check if the ad is a wish based on explicit type or fallback title keywords
-        const titleLower = (adData.title || "").toLowerCase();
-        const isWish = adData.type === 'wish' || adData.isWish || 
-                       titleLower.includes('birthday') || 
-                       titleLower.includes('anniversary') || 
-                       titleLower.includes('congrats') ||
-                       titleLower.includes('wish');
+            if (!Array.isArray(ads) || ads.length === 0) {
+                slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available</p>`;
+                if (controls) controls.style.display = "none";
+                return;
+            }
 
-        let actionLinkHtml = "";
-        const targetId = adData.greetingId || adData.id || 'society_default';
+            slider.innerHTML = "";
+            ads.forEach((adData) => {
+                if (adData && adData.imageUrl) {
+                    const titleLower = (adData.title || "").toLowerCase();
+                    const isWish = adData.type === 'wish' || adData.isWish || 
+                                   titleLower.includes('birthday') || 
+                                   titleLower.includes('anniversary') || 
+                                   titleLower.includes('congrats') ||
+                                   titleLower.includes('wish');
 
-        // Explicitly enforce type parameter based on whether it is a wish or ad
-        if (isWish) {
-            actionLinkHtml = `<br><a href="greet.html?type=wish&id=${targetId}" class="ad-link" style="font-weight: bold; color: #ff6b81; font-size: 1.1rem; text-decoration: underline;">Check Greetings!</a>`;
-        } else {
-            actionLinkHtml = `<br><a href="greet.html?type=ad&id=${targetId}" class="ad-link" style="font-weight: bold; color: #826565; font-size: 1.1rem; text-decoration: underline;">Check Ad details</a>`;
-        }
+                    let actionLinkHtml = "";
+                    const targetId = adData.greetingId || adData.id || 'society_default';
 
-        slider.innerHTML += `
-            <div class="ad-slide" style="width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center;">
-                <img src="${adData.imageUrl}" style="max-height: 260px; max-width: 100%; object-fit: contain; border-radius: 10px;" alt="Community Ad">
-                ${actionLinkHtml}
-            </div>`;
-    }
-});
+                    if (isWish) {
+                        actionLinkHtml = `<br><a href="greet.html?type=wish&id=${targetId}" class="ad-link" style="font-weight: bold; color: #ff6b81; font-size: 1.1rem; text-decoration: underline;">Check Greetings!</a>`;
+                    } else {
+                        actionLinkHtml = `<br><a href="greet.html?type=ad&id=${targetId}" class="ad-link" style="font-weight: bold; color: #826565; font-size: 1.1rem; text-decoration: underline;">Check Ad details</a>`;
+                    }
 
-        const slides = slider.getElementsByClassName("ad-slide");
-        totalSlides = slides.length;
-        currentIndex = 0;
+                    slider.innerHTML += `
+                        <div class="ad-slide" style="width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center;">
+                            <img src="${adData.imageUrl}" style="max-height: 260px; max-width: 100%; object-fit: contain; border-radius: 10px;" alt="Community Ad">
+                            ${actionLinkHtml}
+                        </div>`;
+                }
+            });
 
-        if (totalSlides > 0) {
-            slides[currentIndex].style.display = "flex";
-            slides[currentIndex].classList.add("active");
-            if (totalSlides > 1) {
-                if (controls) controls.style.display = "flex";
-                startAdTimer();
+            const slides = slider.getElementsByClassName("ad-slide");
+            totalSlides = slides.length;
+            currentIndex = 0;
+
+            if (totalSlides > 0) {
+                slides[currentIndex].style.display = "flex";
+                slides[currentIndex].classList.add("active");
+                if (totalSlides > 1) {
+                    if (controls) controls.style.display = "flex";
+                    startAdTimer();
+                } else {
+                    if (controls) controls.style.display = "none";
+                }
             } else {
+                slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available</p>`;
                 if (controls) controls.style.display = "none";
             }
-        } else {
-            slider.innerHTML = `<p id="ad-placeholder" style="color: #a1887f;">Space Available</p>`;
-            if (controls) controls.style.display = "none";
+        } catch (error) {
+            console.error("Exception caught inside loadAds:", error);
         }
-    } catch (error) {
-        console.error("Exception caught inside loadAds:", error);
     }
-}
 
     document.getElementById("nextAdBtn").addEventListener("click", () => { changeSlide("next"); startAdTimer(); });
     document.getElementById("prevAdBtn").addEventListener("click", () => { changeSlide("prev"); startAdTimer(); });
@@ -1035,25 +1026,6 @@ ads.forEach((adData) => {
 </script> 
 
 <canvas id="fireCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; display:none;"></canvas>
-
-                               <div id="owl-container">
-  <div id="owl-icon" onclick="activateOwlEffect()">🦉</div>
-  <audio id="owl-audio" src="theme.mp3" preload="auto"></audio>
-</div>
-
-<style>
-  #owl-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
-  #owl-icon { font-size: 60px; cursor: pointer; user-select: none; transition: transform 0.3s ease; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2)); }
-  #owl-icon:hover { transform: scale(1.15); }
-  @keyframes enlargeAndShrinkTwice {
-    0% { transform: scale(1); }
-    25% { transform: scale(1.6); }
-    50% { transform: scale(1); }
-    75% { transform: scale(1.6); }
-    100% { transform: scale(1); }
-  }
-  .active-effect { animation: enlargeAndShrinkTwice 2s ease-in-out forwards; }
-</style>
 
 </body>
 </html>
