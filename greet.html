@@ -21,11 +21,11 @@
             justify-content: center;
         }
 
-        /* Professional Theme Styles for type=ad */
+        /* Modern Professional Ad Theme Styles */
         body.ad-theme {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #f4f6f9;
-            color: #333333;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1e293b;
         }
 
         .main-nav {
@@ -36,17 +36,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 12px 10px;
+            padding: 14px 10px;
             background: rgba(253, 246, 227, 0.95);
             border-bottom: 2px solid #8d6e63;
             backdrop-filter: blur(10px);
             z-index: 20;
             box-sizing: border-box;
-        }
-
-        body.ad-theme .main-nav {
-            background: rgba(253, 246, 227, 0.95);
-            border-bottom: 2px solid #8d6e63;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
         .nav-logo {
@@ -55,13 +51,6 @@
             font-size: clamp(1.6rem, 4.5vw, 2rem);
             font-weight: 700;
             letter-spacing: 1px;
-        }
-
-        body.ad-theme .nav-logo {
-            font-family: 'Caveat', cursive;
-            color: #5d4037;
-            font-weight: 700;
-            font-size: clamp(1.6rem, 4.5vw, 2rem);
         }
 
         .greeting-card {
@@ -81,16 +70,32 @@
             animation: cardFloat 4s ease-in-out infinite alternate;
         }
 
+        /* Enhanced Ad Card Design */
         body.ad-theme .greeting-card {
             background: #ffffff;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
-            border: 1px solid #e1e4e8;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             animation: none;
             text-align: left;
-            max-width: 650px;
+            max-width: 600px;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        /* Decorative top gradient bar for Ad cards */
+        body.ad-theme .greeting-card::before {
+            content: "";
+            display: block;
+            height: 6px;
+            background: linear-gradient(90deg, #06b6d4, #3b82f6, #6366f1);
+            width: 100%;
+        }
+
+        .ad-content-wrapper {
+            padding: 32px;
         }
 
         @keyframes cardFloat {
@@ -108,12 +113,13 @@
 
         body.ad-theme h1 {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 1.8rem;
-            color: #1a1a1a;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0f172a;
             text-shadow: none;
             margin-top: 0;
-            border-bottom: 1px solid #eaecef;
-            padding-bottom: 12px;
+            margin-bottom: 20px;
+            letter-spacing: -0.025em;
         }
 
         p { 
@@ -123,15 +129,19 @@
             margin-bottom: 25px;
         }
 
+        /* Sleek Promo Box for Ad Messages */
         body.ad-theme p {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 1rem;
-            color: #000000;
-            background-color: #e0f7fa;
-            padding: 16px;
-            border-radius: 6px;
+            font-size: 1.1rem;
+            color: #1e293b;
+            background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 12px;
             line-height: 1.6;
-            border-left: 4px solid #00acc1;
+            border: 1px solid #bae6fd;
+            border-left: 5px solid #0284c7;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            margin-bottom: 30px;
         }
         
         .party-container {
@@ -166,13 +176,16 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
+        /* Modernized Dashboard Button */
         body.ad-theme .back-btn {
-            background: #0366d6;
+            background: #0f172a;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             font-size: 0.95rem;
-            padding: 8px 16px;
-            border-radius: 6px;
-            box-shadow: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2);
+            transition: all 0.2s ease;
         }
 
         .back-btn:hover {
@@ -181,9 +194,9 @@
         }
 
         body.ad-theme .back-btn:hover {
-            transform: none;
-            background: #0056b3;
-            box-shadow: none;
+            transform: translateY(-1px);
+            background: #1e293b;
+            box-shadow: 0 6px 15px -2px rgba(15, 23, 42, 0.3);
         }
         
         canvas {
@@ -195,21 +208,27 @@
             pointer-events: none;
             z-index: 2;
         }
+
+        /* Small structural wrapper for standard view elements vs ad wrapper */
+        .standard-content {
+            display: contents;
+        }
     </style>
 </head>
 <body>
 
     <nav class="main-nav">
-        <div class="nav-logo" id="navLogoText">Owl Watcher Greetings 🦉✨</div>
+        <div class="nav-logo" id="navLogoText">Owl Watcher 🦉 | Ad Portal</div>
     </nav>
 
     <canvas id="fireworksCanvas" style="display: none;"></canvas>
 
     <div class="greeting-card" id="greetingCardContainer">
-     
-        <h1 id="greetTitle">Loading...</h1>
-        <p id="greetMessage">Please wait while we load your content.</p>
-        <a href="index.html" class="back-btn" id="actionBtn" style="display: none;">⬅ Back to Portal</a>
+        <div class="ad-content-wrapper">
+            <h1 id="greetTitle">Loading...</h1>
+            <p id="greetMessage">Please wait while we load your content.</p>
+            <a href="index.html" class="back-btn" id="actionBtn" style="display: none;">⬅ Back to Portal</a>
+        </div>
     </div>
 
     <!-- Firebase SDKs -->
@@ -237,7 +256,7 @@
 
         if (type === 'ad') {
             document.body.classList.add('ad-theme');
-            navLogoText.innerText = "Owl Watcher 🦉| Ad Portal";
+            navLogoText.innerText = "Owl Watcher 🦉 | Ad Portal";
 
             async function loadAdData() {
                 try {
@@ -248,7 +267,7 @@
                         greetMessage.innerText = data.message || "Reviewing comprehensive campaign metrics, target audience insights, and performance records.";
                     } else {
                         greetTitle.innerText = "Ad Details";
-                        greetMessage.innerText = "Explore professional advertisement details,and campaign insights here.";
+                        greetMessage.innerText = "Explore professional advertisement details, and campaign insights here.";
                     }
                 } catch (err) {
                     console.error("Error fetching ad details from Firebase:", err);
