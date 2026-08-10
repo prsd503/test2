@@ -102,8 +102,8 @@
             animation-delay: 0.3s;
         }
 
-        /* Circular Gravity Maze Game Widget Styles */
-        .maze-game-box {
+        /* Compass Widget Styles */
+        .compass-box {
             margin-top: 25px;
             padding: 15px;
             border-radius: 15px;
@@ -112,7 +112,7 @@
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .maze-header {
+        .compass-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -123,14 +123,66 @@
             border-bottom: 2px solid #8d6e63;
             padding-bottom: 5px;
         }
-        #mazeCanvas {
-            background: #f7f7f7;
-            border: 2px solid #8d6e63;
+        .compass-container {
+            width: 180px;
+            height: 180px;
+            margin: 15px auto;
+            position: relative;
+            background: #fdf6e3;
+            border: 4px solid #8d6e63;
             border-radius: 50%;
-            display: block;
-            margin: 0 auto;
-            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
+        .compass-dial {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.1s ease-out;
+        }
+        .compass-needle {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .needle-north {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 60px solid #d32f2f;
+            position: absolute;
+            top: 18px;
+        }
+        .needle-south {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 60px solid #5d4037;
+            position: absolute;
+            bottom: 18px;
+        }
+        .compass-label {
+            position: absolute;
+            font-weight: bold;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            color: #5d4037;
+        }
+        .label-n { top: 5px; left: calc(50% - 5px); color: #d32f2f; }
+        .label-s { bottom: 5px; left: calc(50% - 5px); }
+        .label-e { right: 8px; top: calc(50% - 10px); }
+        .label-w { left: 8px; top: calc(50% - 10px); }
 
         /* Owl Animation Specific Styles Scoped to Search Page */
         #owl-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
@@ -207,17 +259,26 @@
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
 
-        <!-- Circular Gravity Maze Game Widget placed below Global Ad page view -->
-        <div class="maze-game-box">
-            <div class="maze-header">
-                <span>🌀 Circular Gravity Maze</span>
-                <span id="mazeStatus" style="font-size: 0.9rem; font-family: sans-serif; color: #8d6e63; font-weight: bold;">Guide Marble to Center 🎯</span>
+        <!-- North-South Compass Widget placed below Global Ad page view -->
+        <div class="compass-box">
+            <div class="compass-header">
+                <span>🧭 North-South Compass</span>
+                <span id="compassStatus" style="font-size: 0.9rem; font-family: sans-serif; color: #8d6e63; font-weight: bold;">Ready</span>
             </div>
-            <canvas id="mazeCanvas" width="300" height="300"></canvas>
+            <div class="compass-container">
+                <span class="compass-label label-n">N</span>
+                <span class="compass-label label-s">S</span>
+                <span class="compass-label label-e">E</span>
+                <span class="compass-label label-w">W</span>
+                <div class="compass-needle" id="compassNeedle">
+                    <div class="needle-north"></div>
+                    <div class="needle-south"></div>
+                </div>
+            </div>
             <div style="margin-top: 10px;">
-                <button id="enableSensorsBtn" style="font-size: 1rem; padding: 6px 15px;">Enable Tilt / Sensors</button>
+                <button id="enableCompassBtn" style="font-size: 1rem; padding: 6px 15px;">Enable Compass Sensors</button>
             </div>
-            <p style="font-family: sans-serif; font-size: 0.85rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 0;">Tilt your mobile device or use <b>Arrow Keys / WASD</b> to roll the marble into the center target.</p>
+            <p style="font-family: sans-serif; font-size: 0.85rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 0;" id="compassInfo">Click to activate device orientation compass.</p>
         </div>
     </div>
         
@@ -379,202 +440,50 @@
         }
     }
 
-    // Circular Gravity Maze Game Engine Logic
-    let mazeGameInterval = null;
-    let tiltX = 0;
-    let tiltY = 0;
+    // Compass Logic Implementation
+    let compassActive = false;
 
-    function initMazeGame() {
-        const canvas = document.getElementById('mazeCanvas');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const maxRadius = canvas.width / 2 - 10;
-
-        let marble = {
-            x: centerX + 80,
-            y: centerY + 80,
-            vx: 0,
-            vy: 0,
-            radius: 8,
-            friction: 0.98,
-            accel: 0.35
-        };
-
-        // Circular concentric and sectional walls (radius, startAngle, endAngle)
-        const walls = [
-            { r: 40, type: 'circle' },
-            { r: 80, type: 'circle_gapped', gapStart: 0.5, gapEnd: 1.5 },
-            { r: 120, type: 'circle_gapped', gapStart: 3.5, gapEnd: 4.5 }
-        ];
-
-        let keys = {};
-        window.addEventListener('keydown', (e) => {
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {
-                if (document.getElementById('society-verification').style.display !== 'none') {
-                    e.preventDefault();
-                }
+    function handleOrientationEvent(event) {
+        let alpha = event.alpha; // compass direction [0, 360)
+        let absolute = event.absolute;
+        
+        if (alpha !== null) {
+            // Rotate needle based on device heading
+            const needle = document.getElementById('compassNeedle');
+            if (needle) {
+                needle.style.transform = `rotate(${-alpha}deg)`;
             }
-            keys[e.code] = true;
-        });
-        window.addEventListener('keyup', (e) => {
-            keys[e.code] = false;
-        });
-
-        let gameWon = false;
-
-        function updateMaze() {
-            if (gameWon) return;
-
-            let ax = tiltX * 0.4;
-            let ay = tiltY * 0.4;
-
-            if (keys['ArrowUp'] || keys['KeyW']) ay -= 0.5;
-            if (keys['ArrowDown'] || keys['KeyS']) ay += 0.5;
-            if (keys['ArrowLeft'] || keys['KeyA']) ax -= 0.5;
-            if (keys['ArrowRight'] || keys['KeyD']) ax += 0.5;
-
-            marble.vx = (marble.vx + ax) * marble.friction;
-            marble.vy = (marble.vy + ay) * marble.friction;
-
-            marble.x += marble.vx;
-            marble.y += marble.vy;
-
-            // Boundary collision (Outer circle)
-            let dx = marble.x - centerX;
-            let dy = marble.y - centerY;
-            let distFromCenter = Math.sqrt(dx * dx + dy * dy);
-
-            if (distFromCenter > maxRadius - marble.radius) {
-                let angle = Math.atan2(dy, dx);
-                marble.x = centerX + (maxRadius - marble.radius) * Math.cos(angle);
-                marble.y = centerY + (maxRadius - marble.radius) * Math.sin(angle);
-                marble.vx = -marble.vx * 0.3;
-                marble.vy = -marble.vy * 0.3;
+            document.getElementById('compassStatus').innerText = `${Math.round(alpha)}°`;
+            document.getElementById('compassInfo').innerText = absolute ? "Using absolute device heading." : "Using relative device heading.";
+        } else if (event.webkitCompassHeading !== undefined) {
+            // iOS Safari specific heading property
+            let heading = event.webkitCompassHeading;
+            const needle = document.getElementById('compassNeedle');
+            if (needle) {
+                needle.style.transform = `rotate(${-heading}deg)`;
             }
-
-            // Check inner ring/wall collisions with gaps
-            walls.forEach(w => {
-                if (w.type === 'circle') {
-                    if (Math.abs(distFromCenter - w.r) < marble.radius) {
-                        let angle = Math.atan2(dy, dx);
-                        marble.x = centerX + (w.r + (distFromCenter < w.r ? -marble.radius : marble.radius)) * Math.cos(angle);
-                        marble.y = centerY + (w.r + (distFromCenter < w.r ? -marble.radius : marble.radius)) * Math.sin(angle);
-                        marble.vx = -marble.vx * 0.3;
-                        marble.vy = -marble.vy * 0.3;
-                    }
-                } else if (w.type === 'circle_gapped') {
-                    if (Math.abs(distFromCenter - w.r) < marble.radius) {
-                        let angle = Math.atan2(dy, dx);
-                        // Normalize angle to 0 - 2PI
-                        if (angle < 0) angle += Math.PI * 2;
-                        if (angle < w.gapStart || angle > w.gapEnd) {
-                            marble.x = centerX + (w.r + (distFromCenter < w.r ? -marble.radius : marble.radius)) * Math.cos(angle);
-                            marble.y = centerY + (w.r + (distFromCenter < w.r ? -marble.radius : marble.radius)) * Math.sin(angle);
-                            marble.vx = -marble.vx * 0.3;
-                            marble.vy = -marble.vy * 0.3;
-                        }
-                    }
-                }
-            });
-
-            // Check goal condition (Center target radius < 15px)
-            if (distFromCenter < 15) {
-                gameWon = true;
-                document.getElementById('mazeStatus').innerText = '🎉 Center Reached! You Win!';
-            }
-
-            // Render Maze
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Background Board
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, maxRadius, 0, Math.PI * 2);
-            ctx.fillStyle = '#fdf6e3';
-            ctx.fill();
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = '#8d6e63';
-            ctx.stroke();
-            ctx.closePath();
-
-            // Draw Center Goal
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
-            ctx.fillStyle = '#2ecc71';
-            ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = '#27ae60';
-            ctx.stroke();
-            ctx.closePath();
-
-            // Draw Walls
-            walls.forEach(w => {
-                ctx.beginPath();
-                if (w.type === 'circle') {
-                    ctx.arc(centerX, centerY, w.r, 0, Math.PI * 2);
-                } else if (w.type === 'circle_gapped') {
-                    ctx.arc(centerX, centerY, w.r, w.gapEnd, w.gapStart);
-                }
-                ctx.lineWidth = 3;
-                ctx.strokeStyle = '#8d6e63';
-                ctx.stroke();
-                ctx.closePath();
-            });
-
-            // Draw Marble
-            ctx.beginPath();
-            ctx.arc(marble.x, marble.y, marble.radius, 0, Math.PI * 2);
-            ctx.fillStyle = '#d32f2f';
-            ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = '#5d4037';
-            ctx.stroke();
-            ctx.closePath();
-
-            if (gameWon) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, maxRadius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 20px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('🏆 LEVEL COMPLETED!', centerX, centerY);
-                ctx.textAlign = 'left';
-            }
-        }
-
-        if (mazeGameInterval) clearInterval(mazeGameInterval);
-        mazeGameInterval = setInterval(updateMaze, 1000 / 60);
-    }
-
-    // Device orientation handler for mobile gravity sensors
-    function handleOrientation(event) {
-        // gamma: left to right tilt (-90 to 90)
-        // beta: front to back tilt (-180 to 180)
-        if (event.gamma !== null && event.beta !== null) {
-            tiltX = event.gamma / 10;
-            tiltY = event.beta / 10;
+            document.getElementById('compassStatus').innerText = `${Math.round(heading)}°`;
+            document.getElementById('compassInfo').innerText = "Using iOS compass heading.";
         }
     }
 
-    document.getElementById('enableSensorsBtn').addEventListener('click', () => {
+    document.getElementById('enableCompassBtn').addEventListener('click', () => {
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
             DeviceOrientationEvent.requestPermission().then(response => {
                 if (response === 'granted') {
-                    window.addEventListener('deviceorientation', handleOrientation);
-                    document.getElementById('enableSensorsBtn').innerText = 'Sensors Active ✅';
+                    window.addEventListener('deviceorientation', handleOrientationEvent, true);
+                    compassActive = true;
+                    document.getElementById('enableCompassBtn').innerText = 'Compass Active ✅';
                 } else {
-                    alert('Permission denied for device sensors.');
+                    alert('Permission denied for device orientation sensors.');
                 }
             }).catch(console.error);
         } else if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', handleOrientation);
-            document.getElementById('enableSensorsBtn').innerText = 'Sensors Active ✅';
+            window.addEventListener('deviceorientation', handleOrientationEvent, true);
+            compassActive = true;
+            document.getElementById('enableCompassBtn').innerText = 'Compass Active ✅';
         } else {
-            alert('Device orientation sensors are not supported on this device/browser.');
+            alert('Device orientation is not supported on this browser.');
         }
     });
 
@@ -804,7 +713,6 @@
 
     function showSearchScreen(societyName, societyId) {
         currentSociety = societyName;
-        if (mazeGameInterval) clearInterval(mazeGameInterval);
         document.getElementById("society-verification").style.display = "none";
         document.getElementById("vehicle-search").style.display = "block";
         document.getElementById("displaySocietyName").innerText = currentSociety;
@@ -833,7 +741,6 @@
         document.getElementById("society-verification").style.display = "block";
         updateAdLinks();
         loadGlobalAdsPreLogin();
-        initMazeGame();
     }
 
     document.getElementById("verifyBtn").addEventListener("click", async () => {
@@ -924,7 +831,6 @@
             }
         } else {
             loadGlobalAdsPreLogin();
-            initMazeGame();
         }
     });
     
