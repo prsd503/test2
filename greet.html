@@ -11,7 +11,7 @@
             background: radial-gradient(circle at center, #1a1c29 0%, #0d0e15 100%); 
             color: #f5f5f5; 
             text-align: center; 
-            padding: 20px; 
+            padding: 10px; 
             margin: 0;
             overflow-x: hidden;
             min-height: 100vh;
@@ -21,23 +21,24 @@
             justify-content: center;
         }
         .main-nav {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 15px;
-            background: rgba(13, 14, 21, 0.85);
+            padding: 12px 10px;
+            background: rgba(13, 14, 21, 0.9);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             z-index: 20;
+            box-sizing: border-box;
         }
         .nav-logo {
             font-family: 'Caveat', cursive;
             color: #ffcc00;
-            font-size: 1.8rem;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
             font-weight: bold;
             letter-spacing: 1px;
         }
@@ -46,45 +47,47 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            max-width: 600px;
-            width: 90%;
-            margin: 80px auto 20px auto;
-            padding: 40px;
+            border-radius: 20px;
+            max-width: 550px;
+            width: 92%;
+            margin: 70px auto 20px auto;
+            padding: clamp(20px, 5vw, 40px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 204, 0, 0.1);
             position: relative;
             z-index: 10;
+            box-sizing: border-box;
             animation: cardFloat 4s ease-in-out infinite alternate;
         }
 
         @keyframes cardFloat {
             0% { transform: translateY(0px); }
-            100% { transform: translateY(-8px); }
+            100% { transform: translateY(-6px); }
         }
 
         h1 { 
-            font-size: 3.2rem; 
+            font-size: clamp(2.2rem, 7vw, 3.2rem); 
             color: #ff6b81; 
-            margin: 15px 0; 
+            margin: 12px 0; 
             text-shadow: 0 0 15px rgba(255, 107, 129, 0.4);
+            line-height: 1.1;
         }
         p { 
-            font-size: 1.6rem; 
+            font-size: clamp(1.3rem, 4vw, 1.6rem); 
             color: #e0e0e0; 
-            line-height: 1.5; 
-            margin-bottom: 30px;
+            line-height: 1.4; 
+            margin-bottom: 25px;
         }
         
-        /* Static Emoji Container (All movement removed) */
+        /* Balloon Container */
         .party-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-bottom: 8px;
         }
         .static-emoji {
-            font-size: 3.5rem;
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
 
@@ -92,9 +95,9 @@
             background: linear-gradient(135deg, #ff6b81, #ff4757);
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 14px;
-            font-size: 1.4rem;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-size: clamp(1.2rem, 3.5vw, 1.4rem);
             font-family: 'Caveat', cursive;
             cursor: pointer;
             text-decoration: none;
@@ -128,9 +131,9 @@
 
     <div class="greeting-card" id="greetingCardContainer">
         <div class="party-container" id="cartoonBox">
-            <span class="static-emoji">🎈</span>
-            <span class="static-emoji">🎈</span>
-            <span class="static-emoji">🎈</span>
+            <span class="static-emoji">🎈red</span>
+            <span class="static-emoji">🎈yellow</span>
+            <span class="static-emoji">🎈green</span>
         </div>
         <h1 id="greetTitle">Happy Anniversary / Birthday!</h1>
         <p id="greetMessage">Loading special wishes from the community...</p>
@@ -151,11 +154,9 @@
         }
         const db = firebase.database();
 
-        // Parse URL parameters to check if a specific greeting ID was passed
         const urlParams = new URLSearchParams(window.location.search);
         const greetingId = urlParams.get('id') || 'default_greeting';
 
-        // Fetch Greetings Content from Firebase Database
         async function loadGreetingData() {
             try {
                 const snapshot = await db.ref('greetings/' + greetingId).once('value');
@@ -164,7 +165,6 @@
                     if (data.title) document.getElementById('greetTitle').innerText = data.title;
                     if (data.message) document.getElementById('greetMessage').innerText = data.message;
                 } else {
-                    // Fallback generic display if record doesn't exist explicitly in RTDB
                     document.getElementById('greetTitle').innerText = "Warm Community Wishes!";
                     document.getElementById('greetMessage').innerText = "Wishing you a wonderful celebration filled with joy, success, and happiness from everyone at Owl Watcher!";
                 }
@@ -176,7 +176,7 @@
 
         loadGreetingData();
 
-        // Colorful Fireworks Animation Script
+        // Fireworks Animation
         const canvas = document.getElementById("fireworksCanvas");
         const ctx = canvas.getContext("2d");
 
@@ -193,7 +193,7 @@
                 this.y = y;
                 this.color = color;
                 this.angle = Math.random() * Math.PI * 2;
-                this.speed = Math.random() * 6 + 2;
+                this.speed = Math.random() * 5 + 2;
                 this.friction = 0.95;
                 this.gravity = 0.08;
                 this.alpha = 1;
@@ -223,7 +223,7 @@
             const x = Math.random() * canvas.width;
             const y = Math.random() * (canvas.height / 2);
             const chosenColor = colors[Math.floor(Math.random() * colors.length)];
-            for (let i = 0; i < 70; i++) {
+            for (let i = 0; i < 50; i++) {
                 fireworks.push(new FireworkParticle(x, y, chosenColor));
             }
         }
@@ -240,8 +240,7 @@
             requestAnimationFrame(animateFireworks);
         }
 
-        // Trigger fireworks periodically
-        setInterval(createFirework, 900);
+        setInterval(createFirework, 1100);
         animateFireworks();
     </script>
 </body>
