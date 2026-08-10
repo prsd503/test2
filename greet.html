@@ -206,9 +206,9 @@
     <canvas id="fireworksCanvas" style="display: none;"></canvas>
 
     <div class="greeting-card" id="greetingCardContainer">
-        <div class="party-container" id="iconBox">
+        <!-- <div class="party-container" id="iconBox">
             <span class="static-emoji">🦉</span>
-        </div>
+        </div>-->
         <h1 id="greetTitle">Loading...</h1>
         <p id="greetMessage">Please wait while we load your content.</p>
         <a href="index.html" class="back-btn" id="actionBtn" style="display: none;">⬅ Back to Portal</a>
@@ -232,7 +232,7 @@
         const type = urlParams.get('type');
         const greetingId = urlParams.get('id') || 'default_greeting';
 
-        const iconBox = document.getElementById('iconBox');
+        //const iconBox = document.getElementById('iconBox');
         const greetTitle = document.getElementById('greetTitle');
         const greetMessage = document.getElementById('greetMessage');
         const actionBtn = document.getElementById('actionBtn');
@@ -266,7 +266,7 @@
 
         } else if (type === 'wish') {
             fireworksCanvas.style.display = 'block';
-            iconBox.innerHTML = '<span class="static-emoji">🎈</span><span class="static-emoji">🎈</span><span class="static-emoji">🎈</span>';
+            //iconBox.innerHTML = '';
             actionBtn.style.display = 'inline-block';
             actionBtn.innerText = "⬅ Back to Portal";
 
