@@ -102,52 +102,6 @@
             animation-delay: 0.3s;
         }
 
-        /* Brainvita Specific Styles */
-        .brainvita-board {
-            display: grid;
-            grid-template-columns: repeat(7, 32px);
-            grid-template-rows: repeat(7, 32px);
-            gap: 4px;
-            justify-content: center;
-            background: #d7ccc8;
-            padding: 12px;
-            border-radius: 12px;
-            margin: 10px auto;
-            width: fit-content;
-        }
-        .b-hole {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #a1887f;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-        }
-        .b-hole.invalid {
-            background: transparent;
-            cursor: default;
-            pointer-events: none;
-        }
-        .b-marble {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #ff7043, #d84315);
-            box-shadow: inset -2px -2px 4px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
-            transition: transform 0.15s ease;
-        }
-        .b-hole.selected .b-marble {
-            transform: scale(1.15);
-            box-shadow: 0 0 8px #ffeb3b, inset -2px -2px 4px rgba(0,0,0,0.4);
-        }
-        .b-hole.valid-target {
-            background: #8d6e63;
-            box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-        }
-
         /* Owl Animation Specific Styles Scoped to Search Page */
         #owl-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
         #owl-icon { font-size: 60px; cursor: pointer; user-select: none; transition: transform 0.3s ease; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2)); }
@@ -223,17 +177,32 @@
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
 
-        <!-- Brainvita Puzzle Box -->
-        <div style="margin-top: 15px; padding: 15px; border-radius: 12px; background: #ffffff; border: 2px dashed #8d6e63; color: #5d4037; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); user-select: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-family: 'Caveat', cursive; font-size: 1.3rem;">
-                <span>🎯 Brainvita Marble Puzzle</span>
+        <!-- Mini Drawing Whiteboard Box (Auto Scroll-Lock via touch-action) -->
+        <div id="whiteboardBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: #ffffff; border: 2px dashed #8d6e63; color: #5d4037; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); user-select: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: 'Caveat', cursive; font-size: 1.3rem;">
+                <span>🎨 Mini Whiteboard Studio</span>
                 <div>
-                    <button id="resetBrainvitaBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0; font-family: sans-serif;">Reset</button>
+                    <button id="clearCanvasBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Clear</button>
                 </div>
             </div>
-            <p style="font-size: 0.9rem; color: #795548; margin: 0 0 8px 0; font-family: sans-serif;">Jump any marble over an adjacent one into an empty hole to remove it. Leave only 1 marble in the center!</p>
-            <div id="brainvitaBoard" class="brainvita-board"></div>
-            <div id="brainvitaStatus" style="font-family: sans-serif; font-size: 0.95rem; font-weight: bold; margin-top: 5px; color: #5d4037;">Marbles left: 32</div>
+            
+            <!-- Drawing Tools Toolbar -->
+            <div style="display: flex; justify-content: center; align-items: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
+                <button type="button" class="tool-btn active-tool" data-tool="pencil" style="background: #8d6e63; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Pencil</button>
+                <button type="button" class="tool-btn" data-tool="brush" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Brush</button>
+                <button type="button" class="tool-btn" data-tool="eraser" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🧹 Eraser</button>
+                <button type="button" class="tool-btn" data-tool="bucket" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🪣 Bucket</button>
+                
+                <label for="drawColorPicker" style="background: #dcdde1; color: #2f3640; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 0;" title="Pick Color">
+                    🎨 <span id="colorIndicator" style="width: 12px; height: 12px; background: #ff4757; border-radius: 50%; display: inline-block; border: 1px solid #fff;"></span>
+                    <input type="color" id="drawColorPicker" value="#ff4757" style="opacity: 0; width: 0; height: 0; position: absolute; pointer-events: none;">
+                </label>
+            </div>
+
+            <!-- Canvas Area (touch-action: none prevents scrolling while drawing) -->
+            <div style="width: 100%; height: 160px; background: #ffffff; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden; touch-action: none;" id="canvasWrapper">
+                <canvas id="miniWhiteboardCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none;"></canvas>
+            </div>
         </div>
     </div>
         
@@ -400,145 +369,181 @@
         }
     }
 
-    // Brainvita Logic
-    const brainvitaLayout = [
-        [0,0,1,1,1,0,0],
-        [0,0,1,1,1,0,0],
-        [1,1,1,1,1,1,1],
-        [1,1,1,2,1,1,1], // 2 = empty center hole initially
-        [1,1,1,1,1,1,1],
-        [0,0,1,1,1,0,0],
-        [0,0,1,1,1,0,0]
-    ];
+    // Mini Whiteboard Logic (Auto-lock scroll when drawing via touch-action: none)
+    const wbCanvas = document.getElementById('miniWhiteboardCanvas');
 
-    let bBoardState = [];
-    let selectedMarble = null;
+    if (wbCanvas) {
+        const wbCtx = wbCanvas.getContext('2d', { willReadFrequently: true });
+        
+        function resizeWbCanvas() {
+            const rect = wbCanvas.getBoundingClientRect();
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = wbCanvas.width;
+            tempCanvas.height = wbCanvas.height;
+            if (wbCanvas.width > 0 && wbCanvas.height > 0) {
+                tempCtx.drawImage(wbCanvas, 0, 0);
+            }
 
-    function initBrainvita() {
-        bBoardState = brainvitaLayout.map(row => [...row]);
-        selectedMarble = null;
-        renderBrainvita();
-    }
+            wbCanvas.width = rect.width;
+            wbCanvas.height = rect.height;
+            
+            wbCtx.fillStyle = "#ffffff";
+            wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+            
+            if (tempCanvas.width > 0) {
+                wbCtx.drawImage(tempCanvas, 0, 0);
+            }
+        }
+        resizeWbCanvas();
+        window.addEventListener('resize', resizeWbCanvas);
 
-    function getValidMoves(r, c) {
-        const moves = [];
-        const directions = [
-            {-2,0}, {2,0}, {0,-2}, {0,2}
-        ];
-        // Standard directions: dr, dc
-        const dirs = [[-2,0], [2,0], [0,-2], [0,2]];
-        for (let [dr, dc] of dirs) {
-            let nr = r + dr, nc = c + dc;
-            let mr = r + dr/2, mc = c + dc/2;
-            if (nr >= 0 && nr < 7 && nc >= 0 && nc < 7) {
-                if (bBoardState[nr][nc] === 2 && bBoardState[mr][mc] === 1) {
-                    moves.push({r: nr, c: nc, mr, mc});
+        let isDrawing = false;
+        let currentTool = 'pencil';
+        let currentColor = '#ff4757';
+
+        const toolButtons = document.querySelectorAll('.tool-btn');
+        toolButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toolButtons.forEach(b => {
+                    b.classList.remove('active-tool');
+                    b.style.background = '#dcdde1';
+                    b.style.color = '#2f3640';
+                });
+                btn.classList.add('active-tool');
+                btn.style.background = '#8d6e63';
+                btn.style.color = 'white';
+                currentTool = btn.getAttribute('data-tool');
+            });
+        });
+
+        const colorPicker = document.getElementById('drawColorPicker');
+        const colorIndicator = document.getElementById('colorIndicator');
+        if (colorPicker) {
+            colorPicker.addEventListener('input', (e) => {
+                currentColor = e.target.value;
+                if (colorIndicator) colorIndicator.style.background = currentColor;
+            });
+        }
+
+        const clearBtn = document.getElementById('clearCanvasBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                wbCtx.fillStyle = "#ffffff";
+                wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+            });
+        }
+
+        function getMousePos(e) {
+            const rect = wbCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: Math.floor(clientX - rect.left),
+                y: Math.floor(clientY - rect.top)
+            };
+        }
+
+        function hexToRgba(hex) {
+            let c = hex.replace('#', '');
+            if (c.length === 3) c = c.split('').map(x => x + x).join('');
+            const num = parseInt(c, 16);
+            return [num >> 16, (num >> 8) & 255, num & 255, 255];
+        }
+
+        function floodFill(startX, startY, fillColorHex) {
+            const imgData = wbCtx.getImageData(0, 0, wbCanvas.width, wbCanvas.height);
+            const pixels = imgData.data;
+            const targetIdx = (startY * wbCanvas.width + startX) * 4;
+            
+            const targetR = pixels[targetIdx];
+            const targetG = pixels[targetIdx + 1];
+            const targetB = pixels[targetIdx + 2];
+            const targetA = pixels[targetIdx + 3];
+
+            const [fillR, fillG, fillB, fillA] = hexToRgba(fillColorHex);
+
+            if (targetR === fillR && targetG === fillG && targetB === fillB && targetA === fillA) return;
+
+            const queue = [[startX, startY]];
+            const width = wbCanvas.width;
+            const height = wbCanvas.height;
+
+            while (queue.length > 0) {
+                const [x, y] = queue.pop();
+                const idx = (y * width + x) * 4;
+
+                if (
+                    pixels[idx] === targetR &&
+                    pixels[idx + 1] === targetG &&
+                    pixels[idx + 2] === targetB &&
+                    pixels[idx + 3] === targetA
+                ) {
+                    pixels[idx] = fillR;
+                    pixels[idx + 1] = fillG;
+                    pixels[idx + 2] = fillB;
+                    pixels[idx + 3] = fillA;
+
+                    if (x > 0) queue.push([x - 1, y]);
+                    if (x < width - 1) queue.push([x + 1, y]);
+                    if (y > 0) queue.push([x, y - 1]);
+                    if (y < height - 1) queue.push([x, y + 1]);
                 }
             }
+            wbCtx.putImageData(imgData, 0, 0);
         }
-        return moves;
-    }
 
-    function hasAnyValidMoves() {
-        for (let r = 0; r < 7; r++) {
-            for (let c = 0; c < 7; c++) {
-                if (bBoardState[r][c] === 1) {
-                    if (getValidMoves(r, c).length > 0) return true;
-                }
+        function startDraw(e) {
+            const pos = getMousePos(e);
+            if (currentTool === 'bucket') {
+                floodFill(pos.x, pos.y, currentColor);
+                e.preventDefault();
+                return;
             }
+
+            isDrawing = true;
+            wbCtx.beginPath();
+            wbCtx.moveTo(pos.x, pos.y);
+            e.preventDefault();
         }
-        return false;
-    }
 
-    function renderBrainvita() {
-        const boardEl = document.getElementById('brainvitaBoard');
-        const statusEl = document.getElementById('brainvitaStatus');
-        if (!boardEl) return;
+        function draw(e) {
+            if (!isDrawing || currentTool === 'bucket') return;
+            const pos = getMousePos(e);
+            
+            wbCtx.lineCap = 'round';
+            wbCtx.lineJoin = 'round';
 
-        boardEl.innerHTML = '';
-        let marbleCount = 0;
-
-        for (let r = 0; r < 7; r++) {
-            for (let c = 0; c < 7; c++) {
-                const cellVal = brainvitaLayout[r][c];
-                const hole = document.createElement('div');
-                hole.className = 'b-hole';
-
-                if (cellVal === 0) {
-                    hole.classList.add('invalid');
-                } else {
-                    const state = bBoardState[r][c];
-                    if (state === 1) {
-                        marbleCount++;
-                        const marble = document.createElement('div');
-                        marble.className = 'b-marble';
-                        hole.appendChild(marble);
-                    }
-
-                    if (selectedMarble && selectedMarble.r === r && selectedMarble.c === c) {
-                        hole.classList.add('selected');
-                    }
-
-                    // Highlight valid jump targets if a marble is selected
-                    if (selectedMarble) {
-                        const validMoves = getValidMoves(selectedMarble.r, selectedMarble.c);
-                        if (validMoves.some(m => m.r === r && m.c === c)) {
-                            hole.classList.add('valid-target');
-                        }
-                    }
-
-                    hole.addEventListener('click', () => handleBrainvitaClick(r, c));
-                }
-                boardEl.appendChild(hole);
+            if (currentTool === 'pencil') {
+                wbCtx.strokeStyle = currentColor;
+                wbCtx.lineWidth = 2;
+            } else if (currentTool === 'brush') {
+                wbCtx.strokeStyle = currentColor;
+                wbCtx.lineWidth = 10;
+            } else if (currentTool === 'eraser') {
+                wbCtx.strokeStyle = '#ffffff';
+                wbCtx.lineWidth = 16;
             }
+
+            wbCtx.lineTo(pos.x, pos.y);
+            wbCtx.stroke();
+            e.preventDefault();
         }
 
-        statusEl.innerText = `Marbles left: ${marbleCount}`;
-
-        if (marbleCount === 1 && bBoardState[3][3] === 1) {
-            statusEl.innerText = "🎉 Brilliant! You won!";
-        } else if (!hasAnyValidMoves()) {
-            statusEl.innerText = `Game Over! Marbles left: ${marbleCount}`;
+        function stopDraw() {
+            if (!isDrawing) return;
+            isDrawing = false;
+            wbCtx.beginPath();
         }
-    }
 
-    function handleBrainvitaClick(r, c) {
-        const state = bBoardState[r][c];
-        if (state === 1) {
-            // Select this marble if it has valid moves, or toggle selection
-            const validMoves = getValidMoves(r, c);
-            if (validMoves.length > 0) {
-                if (selectedMarble && selectedMarble.r === r && selectedMarble.c === c) {
-                    selectedMarble = null;
-                } else {
-                    selectedMarble = {r, c};
-                }
-                renderBrainvita();
-            } else {
-                // If clicked marble has no moves, unselect
-                selectedMarble = null;
-                renderBrainvita();
-            }
-        } else if (state === 2 && selectedMarble) {
-            // Check if (r, c) is a valid move target for selectedMarble
-            const validMoves = getValidMoves(selectedMarble.r, selectedMarble.c);
-            const move = validMoves.find(m => m.r === r && m.c === c);
-            if (move) {
-                // Execute move
-                bBoardState[selectedMarble.r][selectedMarble.c] = 2;
-                bBoardState[r][c] = 1;
-                bBoardState[move.mr][move.mc] = 2; // remove jumped marble
-                selectedMarble = null;
-                renderBrainvita();
-            }
-        }
-    }
+        wbCanvas.addEventListener('mousedown', startDraw);
+        wbCanvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDraw);
 
-    const resetBBtn = document.getElementById('resetBrainvitaBtn');
-    if (resetBBtn) {
-        resetBBtn.addEventListener('click', initBrainvita);
+        wbCanvas.addEventListener('touchstart', startDraw, { passive: false });
+        wbCanvas.addEventListener('touchmove', draw, { passive: false });
+        window.addEventListener('touchend', stopDraw);
     }
-    initBrainvita();
     
     async function loadNotice(societyId) {
         const noticeDiv = document.getElementById('notice-content');
