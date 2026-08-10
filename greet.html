@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts for Caveat (Wishes) and Plus Jakarta Sans (Ads) -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Owl Watcher | Portal</title>
     <style>
         body { 
@@ -21,9 +22,9 @@
             justify-content: center;
         }
 
-        /* Modern Professional Ad Theme Styles */
+        /* Modern Professional Ad Theme Styles with Custom Typography */
         body.ad-theme {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             color: #1e293b;
         }
@@ -95,7 +96,7 @@
         }
 
         .ad-content-wrapper {
-            padding: 32px;
+            padding: 36px;
         }
 
         @keyframes cardFloat {
@@ -112,14 +113,14 @@
         }
 
         body.ad-theme h1 {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 1.75rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.85rem;
             font-weight: 700;
             color: #0f172a;
             text-shadow: none;
             margin-top: 0;
             margin-bottom: 20px;
-            letter-spacing: -0.025em;
+            letter-spacing: -0.03em;
         }
 
         p { 
@@ -129,19 +130,21 @@
             margin-bottom: 25px;
         }
 
-        /* Sleek Promo Box for Ad Messages */
+        /* Styled Promo Box with Plus Jakarta Sans Font */
         body.ad-theme p {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 1.1rem;
-            color: #1e293b;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #0f172a;
             background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
-            padding: 20px;
+            padding: 22px;
             border-radius: 12px;
-            line-height: 1.6;
+            line-height: 1.65;
             border: 1px solid #bae6fd;
             border-left: 5px solid #0284c7;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
             margin-bottom: 30px;
+            letter-spacing: -0.01em;
         }
         
         .party-container {
@@ -176,13 +179,13 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        /* Modernized Dashboard Button */
+        /* Modernized Dashboard Button Font */
         body.ad-theme .back-btn {
             background: #0f172a;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 0.95rem;
-            font-weight: 500;
-            padding: 12px 20px;
+            font-weight: 600;
+            padding: 12px 22px;
             border-radius: 8px;
             box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2);
             transition: all 0.2s ease;
@@ -208,11 +211,6 @@
             pointer-events: none;
             z-index: 2;
         }
-
-        /* Small structural wrapper for standard view elements vs ad wrapper */
-        .standard-content {
-            display: contents;
-        }
     </style>
 </head>
 <body>
@@ -235,7 +233,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    <script>
+    <script[cite: 1]>
         const firebaseConfig = {
             databaseURL: "https://finder-owl-default-rtdb.firebaseio.com/"
         };
