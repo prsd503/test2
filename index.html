@@ -538,10 +538,10 @@ function changeSlide(direction) {
             return;
         }
 
-        slider.innerHTML = "";
+slider.innerHTML = "";
         ads.forEach((adData) => {
             if (adData && adData.imageUrl) {
-                // Check if the ad is a wish (birthday, anniversary, etc.)
+                // Check if the ad is a wish
                 const titleLower = (adData.title || "").toLowerCase();
                 const isWish = adData.type === 'wish' || adData.isWish || 
                                titleLower.includes('birthday') || 
@@ -551,8 +551,9 @@ function changeSlide(direction) {
 
                 let greetingLinkHtml = "";
                 if (isWish) {
-                    const greetingId = adData.id || encodeURIComponent(societyId);
-                    greetingLinkHtml = `<br><a href="greet.html?id=${greetingId}" class="ad-link" style="font-weight: bold; color: #d32f2f; font-size: 1.1rem; text-decoration: underline;">✨ Check Greetings! ✨</a>`;
+                    // Dynamically picks up greetingId from Firestore, with safe fallbacks
+                    const targetGreetingId = adData.greetingId || adData.id || 'society_alpha_bday';
+                    greetingLinkHtml = `<br><a href="greet.html?id=${targetGreetingId}" class="ad-link" style="font-weight: bold; color: #d32f2f; font-size: 1.1rem; text-decoration: underline;">✨ Check Greetings! ✨</a>`;
                 }
 
                 slider.innerHTML += `
