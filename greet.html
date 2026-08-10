@@ -45,8 +45,8 @@
         }
 
         body.ad-theme .main-nav {
-            background: #ffffff;
-            border-bottom: 1px solid #e1e4e8;
+            background: rgba(253, 246, 227, 0.95);
+            border-bottom: 2px solid #8d6e63;
         }
 
         .nav-logo {
@@ -58,10 +58,10 @@
         }
 
         body.ad-theme .nav-logo {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: #24292e;
-            font-weight: 600;
-            font-size: 1.2rem;
+            font-family: 'Caveat', cursive;
+            color: #5d4037;
+            font-weight: 700;
+            font-size: clamp(1.6rem, 4.5vw, 2rem);
         }
 
         .greeting-card {
@@ -126,8 +126,12 @@
         body.ad-theme p {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             font-size: 1rem;
-            color: #586069;
+            color: #000000;
+            background-color: #e0f7fa;
+            padding: 16px;
+            border-radius: 6px;
             line-height: 1.6;
+            border-left: 4px solid #00acc1;
         }
         
         .party-container {
@@ -139,7 +143,7 @@
         }
 
         body.ad-theme .party-container {
-            display: none; /* Hide decorative emojis for clean professional layout */
+            display: none;
         }
 
         .static-emoji {
@@ -236,11 +240,9 @@
         const navLogoText = document.getElementById('navLogoText');
 
         if (type === 'ad') {
-            // Apply clean professional theme class to body
             document.body.classList.add('ad-theme');
             navLogoText.innerText = "Owl Watcher | Ad Portal";
 
-            // Simple professional blank page layout for ad details
             async function loadAdData() {
                 try {
                     const snapshot = await db.ref('greetings/' + greetingId).once('value');
@@ -263,7 +265,6 @@
             loadAdData();
 
         } else if (type === 'wish') {
-            // Animated wish page with balloons & fireworks
             fireworksCanvas.style.display = 'block';
             iconBox.innerHTML = '<span class="static-emoji">🎈</span><span class="static-emoji">🎈</span><span class="static-emoji">🎈</span>';
             actionBtn.style.display = 'inline-block';
@@ -289,7 +290,6 @@
 
             loadGreetingData();
 
-            // Fireworks Animation Script
             const canvas = fireworksCanvas;
             const ctx = canvas.getContext("2d");
 
@@ -356,7 +356,6 @@
             setInterval(createFirework, 1100);
             animateFireworks();
         } else {
-            // Default fallback view if type parameter is missing or invalid
             greetTitle.innerText = "Owl Watcher Portal";
             greetMessage.innerText = "Please specify a valid type parameter (?type=wish or ?type=ad) in your URL.";
             actionBtn.style.display = 'inline-block';
