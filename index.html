@@ -539,30 +539,33 @@ function changeSlide(direction) {
         }
 
 slider.innerHTML = "";
-        ads.forEach((adData) => {
-            if (adData && adData.imageUrl) {
-                // Check if the ad is a wish
-                const titleLower = (adData.title || "").toLowerCase();
-                const isWish = adData.type === 'wish' || adData.isWish || 
-                               titleLower.includes('birthday') || 
-                               titleLower.includes('anniversary') || 
-                               titleLower.includes('congrats') ||
-                               titleLower.includes('wish');
+ads.forEach((adData) => {
+    if (adData && adData.imageUrl) {
+        // Check if the ad is a wish based on explicit type or fallback title keywords
+        const titleLower = (adData.title || "").toLowerCase();
+        const isWish = adData.type === 'wish' || adData.isWish || 
+                       titleLower.includes('birthday') || 
+                       titleLower.includes('anniversary') || 
+                       titleLower.includes('congrats') ||
+                       titleLower.includes('wish');
 
-                let greetingLinkHtml = "";
-                if (isWish) {
-                    // Dynamically picks up greetingId from Firestore, with safe fallbacks
-                    const targetGreetingId = adData.greetingId || adData.id || 'society_alpha_bday';
-                    greetingLinkHtml = `<br><a href="greet.html?id=${targetGreetingId}" class="ad-link" style="font-weight: bold; color: #d32f2f; font-size: 1.1rem; text-decoration: underline;">✨ Check Greetings! ✨</a>`;
-                }
+        let actionLinkHtml = "";
+        const targetId = adData.greetingId || adData.id || 'society_alpha_bday';
 
-                slider.innerHTML += `
-                    <div class="ad-slide" style="width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center;">
-                        <img src="${adData.imageUrl}" style="max-height: 260px; max-width: 100%; object-fit: contain; border-radius: 10px;" alt="Community Ad">
-                        ${greetingLinkHtml}
-                    </div>`;
-            }
-        });
+        // Explicitly enforce type parameter based on whether it is a wish or ad
+        if (isWish) {
+            actionLinkHtml = `<br><a href="greet.html?type=wish&id=${targetId}" class="ad-link" style="font-weight: bold; color: #ff6b81; font-size: 1.1rem; text-decoration: underline;">✨ Check Greetings! ✨</a>`;
+        } else {
+            actionLinkHtml = `<br><a href="greet.html?type=ad&id=${targetId}" class="ad-link" style="font-weight: bold; color: #ffcc00; font-size: 1.1rem; text-decoration: underline;">📊 Check Ad details 📊</a>`;
+        }
+
+        slider.innerHTML += `
+            <div class="ad-slide" style="width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center;">
+                <img src="${adData.imageUrl}" style="max-height: 260px; max-width: 100%; object-fit: contain; border-radius: 10px;" alt="Community Ad">
+                ${actionLinkHtml}
+            </div>`;
+    }
+});
 
         const slides = slider.getElementsByClassName("ad-slide");
         totalSlides = slides.length;
