@@ -102,8 +102,8 @@
             animation-delay: 0.3s;
         }
 
-        /* Compass Widget Styles */
-        .compass-box {
+        /* Chrome Dino Game Widget Styles */
+        .dino-game-box {
             margin-top: 25px;
             padding: 15px;
             border-radius: 15px;
@@ -112,7 +112,7 @@
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .compass-header {
+        .dino-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -123,66 +123,15 @@
             border-bottom: 2px solid #8d6e63;
             padding-bottom: 5px;
         }
-        .compass-container {
-            width: 180px;
-            height: 180px;
-            margin: 15px auto;
-            position: relative;
-            background: #fdf6e3;
-            border: 4px solid #8d6e63;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        #dinoCanvas {
+            background: #f7f7f7;
+            border: 2px solid #8d6e63;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            cursor: pointer;
         }
-        .compass-dial {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transition: transform 0.1s ease-out;
-        }
-        .compass-needle {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .needle-north {
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-bottom: 60px solid #d32f2f;
-            position: absolute;
-            top: 18px;
-        }
-        .needle-south {
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 60px solid #5d4037;
-            position: absolute;
-            bottom: 18px;
-        }
-        .compass-label {
-            position: absolute;
-            font-weight: bold;
-            font-family: sans-serif;
-            font-size: 0.9rem;
-            color: #5d4037;
-        }
-        .label-n { top: 5px; left: calc(50% - 5px); color: #d32f2f; }
-        .label-s { bottom: 5px; left: calc(50% - 5px); }
-        .label-e { right: 8px; top: calc(50% - 10px); }
-        .label-w { left: 8px; top: calc(50% - 10px); }
 
         /* Owl Animation Specific Styles Scoped to Search Page */
         #owl-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
@@ -259,26 +208,14 @@
             <a id="globalAdLink" href="https://wa.me/919033406816?text=Hi%20I%20want%20to%20apply%20for%20global%20ad%20in%20Owl%20Watcher" target="_blank" class="ad-link">Advertise Globally Here!</a>
         </div>
 
-        <!-- North-South Compass Widget placed below Global Ad page view -->
-        <div class="compass-box">
-            <div class="compass-header">
-                <span>🧭 North-South Compass</span>
-                <span id="compassStatus" style="font-size: 0.9rem; font-family: sans-serif; color: #8d6e63; font-weight: bold;">Ready</span>
+        <!-- Chrome Dino Game Widget placed below Global Ad page view -->
+        <div class="dino-game-box">
+            <div class="dino-header">
+                <span>🦖 Dino Jump Game</span>
+                <span id="dinoHighScore" style="font-size: 0.9rem; font-family: sans-serif; color: #8d6e63; font-weight: bold;">HI: 00000</span>
             </div>
-            <div class="compass-container">
-                <span class="compass-label label-n">N</span>
-                <span class="compass-label label-s">S</span>
-                <span class="compass-label label-e">E</span>
-                <span class="compass-label label-w">W</span>
-                <div class="compass-needle" id="compassNeedle">
-                    <div class="needle-north"></div>
-                    <div class="needle-south"></div>
-                </div>
-            </div>
-            <div style="margin-top: 10px;">
-                <button id="enableCompassBtn" style="font-size: 1rem; padding: 6px 15px;">Enable Compass Sensors</button>
-            </div>
-            <p style="font-family: sans-serif; font-size: 0.85rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 0;" id="compassInfo">Click to activate device orientation compass.</p>
+            <canvas id="dinoCanvas" width="600" height="150"></canvas>
+            <p style="font-family: sans-serif; font-size: 0.85rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 0;">Press <b>Spacebar</b>, <b>Up Arrow</b>, or Click canvas to Jump/Start</p>
         </div>
     </div>
         
@@ -440,52 +377,157 @@
         }
     }
 
-    // Compass Logic Implementation
-    let compassActive = false;
+    // Chrome Dino Game Engine Logic
+    let dinoGameInterval = null;
+    let dinoGameRunning = false;
+    let dinoHighScoreVal = 0;
 
-    function handleOrientationEvent(event) {
-        let alpha = event.alpha; // compass direction [0, 360)
-        let absolute = event.absolute;
-        
-        if (alpha !== null) {
-            // Rotate needle based on device heading
-            const needle = document.getElementById('compassNeedle');
-            if (needle) {
-                needle.style.transform = `rotate(${-alpha}deg)`;
-            }
-            document.getElementById('compassStatus').innerText = `${Math.round(alpha)}°`;
-            document.getElementById('compassInfo').innerText = absolute ? "Using absolute device heading." : "Using relative device heading.";
-        } else if (event.webkitCompassHeading !== undefined) {
-            // iOS Safari specific heading property
-            let heading = event.webkitCompassHeading;
-            const needle = document.getElementById('compassNeedle');
-            if (needle) {
-                needle.style.transform = `rotate(${-heading}deg)`;
-            }
-            document.getElementById('compassStatus').innerText = `${Math.round(heading)}°`;
-            document.getElementById('compassInfo').innerText = "Using iOS compass heading.";
+    function initDinoGame() {
+        const canvas = document.getElementById('dinoCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        let dino = {
+            x: 50,
+            y: 100,
+            width: 20,
+            height: 25,
+            vy: 0,
+            gravity: 0.6,
+            jumpPower: -10,
+            isJumping: false
+        };
+
+        let obstacles = [];
+        let score = 0;
+        let gameSpeed = 5;
+        let frameCount = 0;
+
+        function resetGame() {
+            dino.y = 100;
+            dino.vy = 0;
+            dino.isJumping = false;
+            obstacles = [];
+            score = 0;
+            gameSpeed = 5;
+            frameCount = 0;
+            dinoGameRunning = true;
+            if (dinoGameInterval) clearInterval(dinoGameInterval);
+            dinoGameInterval = setInterval(updateDinoGame, 1000 / 60);
         }
-    }
 
-    document.getElementById('enableCompassBtn').addEventListener('click', () => {
-        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission().then(response => {
-                if (response === 'granted') {
-                    window.addEventListener('deviceorientation', handleOrientationEvent, true);
-                    compassActive = true;
-                    document.getElementById('enableCompassBtn').innerText = 'Compass Active ✅';
-                } else {
-                    alert('Permission denied for device orientation sensors.');
+        function jump() {
+            if (!dinoGameRunning) {
+                resetGame();
+                return;
+            }
+            if (!dino.isJumping) {
+                dino.vy = dino.jumpPower;
+                dino.isJumping = true;
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && document.getElementById('society-verification').style.display !== 'none') {
+                e.preventDefault();
+                jump();
+            }
+        });
+
+        canvas.addEventListener('click', () => {
+            jump();
+        });
+
+        function updateDinoGame() {
+            frameCount++;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Ground line
+            ctx.strokeStyle = '#5d4037';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 125);
+            ctx.lineTo(canvas.width, 125);
+            ctx.stroke();
+
+            // Dino physics
+            dino.vy += dino.gravity;
+            dino.y += dino.vy;
+            if (dino.y > 100) {
+                dino.y = 100;
+                dino.vy = 0;
+                dino.isJumping = false;
+            }
+
+            // Draw Dino
+            ctx.fillStyle = '#5d4037';
+            ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+
+            // Spawn obstacles
+            if (frameCount % 100 === 0) {
+                const obsHeight = Math.floor(Math.random() * 20) + 15;
+                obstacles.push({
+                    x: canvas.width,
+                    y: 125 - obsHeight,
+                    width: 15,
+                    height: obsHeight
+                });
+            }
+
+            // Move and draw obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= gameSpeed;
+                ctx.fillStyle = '#8d6e63';
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+
+                // Collision detection
+                if (
+                    dino.x < obstacles[i].x + obstacles[i].width &&
+                    dino.x + dino.width > obstacles[i].x &&
+                    dino.y < obstacles[i].y + obstacles[i].height &&
+                    dino.y + dino.height > obstacles[i].y
+                ) {
+                    dinoGameRunning = false;
+                    clearInterval(dinoGameInterval);
                 }
-            }).catch(console.error);
-        } else if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', handleOrientationEvent, true);
-            compassActive = true;
-            document.getElementById('enableCompassBtn').innerText = 'Compass Active ✅';
-        } else {
-            alert('Device orientation is not supported on this browser.');
+
+                // Remove off-screen obstacles
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    score += 10;
+                    if (score > dinoHighScoreVal) {
+                        dinoHighScoreVal = score;
+                        document.getElementById('dinoHighScore').innerText = `HI: ${String(dinoHighScoreVal).padStart(5, '0')}`;
+                    }
+                }
+            }
+
+            // Increase speed slightly over time
+            gameSpeed = 5 + Math.floor(score / 100);
+
+            // Draw Score
+            ctx.fillStyle = '#5d4037';
+            ctx.font = '16px sans-serif';
+            ctx.fillText(`SCORE: ${String(score).padStart(5, '0')}`, canvas.width - 120, 25);
+
+            if (!dinoGameRunning) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER - Click or Space to Restart', canvas.width / 2, canvas.height / 2);
+                ctx.textAlign = 'left';
+            }
         }
-    });
+
+        // Draw initial static state instructions
+        ctx.fillStyle = '#5d4037';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Click or Press Space to Start Game', canvas.width / 2, canvas.height / 2);
+        ctx.textAlign = 'left';
+    }
 
     async function setupGuard(societyIdOrName) {
         const guardContainer = document.getElementById("guard-container");
@@ -713,6 +755,7 @@
 
     function showSearchScreen(societyName, societyId) {
         currentSociety = societyName;
+        if (dinoGameInterval) clearInterval(dinoGameInterval);
         document.getElementById("society-verification").style.display = "none";
         document.getElementById("vehicle-search").style.display = "block";
         document.getElementById("displaySocietyName").innerText = currentSociety;
@@ -741,6 +784,7 @@
         document.getElementById("society-verification").style.display = "block";
         updateAdLinks();
         loadGlobalAdsPreLogin();
+        initDinoGame();
     }
 
     document.getElementById("verifyBtn").addEventListener("click", async () => {
@@ -831,6 +875,7 @@
             }
         } else {
             loadGlobalAdsPreLogin();
+            initDinoGame();
         }
     });
     
