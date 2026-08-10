@@ -206,9 +206,7 @@
     <canvas id="fireworksCanvas" style="display: none;"></canvas>
 
     <div class="greeting-card" id="greetingCardContainer">
-        <!-- <div class="party-container" id="iconBox">
-            <span class="static-emoji">🦉</span>
-        </div>-->
+     
         <h1 id="greetTitle">Loading...</h1>
         <p id="greetMessage">Please wait while we load your content.</p>
         <a href="index.html" class="back-btn" id="actionBtn" style="display: none;">⬅ Back to Portal</a>
@@ -231,8 +229,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const type = urlParams.get('type');
         const greetingId = urlParams.get('id') || 'default_greeting';
-
-        //const iconBox = document.getElementById('iconBox');
         const greetTitle = document.getElementById('greetTitle');
         const greetMessage = document.getElementById('greetMessage');
         const actionBtn = document.getElementById('actionBtn');
@@ -241,7 +237,7 @@
 
         if (type === 'ad') {
             document.body.classList.add('ad-theme');
-            navLogoText.innerText = "Owl Watcher | Ad Portal";
+            navLogoText.innerText = "Owl Watcher 🦉| Ad Portal";
 
             async function loadAdData() {
                 try {
@@ -266,7 +262,6 @@
 
         } else if (type === 'wish') {
             fireworksCanvas.style.display = 'block';
-            //iconBox.innerHTML = '';
             actionBtn.style.display = 'inline-block';
             actionBtn.innerText = "⬅ Back to Portal";
 
