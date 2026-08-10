@@ -554,9 +554,9 @@ ads.forEach((adData) => {
 
         // Explicitly enforce type parameter based on whether it is a wish or ad
         if (isWish) {
-            actionLinkHtml = `<br><a href="greet.html?type=wish&id=${targetId}" class="ad-link" style="font-weight: bold; color: #ff6b81; font-size: 1.1rem; text-decoration: underline;">✨ Check Greetings! ✨</a>`;
+            actionLinkHtml = `<br><a href="greet.html?type=wish&id=${targetId}" class="ad-link" style="font-weight: bold; color: #ff6b81; font-size: 1.1rem; text-decoration: underline;">Check Greetings!</a>`;
         } else {
-            actionLinkHtml = `<br><a href="greet.html?type=ad&id=${targetId}" class="ad-link" style="font-weight: bold; color: #ffcc00; font-size: 1.1rem; text-decoration: underline;">📊 Check Ad details 📊</a>`;
+            actionLinkHtml = `<br><a href="greet.html?type=ad&id=${targetId}" class="ad-link" style="font-weight: bold; color: #003cff; font-size: 1.1rem; text-decoration: underline;">Check Ad details</a>`;
         }
 
         slider.innerHTML += `
