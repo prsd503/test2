@@ -165,21 +165,23 @@
         </div>
 
         
-        <!-- Mini Drawing Whiteboard Box with Eraser & Color Picker Button -->
+      <!-- Mini Drawing Whiteboard Box with Lock/Unlock Scroll Toggle -->
 <div id="whiteboardBox" style="margin-top: 15px; padding: 15px; border-radius: 12px; background: #ffffff; border: 2px dashed #8d6e63; color: #5d4037; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); user-select: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: 'Caveat', cursive; font-size: 1.3rem;">
         <span>🎨 Mini Whiteboard Studio</span>
-        <button id="clearCanvasBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Clear</button>
+        <div>
+            <button id="lockScrollBtn" style="background: #2ed573; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-right: 4px; margin-top: 0;" title="Lock page scroll while drawing">🔒 Lock Scroll</button>
+            <button id="clearCanvasBtn" style="background: #d32f2f; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Clear</button>
+        </div>
     </div>
     
-    <!-- Drawing, Eraser, Bucket & Color Symbol Toolbar -->
+    <!-- Drawing Tools Toolbar -->
     <div style="display: flex; justify-content: center; align-items: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
         <button type="button" class="tool-btn active-tool" data-tool="pencil" style="background: #8d6e63; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Pencil</button>
         <button type="button" class="tool-btn" data-tool="brush" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">Brush</button>
         <button type="button" class="tool-btn" data-tool="eraser" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🧹 Eraser</button>
         <button type="button" class="tool-btn" data-tool="bucket" style="background: #dcdde1; color: #2f3640; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0;">🪣 Bucket</button>
         
-        <!-- Color Picker Symbol Button wrapper -->
         <label for="drawColorPicker" style="background: #dcdde1; color: #2f3640; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 0;" title="Pick Color">
             🎨 <span id="colorIndicator" style="width: 12px; height: 12px; background: #ff4757; border-radius: 50%; display: inline-block; border: 1px solid #fff;"></span>
             <input type="color" id="drawColorPicker" value="#ff4757" style="opacity: 0; width: 0; height: 0; position: absolute; pointer-events: none;">
@@ -187,10 +189,12 @@
     </div>
 
     <!-- Canvas Area -->
-    <div style="width: 100%; height: 160px; background: #ffffff; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden; touch-action: none;">
+    <div style="width: 100%; height: 160px; background: #ffffff; border: 1px solid #dcdde1; border-radius: 8px; position: relative; overflow: hidden; touch-action: auto;" id="canvasWrapper">
         <canvas id="miniWhiteboardCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
     </div>
 </div>
+
+        
         
         
         <div id="vehicle-search" style="display:none;">
@@ -361,10 +365,14 @@
 
 
     
-// Mini Whiteboard Drawing, Eraser & Bucket Logic
+// Mini Whiteboard Logic with Scroll Lock Support
 const wbCanvas = document.getElementById('miniWhiteboardCanvas');
+const canvasWrapper = document.getElementById('canvasWrapper');
+const lockScrollBtn = document.getElementById('lockScrollBtn');
+
 if (wbCanvas) {
     const wbCtx = wbCanvas.getContext('2d', { willReadFrequently: true });
+    let isScrollLocked = false;
     
     function resizeWbCanvas() {
         const rect = wbCanvas.getBoundingClientRect();
@@ -388,6 +396,22 @@ if (wbCanvas) {
     }
     resizeWbCanvas();
     window.addEventListener('resize', resizeWbCanvas);
+
+    // Toggle Scroll Lock
+    if (lockScrollBtn && canvasWrapper) {
+        lockScrollBtn.addEventListener('click', () => {
+            isScrollLocked = !isScrollLocked;
+            if (isScrollLocked) {
+                lockScrollBtn.style.background = "#ff4757";
+                lockScrollBtn.innerText = "🔓 Unlock Scroll";
+                canvasWrapper.style.touchAction = "none"; // Disables page scrolling while interacting with canvas wrapper
+            } else {
+                lockScrollBtn.style.background = "#2ed573";
+                lockScrollBtn.innerText = "🔒 Lock Scroll";
+                canvasWrapper.style.touchAction = "auto"; // Restores normal page scrolling
+            }
+        });
+    }
 
     let isDrawing = false;
     let currentTool = 'pencil';
@@ -512,7 +536,7 @@ if (wbCanvas) {
             wbCtx.strokeStyle = currentColor;
             wbCtx.lineWidth = 10;
         } else if (currentTool === 'eraser') {
-            wbCtx.strokeStyle = '#ffffff'; // Eraser paints white background
+            wbCtx.strokeStyle = '#ffffff';
             wbCtx.lineWidth = 16;
         }
 
