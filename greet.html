@@ -72,7 +72,7 @@
 
         /* Enhanced Ad Card Design */
         body.ad-theme .greeting-card {
-            background: #bee8ed;
+            background: #ffffff;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
             border: none;
@@ -129,18 +129,18 @@
             margin-bottom: 25px;
         }
 
-        /* Updated Ad Message Style: Light green background with Lexend font and professional look */
+        /* Updated Ad Message Style: Cream background with brown font and Lexend font letters */
         body.ad-theme p {
             font-family: 'Lexend', sans-serif;
             font-size: 1rem;
             font-weight: 400;
-            color: #0f172a;
-            background: #e8f5e9;
+            color: #5d4037;
+            background: #fdf6e3;
             padding: 22px;
             border-radius: 10px;
             line-height: 1.65;
-            border: 1px solid #c8e6c9;
-            border-left: 5px solid #2e7d32;
+            border: 1px solid #f3e9d2;
+            border-left: 5px solid #8d6e63;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
             margin-bottom: 30px;
             letter-spacing: 0.01em;
@@ -276,14 +276,14 @@
                     greetMessage.innerText = "Explore professional advertisement details and campaign insights here.";
                 }
                 actionBtn.style.display = 'inline-block';
-                actionBtn.innerText = "← Return";
+                actionBtn.innerText = "← Return to Dashboard";
             }
             loadAdData();
 
         } else if (type === 'wish') {
             fireworksCanvas.style.display = 'block';
             actionBtn.style.display = 'inline-block';
-            actionBtn.innerText = "⬅ Back";
+            actionBtn.innerText = "⬅ Back to Portal";
 
             async function loadGreetingData() {
                 try {
