@@ -8,86 +8,103 @@
     <style>
         body { 
             font-family: 'Caveat', cursive; 
-            background: #fdf6e3; 
-            color: #5d4037; 
+            background: radial-gradient(circle at center, #1a1c29 0%, #0d0e15 100%); 
+            color: #f5f5f5; 
             text-align: center; 
             padding: 20px; 
             margin: 0;
             overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .main-nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 15px;
-            background: #fdf6e3;
-            border-bottom: 2px solid #8d6e63;
-            margin-bottom: 20px;
+            background: rgba(13, 14, 21, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: 20;
         }
         .nav-logo {
             font-family: 'Caveat', cursive;
-            color: #5d4037;
+            color: #ffcc00;
             font-size: 1.8rem;
             font-weight: bold;
+            letter-spacing: 1px;
         }
         .greeting-card {
-            background: #ffffff;
-            border: 3px solid #8d6e63;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
             max-width: 600px;
-            margin: 30px auto;
-            padding: 30px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            width: 90%;
+            margin: 80px auto 20px auto;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 204, 0, 0.1);
             position: relative;
             z-index: 10;
+            animation: cardFloat 4s ease-in-out infinite alternate;
         }
-        h1 { font-size: 3rem; color: #d32f2f; margin-bottom: 10px; }
-        p { font-size: 1.5rem; color: #4e342e; line-height: 1.4; }
+
+        @keyframes cardFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-8px); }
+        }
+
+        h1 { 
+            font-size: 3.2rem; 
+            color: #ff6b81; 
+            margin: 15px 0; 
+            text-shadow: 0 0 15px rgba(255, 107, 129, 0.4);
+        }
+        p { 
+            font-size: 1.6rem; 
+            color: #e0e0e0; 
+            line-height: 1.5; 
+            margin-bottom: 30px;
+        }
         
-        /* Party Dancing Cartoon Styling */
+        /* Static Emoji Container (All movement removed) */
         .party-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            margin: 20px 0;
+            gap: 15px;
+            margin-bottom: 10px;
         }
-        .dancing-cartoon {
-            font-size: 4rem;
-            animation: danceBounce 0.8s infinite alternate ease-in-out;
-        }
-        .dancing-cartoon:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        .dancing-cartoon:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes danceBounce {
-            0% { transform: translateY(0) rotate(-10deg) scale(1); }
-            100% { transform: translateY(-20px) rotate(10deg) scale(1.1); }
-        }
-
-        /* Alternative Animation Classes for Firebase configuration selection */
-        .anim-spin { animation: spinAnim 2s infinite linear !important; }
-        @keyframes spinAnim {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .static-emoji {
+            font-size: 3.5rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
 
         .back-btn {
-            background: #8d6e63;
+            background: linear-gradient(135deg, #ff6b81, #ff4757);
             color: white;
             border: none;
-            padding: 10px 25px;
-            border-radius: 12px;
-            font-size: 1.3rem;
+            padding: 12px 30px;
+            border-radius: 14px;
+            font-size: 1.4rem;
             font-family: 'Caveat', cursive;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            margin-top: 20px;
-            box-shadow: 3px 3px 0px #5d4037;
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .back-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 71, 87, 0.6);
         }
         
         canvas {
@@ -97,7 +114,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 5;
+            z-index: 2;
         }
     </style>
 </head>
@@ -111,24 +128,23 @@
 
     <div class="greeting-card" id="greetingCardContainer">
         <div class="party-container" id="cartoonBox">
-            <span class="dancing-cartoon">🦉</span>
-            <span class="dancing-cartoon">🥳</span>
-            <span class="dancing-cartoon">🎉</span>
+            <span class="static-emoji">🦉</span>
+            <span class="static-emoji">🥳</span>
+            <span class="static-emoji">🎉</span>
         </div>
         <h1 id="greetTitle">Happy Anniversary / Birthday!</h1>
         <p id="greetMessage">Loading special wishes from the community...</p>
         <a href="index.html" class="back-btn">⬅ Back to Portal</a>
     </div>
 
-    <!-- Firebase SDKs (Compat or Modular based on your setup) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // TODO: Replace with your actual Firebase project configuration credentials
-     const firebaseConfig = {
-    databaseURL: "https://finder-owl-default-rtdb.firebaseio.com/"
-};
+        const firebaseConfig = {
+            databaseURL: "https://finder-owl-default-rtdb.firebaseio.com/"
+        };
 
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
@@ -139,7 +155,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const greetingId = urlParams.get('id') || 'default_greeting';
 
-        // Fetch Greetings Content and Animation Preference from Firebase Database
+        // Fetch Greetings Content from Firebase Database
         async function loadGreetingData() {
             try {
                 const snapshot = await db.ref('greetings/' + greetingId).once('value');
@@ -147,11 +163,6 @@
                     const data = snapshot.val();
                     if (data.title) document.getElementById('greetTitle').innerText = data.title;
                     if (data.message) document.getElementById('greetMessage').innerText = data.message;
-                    
-                    // Option to choose different animation styles via Firebase database configuration entry
-                    if (data.animationStyle === 'spin') {
-                        document.querySelectorAll('.dancing-cartoon').forEach(el => el.classList.add('anim-spin'));
-                    }
                 } else {
                     // Fallback generic display if record doesn't exist explicitly in RTDB
                     document.getElementById('greetTitle').innerText = "Warm Community Wishes!";
@@ -206,7 +217,7 @@
         }
 
         let fireworks = [];
-        const colors = ['#ff4757', '#2ed573', '#1e90ff', '#ffa502', '#9b59b6', '#ff6b81'];
+        const colors = ['#ff4757', '#2ed573', '#1e90ff', '#ffa502', '#9b59b6', '#ff6b81', '#00d2d3'];
 
         function createFirework() {
             const x = Math.random() * canvas.width;
