@@ -247,12 +247,12 @@
                         greetTitle.innerText = data.title || "Advertisement Details";
                         greetMessage.innerText = data.message || "Reviewing comprehensive campaign metrics, target audience insights, and performance records.";
                     } else {
-                        greetTitle.innerText = "Check Ad Details";
-                        greetMessage.innerText = "Explore professional advertisement details, engagement trackers, and campaign insights here.";
+                        greetTitle.innerText = "Ad Details";
+                        greetMessage.innerText = "Explore professional advertisement details,and campaign insights here.";
                     }
                 } catch (err) {
                     console.error("Error fetching ad details from Firebase:", err);
-                    greetTitle.innerText = "Check Ad Details";
+                    greetTitle.innerText = "Ad Details";
                     greetMessage.innerText = "Explore professional advertisement details and campaign insights here.";
                 }
                 actionBtn.style.display = 'inline-block';
@@ -273,12 +273,12 @@
                         if (data.title) greetTitle.innerText = data.title;
                         if (data.message) greetMessage.innerText = data.message;
                     } else {
-                        greetTitle.innerText = "Check Greetings!";
+                        greetTitle.innerText = "Greetings!";
                         greetMessage.innerText = "Wishing you a wonderful celebration filled with joy, success, and happiness from everyone at Owl Watcher!";
                     }
                 } catch (err) {
                     console.error("Error fetching greeting from Firebase:", err);
-                    greetTitle.innerText = "Check Greetings!";
+                    greetTitle.innerText = "Greetings!";
                     greetMessage.innerText = "Wishing you a wonderful day filled with joy and celebration!";
                 }
             }
