@@ -129,7 +129,7 @@
             margin-bottom: 25px;
         }
 
-        /* Updated Ad Message Style: Cream background with brown font and Lexend font letters */
+        /* Ad Message Style: Cream background with brown font and Lexend font letters */
         body.ad-theme p {
             font-family: 'Lexend', sans-serif;
             font-size: 1rem;
@@ -178,15 +178,16 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        /* Modernized Dashboard Button */
+        /* Dashboard Button with brown background and white Caveat font for Ad theme */
         body.ad-theme .back-btn {
-            background: #0f172a;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 0.95rem;
-            font-weight: 500;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2);
+            background: #8d6e63;
+            color: #ffffff;
+            font-family: 'Caveat', cursive;
+            font-size: 1.4rem;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(141, 110, 99, 0.3);
             transition: all 0.2s ease;
         }
 
@@ -197,8 +198,8 @@
 
         body.ad-theme .back-btn:hover {
             transform: translateY(-1px);
-            background: #1e293b;
-            box-shadow: 0 6px 15px -2px rgba(15, 23, 42, 0.3);
+            background: #6d4c41;
+            box-shadow: 0 6px 15px -2px rgba(141, 110, 99, 0.4);
         }
         
         canvas {
@@ -276,14 +277,14 @@
                     greetMessage.innerText = "Explore professional advertisement details and campaign insights here.";
                 }
                 actionBtn.style.display = 'inline-block';
-                actionBtn.innerText = "← Return to Dashboard";
+                actionBtn.innerText = "← Return";
             }
             loadAdData();
 
         } else if (type === 'wish') {
             fireworksCanvas.style.display = 'block';
             actionBtn.style.display = 'inline-block';
-            actionBtn.innerText = "⬅ Back to Portal";
+            actionBtn.innerText = "⬅ Back";
 
             async function loadGreetingData() {
                 try {
