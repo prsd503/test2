@@ -399,6 +399,9 @@
     const scoreDisplay = document.getElementById('gameScore');
     const gameActionBtn = document.getElementById('gameActionBtn');
     const gameContainer = document.getElementById('gameContainer');
+    // Load fixed owl image asset
+const owlImg = new Image();
+owlImg.src = "owl.png"; 
 
     let gameRunning = false;
     let gameScore = 0;
@@ -504,45 +507,52 @@
         }
     }
 
-    function drawGame() {
-        // Clear screen
-        ctx.fillStyle = "#fdf6e3";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+   function drawGame() {
+    // Clear screen
+    ctx.fillStyle = "#fdf6e3";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw Ground Line
-        ctx.strokeStyle = "#8d6e63";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, 134);
-        ctx.lineTo(canvas.width, 134);
-        ctx.stroke();
+    // Draw Ground Line
+    ctx.strokeStyle = "#8d6e63";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 134);
+    ctx.lineTo(canvas.width, 134);
+    ctx.stroke();
 
-        // Draw Owl
+    // Draw Fixed Image Owl instead of text emoji
+    if (owlImg.complete) {
+        ctx.drawImage(owlImg, owl.x - 2, owl.y - 2, 28, 28);
+    } else {
+        // Fallback if image is still loading
         ctx.font = "22px sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
         ctx.fillText("🦉", owl.x - 2, owl.y - 2);
-
-        // Draw Obstacles (e.g. mini cactus or branches 🪵)
-        for (let obs of obstacles) {
-            ctx.font = "18px sans-serif";
-            ctx.fillText("🪵", obs.x - 2, obs.y - 2);
-        }
-
-        // Draw start / game over screen overlay text if not running
-        if (!gameRunning && gameScore === 0) {
-            ctx.fillStyle = "rgba(93, 64, 55, 0.8)";
-            ctx.font = "bold 18px 'Caveat', cursive";
-            ctx.textAlign = "center";
-            ctx.fillText("Click Jump or Space to Start", canvas.width / 2, canvas.height / 2 - 10);
-        } else if (!gameRunning && gameScore > 0) {
-            ctx.fillStyle = "rgba(211, 47, 47, 0.9)";
-            ctx.font = "bold 20px 'Caveat', cursive";
-            ctx.textAlign = "center";
-            ctx.fillText(`Game Over! Score: ${gameScore}`, canvas.width / 2, canvas.height / 2 - 10);
-        }
     }
 
+    // Draw Obstacles (🪵)
+    for (let obs of obstacles) {
+        ctx.font = "18px sans-serif";
+        ctx.fillText("🪵", obs.x - 2, obs.y - 2);
+    }
+
+    // Game Over / Start overlays...
+    if (!gameRunning && gameScore === 0) {
+        ctx.fillStyle = "rgba(93, 64, 55, 0.8)";
+        ctx.font = "bold 18px 'Caveat', cursive";
+        ctx.textAlign = "center";
+        ctx.fillText("Click Jump or Space to Start", canvas.width / 2, canvas.height / 2 - 10);
+    } else if (!gameRunning && gameScore > 0) {
+        ctx.fillStyle = "rgba(211, 47, 47, 0.9)";
+        ctx.font = "bold 20px 'Caveat', cursive";
+        ctx.textAlign = "center";
+        ctx.fillText(`Game Over! Score: ${gameScore}`, canvas.width / 2, canvas.height / 2 - 10);
+    }
+}
+
+
+    
     function loop() {
         if (!gameRunning) return;
         updateGame();
