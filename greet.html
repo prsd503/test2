@@ -51,6 +51,9 @@
             font-size: clamp(1.6rem, 4.5vw, 2rem);
             font-weight: 700;
             letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .greeting-card {
@@ -159,11 +162,6 @@
             display: none;
         }
 
-        .static-emoji {
-            font-size: clamp(2.5rem, 8vw, 3.5rem);
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-
         .back-btn {
             background: linear-gradient(135deg, #ff6b81, #ff4757);
             color: white;
@@ -212,19 +210,15 @@
             pointer-events: none;
             z-index: 2;
         }
-
-        .standard-content {
-            display: contents;
-        }
     </style>
 </head>
 <body>
 
     <nav class="main-nav">
-             <div class="nav-logo">
-           Owl Watcher
-    <img src="owl.png" alt="Owl Logo" style="width: 60px; height: 60px; vertical-align: middle; margin-right: 5px;">  
-</div>
+        <div class="nav-logo" id="navLogoText">
+            Owl Watcher
+            <img src="owl.png" alt="Owl Logo" style="width: 40px; height: 40px; vertical-align: middle; margin-left: 5px;">  
+        </div>
     </nav>
 
     <canvas id="fireworksCanvas" style="display: none;"></canvas>
@@ -233,7 +227,7 @@
         <div class="ad-content-wrapper">
             <h1 id="greetTitle">Loading...</h1>
             <p id="greetMessage">Please wait while we load your content.</p>
-            <a href="index.html" class="back-btn" id="actionBtn" style="display: none; background: #8d6e63; color: #ffffff; font-family: 'Caveat', cursive; font-size: 1.4rem; font-weight: 700;">Back</a>
+            <a href="index.html" class="back-btn" id="actionBtn" style="display: none;">Back</a>
         </div>
     </div>
 
@@ -262,7 +256,7 @@
 
         if (type === 'ad') {
             document.body.classList.add('ad-theme');
-            navLogoText.innerText = "Owl Watcher 🦉 | Ad Portal";
+            navLogoText.innerHTML = `Owl Watcher 🦉 | Ad Portal <img src="owl.png" alt="Owl Logo" style="width: 35px; height: 35px; vertical-align: middle; margin-left: 5px;">`;
 
             async function loadAdData() {
                 try {
