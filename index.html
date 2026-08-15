@@ -692,10 +692,16 @@ owlImg.src = "owl.png";
                 return;
             }
 
-            slider.innerHTML = "";
+         slider.innerHTML = "";
             ads.forEach((adData) => {
                 if (adData && adData.imageUrl) {
-                    slider.innerHTML += `<img src="${adData.imageUrl}" class="global-ad-slide" alt="Global Promotion">`;
+                    // Create a link that points to contest.html and passes the ad's image URL
+                    const contestLink = `contest.html?adImg=${encodeURIComponent(adData.imageUrl)}`;
+                    slider.innerHTML += `
+                        <div class="global-ad-slide" style="width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center;">
+                            <img src="${adData.imageUrl}" style="max-height: 250px; max-width: 100%; object-fit: contain; border-radius: 10px;" alt="Global Promotion">
+                            <br><a href="${contestLink}" class="ad-link" style="font-weight: bold; color: #826565; font-size: 1.1rem; text-decoration: underline;">Check Contest</a>
+                        </div>`;
                 }
             });
 
