@@ -144,7 +144,7 @@
         }
 
         .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fff; margin: 10% auto; padding: 25px; border: 2px solid #8d6e63; width: 85%; max-width: 400px; border-radius: 20px; text-align: center; }
+        .modal-content { background-color: #fff; margin: 15% auto; padding: 25px; border: 2px solid #8d6e63; width: 85%; max-width: 380px; border-radius: 20px; text-align: center; }
         .close { color: #5d4037; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         
         .back-btn {
@@ -188,7 +188,7 @@
         <div class="options-grid" id="optionsContainer"></div>
     </div>
 
-    <!-- Step 2: Society Verification Box (Hidden initially) -->
+    <!-- Step 2: Society Verification Box -->
     <div id="societySection" style="display:none;">
         <h3 style="font-size: 1.6rem; margin-bottom: 10px;">🎉 Correct Answer! Enter Society Name</h3>
         <input type="text" id="societyInput" class="input-box" placeholder="e.g. Sunflower Society">
@@ -197,7 +197,7 @@
         <p id="societyError" style="color: #d32f2f; font-size: 1rem; display:none;"></p>
     </div>
 
-    <!-- Step 3: Spin Game Box (Hidden initially) -->
+    <!-- Step 3: Spin Game Box -->
     <div id="spinSection" style="display:none;">
         <h3 style="font-size: 1.8rem; color: #27ae60;">Lucky Spin Roller 🎡</h3>
         <div id="rollerDisplay" style="font-size: 2.5rem; font-weight: bold; background: #fdf6e3; padding: 15px; border: 2px dashed #8d6e63; border-radius: 10px; margin: 15px 0; color: #d32f2f;">
@@ -218,24 +218,20 @@
     <a href="index.html" class="back-btn">⬅ Back to Home</a>
 </div>
 
-<!-- Modal Popup for Win / Flat Number Registration -->
+<!-- Modal Popup for Win & Flat Number Registration -->
 <div id="resultModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="document.getElementById('resultModal').style.display='none'">&times;</span>
-        <h3 id="modalTitle" style="color: #27ae60; margin-top:0; font-size: 1.8rem;">You Won! 🎉</h3>
+        <span class="close" onclick="document.getElementById('resultModal'].style.display='none'">&times;</span>
+        <h3 style="color: #27ae60; margin-top:0; font-size: 1.8rem;">You Won the Spin! 🎉</h3>
         <div id="modalBodyContent">
-            <p style="font-family: sans-serif; font-size: 1rem; color: #2f3640;">Enter your Flat Number to claim your reward:</p>
+            <p style="font-family: sans-serif; font-size: 0.95rem; color: #2f3640;">Enter your Flat Number to register your winning entry:</p>
             <input type="text" id="flatNumberInput" class="input-box" placeholder="e.g. A-102">
             <br>
-            <button class="action-btn" onclick="submitFlatWinner()">Claim Coupon & PIN</button>
+            <button class="action-btn" onclick="submitFlatWinner()">Register Flat Number</button>
         </div>
-        <div id="couponDisplaySection" style="display:none;">
-            <p style="font-family: sans-serif; font-size: 0.95rem; color: #2f3640;">Your Coupon Details:</p>
-            <div style="background: #fdf6e3; padding: 10px; border: 2px dashed #8d6e63; border-radius: 8px; margin: 10px 0;">
-                <p style="margin:5px 0; font-size: 1.2rem;">Code: <b id="displayRewardCode" style="color:#d32f2f;"></b></p>
-                <p style="margin:5px 0; font-size: 1.2rem;">PIN: <b id="displayCouponPin" style="color:#27ae60;"></b></p>
-            </div>
-            <p style="font-size: 0.85rem; font-family: sans-serif; color: #7f8c8d;">Saved successfully! Check winners list below.</p>
+        <div id="successMsgSection" style="display:none;">
+            <p style="font-family: sans-serif; font-size: 1rem; color: #27ae60; font-weight: bold;">✅ Successfully Registered!</p>
+            <p style="font-size: 0.9rem; font-family: sans-serif; color: #7f8c8d;">Your flat number has been saved to the society winners record.</p>
         </div>
     </div>
 </div>
@@ -259,8 +255,6 @@
 
     let correctOptionIndex = null;
     let validatedSocietyName = "";
-    let wonRewardCode = "";
-    let wonCouponPin = "";
 
     window.onload = function() {
         loadContestData();
@@ -281,7 +275,6 @@
             }
             setupMockContestData();
         } catch (err) {
-            console.error("Failed to load contest data:", err);
             setupMockContestData();
         }
     }
@@ -346,7 +339,7 @@
                 
                 document.getElementById('societySection').style.display = 'none';
                 
-                // Check device cache for this specific ad spin
+                // Device cache check to restrict one spin per device per ad
                 const cacheKey = `spun_${adImgUrl}_${validatedSocietyName}`;
                 if (localStorage.getItem(cacheKey)) {
                     document.getElementById('spinBtn').style.display = 'none';
@@ -367,7 +360,7 @@
     async function executeSpin() {
         const cacheKey = `spun_${adImgUrl}_${validatedSocietyName}`;
         if (localStorage.getItem(cacheKey)) {
-            alert("You have already spun for this ad!");
+            alert("You have already spun for this ad on this device!");
             return;
         }
 
@@ -375,7 +368,7 @@
         const spinBtn = document.getElementById('spinBtn');
         spinBtn.disabled = true;
 
-        // Roll animation simulation
+        // Roll roller animation for 2.5 seconds
         let counter = 0;
         const rollingInterval = setInterval(() => {
             const randomSymbols = ["🍒", "🎰", "⭐", "🎁", "🔔", "💎"];
@@ -399,12 +392,8 @@
 
                 if (data.won) {
                     roller.innerText = "🎉 WON!";
-                    wonRewardCode = data.rewardCode;
-                    wonCouponPin = data.couponPin;
-                    
-                    document.getElementById('modalTitle').innerText = "You Won the Spin! 🎉";
                     document.getElementById('modalBodyContent').style.display = 'block';
-                    document.getElementById('couponDisplaySection').style.display = 'none';
+                    document.getElementById('successMsgSection').style.display = 'none';
                     document.getElementById('resultModal').style.display = 'block';
                 } else {
                     roller.innerText = "❌ LOST!";
@@ -433,19 +422,16 @@
                 headers: { 'Content-Type': 'application/json', ...NG_HEADERS },
                 body: JSON.stringify({
                     societyName: validatedSocietyName,
-                    flatNumber: flatVal,
-                    rewardCode: wonRewardCode
+                    flatNumber: flatVal
                 })
             });
 
             if (res.ok) {
                 document.getElementById('modalBodyContent').style.display = 'none';
-                document.getElementById('displayRewardCode').innerText = wonRewardCode;
-                document.getElementById('displayCouponPin').innerText = wonCouponPin;
-                document.getElementById('couponDisplaySection').style.display = 'block';
+                document.getElementById('successMsgSection').style.display = 'block';
                 loadRecentWinners();
             } else {
-                alert("Failed to save winner details.");
+                alert("Failed to save winner flat number.");
             }
         } catch (err) {
             alert("Network error while saving winner info.");
@@ -465,7 +451,7 @@
                 }
 
                 container.innerHTML = winners.map(w => 
-                    `<div>🏠 <b>${w.societyName}</b> (Flat: ${w.flatNumber}) - Code: <code>${w.rewardCode}</code></div>`
+                    `<div>🏠 Society: <b>${w.societyName}</b> | Winner Flat: <b style="color:#d32f2f;">${w.winnerFlatnumber}</b></div>`
                 ).join('');
             }
         } catch (err) {
