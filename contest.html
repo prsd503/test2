@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <title>Owl Watcher | Contest</title>
+    <style>
+        .main-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #fdf6e3;
+            border-bottom: 2px solid #8d6e63;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .nav-logo {
+            font-family: 'Caveat', cursive;
+            color: #5d4037;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-links { display: flex; gap: 15px; }
+        .nav-links a { 
+            text-decoration: none; 
+            color: #5d4037; 
+            font-weight: bold; 
+            font-family: 'Caveat', cursive; 
+            font-size: 1.4rem;             
+        }
+        .menu-btn { display: none; background: #8d6e63; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-family: 'Caveat', cursive; font-size: 1.1rem; }
+
+        @media (max-width: 768px) {
+            .menu-btn { display: block; }
+            .nav-links { 
+                display: none; 
+                flex-direction: column; 
+                position: absolute; 
+                top: 70px; 
+                left: 0;
+                width: 100%; 
+                background: #fdf6e3; 
+                padding: 20px; 
+                z-index: 999;
+                border-bottom: 2px solid #8d6e63;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            .nav-links.active { display: flex; }
+        }
+
+        body { 
+            font-family: 'Caveat', cursive; 
+            background: #fdf6e3; 
+            color: #5d4037; 
+            text-align: center; 
+            padding: 20px; 
+            margin: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff8f5;
+            border: 2px dashed #8d6e63;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .ad-preview-img {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 1px solid #dcdde1;
+            margin-bottom: 15px;
+        }
+
+        .question-box {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #5d4037;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fdf6e3;
+            border: 2px solid #8d6e63;
+            color: #5d4037;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-family: 'Caveat', cursive;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            background: #8d6e63;
+            color: white;
+        }
+
+        .submit-rule-box {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #dcdde1;
+            border-radius: 10px;
+            font-family: sans-serif;
+            font-size: 0.95rem;
+            text-align: left;
+            color: #2f3640;
+        }
+
+        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fff; margin: 15% auto; padding: 25px; border: 2px solid #8d6e63; width: 85%; max-width: 360px; border-radius: 20px; text-align: center; }
+        .close { color: #5d4037; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            background: #8d6e63;
+            color: white;
+            padding: 10px 25px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="main-nav">
+    <div class="nav-logo">
+        <img src="owl.png" alt="Owl Logo" style="width: 40px; height: 40px; vertical-align: middle;">  
+        <span>Owl Watcher Contest</span>
+    </div>
+    <button class="menu-btn" id="menuToggle">☰</button>
+    <div class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="admin.html">Admin Portal</a>
+        <a href="guard.html">Security Guard Portal</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h2 style="margin-top:0; font-family: 'Caveat', cursive; font-size: 2.2rem;">Sponsored Ad Contest</h2>
+    
+    <!-- Dynamic Ad Image Container -->
+    <div id="adImageContainer">
+        <img id="linkedAdImg" src="" alt="Contest Ad" class="ad-preview-img" style="display:none;">
+    </div>
+
+    <div id="contestArea">
+        <div class="question-box" id="questionText">Loading contest question...</div>
+        <div class="options-grid" id="optionsContainer">
+            <!-- 4 Options injected dynamically -->
+        </div>
+    </div>
+
+    <div class="submit-rule-box">
+        <b>📅 Monthly Submission Instruction:</b><br>
+        On the <b>26th day of every month</b>, compile your accumulated monthly codes and send an email to <span id="displayContestEmail" style="color: #d32f2f; font-weight: bold;">loading...</span>.<br>
+        * <b>Subject:</b> <code>OWC-FlatName-FlatNumber</code> (e.g., <i>OWC-Sunflower-A102</i>)<br>
+        * <b>Body:</b> Mention all your collected codes for the month.<br>
+        Our team will select one lucky winner per flat name at month-end for exciting gifts!
+    </div>
+
+    <a href="index.html" class="back-btn">⬅ Back to Home</a>
+</div>
+
+<!-- Modal Popup -->
+<div id="resultModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="document.getElementById('resultModal').style.display='none'">&times;</span>
+        <h3 style="color: #27ae60; margin-top:0; font-size: 1.8rem;">Correct Answer! 🎉</h3>
+        <p style="font-family: sans-serif; font-size: 1rem; color: #2f3640;">You've successfully unlocked this ad's reward code:</p>
+        <div id="rewardCodeDisplay" style="font-size: 1.8rem; font-weight: bold; background: #fdf6e3; padding: 10px; border: 2px dashed #8d6e63; border-radius: 8px; margin: 15px 0; color: #d32f2f;"></div>
+        <p style="font-size: 0.85rem; font-family: sans-serif; color: #7f8c8d;">Save this code! Accumulate codes to email on the 26th.</p>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
+    const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
+
+    document.getElementById('menuToggle').addEventListener('click', function() {
+        document.getElementById('navLinks').classList.toggle('active');
+    });
+
+    // Extract Ad Image URL query parameter passed from index.html
+    const urlParams = new URLSearchParams(window.location.search);
+    const adImgUrl = urlParams.get('adImg');
+
+    if (adImgUrl) {
+        const imgEl = document.getElementById('linkedAdImg');
+        imgEl.src = decodeURIComponent(adImgUrl);
+        imgEl.style.display = 'inline-block';
+    }
+
+    let correctOptionIndex = null;
+    let assignedRewardCode = "OWC-DEFAULT-CODE";
+    let contestEmailDestination = "contest@owlwatcher.com";
+
+    async function loadContestData() {
+        try {
+            // Fetch configuration or specific ad contest settings from backend / firebase data
+            const response = await fetch(`${API_BASE_URL}/config`, { headers: NG_HEADERS });
+            if (response.ok) {
+                const configData = await response.json();
+                if (configData.contestEmail) {
+                    contestEmailDestination = configData.contestEmail;
+                    document.getElementById('displayContestEmail').innerText = contestEmailDestination;
+                }
+            }
+
+            // In a complete implementation matching your backend setup, you can query ad-specific contest mapping. 
+            // Fallback default sample contest data if matching custom entry is retrieved:
+            setupMockContestData();
+        } catch (err) {
+            console.error("Failed to load contest configuration:", err);
+            setupMockContestData();
+        }
+    }
+
+    function setupMockContestData() {
+        // Sample dynamic question with fill in the blank & 4 choices. 
+        // These fields can be dynamically extended to map to unique ad image records stored in Firebase.
+        const questionData = {
+            question: "Owl Watcher is a smart vehicle _____ system.",
+            options: ["Tracking", "Cooking", "Driving", "Flying"],
+            correctIndex: 0,
+            rewardCode: "OWL-AD-CODE-789" // Unique code set by app owner per ad in firebase
+        };
+
+        if (adImgUrl) {
+            // You can customize code assignment logic based on specific ad image hashes if needed
+            assignedRewardCode = "OWC-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+        } else {
+            assignedRewardCode = questionData.rewardCode;
+        }
+
+        document.getElementById('questionText').innerText = questionData.question;
+        const optContainer = document.getElementById('optionsContainer');
+        optContainer.innerHTML = "";
+
+        questionData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index, questionData.correctIndex);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, correctIndex) {
+        if (selectedIndex === correctIndex) {
+            document.getElementById('rewardCodeDisplay').innerText = assignedRewardCode;
+            document.getElementById('resultModal').style.display = 'block';
+        } else {
+            alert("❌ Incorrect Answer! Try again.");
+        }
+    }
+
+    window.onload = loadContestData;
+</script>
+
+</body>
+</html>
