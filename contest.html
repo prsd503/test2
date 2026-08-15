@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
-    <title>Owl Watcher | Contest</title>
+    <title>Owl Watcher | Contest & Spin Game</title>
     <style>
         .main-nav {
             display: flex;
@@ -95,7 +95,7 @@
             margin-bottom: 20px;
         }
 
-        .option-btn {
+        .option-btn, .action-btn {
             background: #fdf6e3;
             border: 2px solid #8d6e63;
             color: #5d4037;
@@ -107,38 +107,44 @@
             transition: all 0.2s ease;
         }
 
-        .option-btn:hover {
+        .option-btn:hover, .action-btn:hover {
             background: #8d6e63;
             color: white;
         }
 
-        .submit-rule-box {
+        .input-box {
+            width: 80%;
+            padding: 10px;
+            border: 2px solid #8d6e63;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-family: 'Caveat', cursive;
+            margin-bottom: 15px;
+            background: #fff;
+            text-align: center;
+        }
+
+        .winners-section {
             margin-top: 30px;
             padding: 15px;
             background: #fff;
             border: 1px solid #dcdde1;
             border-radius: 10px;
             font-family: sans-serif;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             text-align: left;
             color: #2f3640;
         }
 
-        .email-btn {
-            display: inline-block;
-            margin-top: 12px;
-            background: #25D366;
-            color: white;
-            padding: 8px 16px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-family: sans-serif;
-            font-size: 0.95rem;
-            font-weight: bold;
+        .winners-list {
+            max-height: 120px;
+            overflow-y: auto;
+            margin-top: 8px;
+            padding-left: 15px;
         }
 
         .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fff; margin: 15% auto; padding: 25px; border: 2px solid #8d6e63; width: 85%; max-width: 360px; border-radius: 20px; text-align: center; }
+        .modal-content { background-color: #fff; margin: 10% auto; padding: 25px; border: 2px solid #8d6e63; width: 85%; max-width: 400px; border-radius: 20px; text-align: center; }
         .close { color: #5d4037; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         
         .back-btn {
@@ -169,42 +175,68 @@
 </nav>
 
 <div class="container">
-    <h2 style="margin-top:0; font-family: 'Caveat', cursive; font-size: 2.2rem;">Sponsored Ad Contest</h2>
+    <h2 style="margin-top:0; font-family: 'Caveat', cursive; font-size: 2.2rem;">Sponsored Ad Contest & Spin Game</h2>
     
     <!-- Dynamic Ad Image Container -->
     <div id="adImageContainer">
         <img id="linkedAdImg" src="" alt="Contest Ad" class="ad-preview-img" style="display:none;">
     </div>
 
+    <!-- Step 1: Trivia Question -->
     <div id="contestArea">
         <div class="question-box" id="questionText">Loading contest question...</div>
-        <div class="options-grid" id="optionsContainer">
-            <!-- 4 Options injected dynamically -->
-        </div>
+        <div class="options-grid" id="optionsContainer"></div>
     </div>
 
-    <div class="submit-rule-box">
-        <b>📅 Monthly Submission Instruction:</b><br>
-        On the <b>26th day of every month</b>, compile your accumulated monthly codes and send an email to <span id="displayContestEmail" style="color: #d32f2f; font-weight: bold;">mail.cnqdigital@gmail.com</span>.<br>
-        * <b>Subject:</b> <code>OWC-FlatName-FlatNumber</code> (e.g., <i>OWC-Sunflower-A102</i>)<br>
-        * <b>Body:</b> Mention all your collected codes for the month.<br>
-        Our team will select one lucky winner per flat name at month-end for exciting gifts!<br>
-        <center>
-            <a id="contestEmailBtn" href="mailto:mail.cnqdigital@gmail.com" class="email-btn">✉️ Send Email Now</a>
-        </center>
+    <!-- Step 2: Society Verification Box (Hidden initially) -->
+    <div id="societySection" style="display:none;">
+        <h3 style="font-size: 1.6rem; margin-bottom: 10px;">🎉 Correct Answer! Enter Society Name</h3>
+        <input type="text" id="societyInput" class="input-box" placeholder="e.g. Sunflower Society">
+        <br>
+        <button class="action-btn" onclick="verifySocietyAndProceed()">Verify & Enter Spin Game</button>
+        <p id="societyError" style="color: #d32f2f; font-size: 1rem; display:none;"></p>
+    </div>
+
+    <!-- Step 3: Spin Game Box (Hidden initially) -->
+    <div id="spinSection" style="display:none;">
+        <h3 style="font-size: 1.8rem; color: #27ae60;">Lucky Spin Roller 🎡</h3>
+        <div id="rollerDisplay" style="font-size: 2.5rem; font-weight: bold; background: #fdf6e3; padding: 15px; border: 2px dashed #8d6e63; border-radius: 10px; margin: 15px 0; color: #d32f2f;">
+            ❓ Ready to Spin?
+        </div>
+        <button id="spinBtn" class="action-btn" onclick="executeSpin()">SPIN NOW</button>
+        <p id="spinNotice" style="font-size: 1rem; color: #7f8c8d; margin-top: 10px;"></p>
+    </div>
+
+    <!-- Public Winners Ticker -->
+    <div class="winners-section">
+        <b>🏆 Recent Society Winners:</b>
+        <div class="winners-list" id="winnersListContainer">
+            Loading recent winners...
+        </div>
     </div>
 
     <a href="index.html" class="back-btn">⬅ Back to Home</a>
 </div>
 
-<!-- Modal Popup -->
+<!-- Modal Popup for Win / Flat Number Registration -->
 <div id="resultModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="document.getElementById('resultModal').style.display='none'">&times;</span>
-        <h3 style="color: #27ae60; margin-top:0; font-size: 1.8rem;">Correct Answer! 🎉</h3>
-        <p style="font-family: sans-serif; font-size: 1rem; color: #2f3640;">You've successfully unlocked this ad's reward code:</p>
-        <div id="rewardCodeDisplay" style="font-size: 1.8rem; font-weight: bold; background: #fdf6e3; padding: 10px; border: 2px dashed #8d6e63; border-radius: 8px; margin: 15px 0; color: #d32f2f;"></div>
-        <p style="font-size: 0.85rem; font-family: sans-serif; color: #7f8c8d;">Save this code! Accumulate codes to email on the 26th.</p>
+        <h3 id="modalTitle" style="color: #27ae60; margin-top:0; font-size: 1.8rem;">You Won! 🎉</h3>
+        <div id="modalBodyContent">
+            <p style="font-family: sans-serif; font-size: 1rem; color: #2f3640;">Enter your Flat Number to claim your reward:</p>
+            <input type="text" id="flatNumberInput" class="input-box" placeholder="e.g. A-102">
+            <br>
+            <button class="action-btn" onclick="submitFlatWinner()">Claim Coupon & PIN</button>
+        </div>
+        <div id="couponDisplaySection" style="display:none;">
+            <p style="font-family: sans-serif; font-size: 0.95rem; color: #2f3640;">Your Coupon Details:</p>
+            <div style="background: #fdf6e3; padding: 10px; border: 2px dashed #8d6e63; border-radius: 8px; margin: 10px 0;">
+                <p style="margin:5px 0; font-size: 1.2rem;">Code: <b id="displayRewardCode" style="color:#d32f2f;"></b></p>
+                <p style="margin:5px 0; font-size: 1.2rem;">PIN: <b id="displayCouponPin" style="color:#27ae60;"></b></p>
+            </div>
+            <p style="font-size: 0.85rem; font-family: sans-serif; color: #7f8c8d;">Saved successfully! Check winners list below.</p>
+        </div>
     </div>
 </div>
 
@@ -216,7 +248,6 @@
         document.getElementById('navLinks').classList.toggle('active');
     });
 
-    // Extract Ad Image URL query parameter passed from index.html
     const urlParams = new URLSearchParams(window.location.search);
     const adImgUrl = urlParams.get('adImg');
 
@@ -227,70 +258,220 @@
     }
 
     let correctOptionIndex = null;
-    let assignedRewardCode = "OWC-DEFAULT-CODE";
-    let contestEmailDestination = "mail.cnqdigital@gmail.com";
+    let validatedSocietyName = "";
+    let wonRewardCode = "";
+    let wonCouponPin = "";
+
+    window.onload = function() {
+        loadContestData();
+        loadRecentWinners();
+    };
 
     async function loadContestData() {
         try {
-            const response = await fetch(`${API_BASE_URL}/config`, { headers: NG_HEADERS });
-            if (response.ok) {
-                const configData = await response.json();
-                if (configData.contestEmail) {
-                    contestEmailDestination = configData.contestEmail.trim();
-                    document.getElementById('displayContestEmail').innerText = contestEmailDestination;
-                    
-                    // Update email button mailto link dynamically
-                    const emailBtn = document.getElementById('contestEmailBtn');
-                    if (emailBtn) {
-                        emailBtn.href = `mailto:${contestEmailDestination}`;
-                    }
+            const adsResponse = await fetch(`${API_BASE_URL}/ads/global`, { headers: NG_HEADERS });
+            if (adsResponse.ok) {
+                const globalAds = await adsResponse.json();
+                const matchedAd = globalAds.find(ad => ad.imageUrl === adImgUrl);
+
+                if (matchedAd && matchedAd.question && matchedAd.options) {
+                    setupCustomContestData(matchedAd);
+                    return;
                 }
             }
-
             setupMockContestData();
         } catch (err) {
-            console.error("Failed to load contest configuration:", err);
+            console.error("Failed to load contest data:", err);
             setupMockContestData();
         }
     }
 
-    function setupMockContestData() {
-        const questionData = {
-            question: "Owl Watcher is a smart vehicle _____ system.",
-            options: ["Tracking", "Cooking", "Driving", "Flying"],
-            correctIndex: 0,
-            rewardCode: "OWL-AD-CODE-789"
-        };
+    function setupCustomContestData(adData) {
+        correctOptionIndex = parseInt(adData.correctIndex, 10);
+        if (isNaN(correctOptionIndex)) correctOptionIndex = 0;
 
-        if (adImgUrl) {
-            assignedRewardCode = "OWC-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-        } else {
-            assignedRewardCode = questionData.rewardCode;
-        }
-
-        document.getElementById('questionText').innerText = questionData.question;
+        document.getElementById('questionText').innerText = adData.question;
         const optContainer = document.getElementById('optionsContainer');
         optContainer.innerHTML = "";
 
-        questionData.options.forEach((opt, index) => {
+        adData.options.forEach((opt, index) => {
             const btn = document.createElement('button');
             btn.className = 'option-btn';
             btn.innerText = opt;
-            btn.onclick = () => checkAnswer(index, questionData.correctIndex);
+            btn.onclick = () => checkAnswer(index, correctOptionIndex);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function setupMockContestData() {
+        correctOptionIndex = 0;
+        document.getElementById('questionText').innerText = "Default Question: What does Owl Watcher secure?";
+        const optContainer = document.getElementById('optionsContainer');
+        optContainer.innerHTML = "";
+
+        const mockOptions = ["Vehicles & Societies", "Outer Space", "Deep Ocean", "Volcanoes"];
+        mockOptions.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index, correctOptionIndex);
             optContainer.appendChild(btn);
         });
     }
 
     function checkAnswer(selectedIndex, correctIndex) {
         if (selectedIndex === correctIndex) {
-            document.getElementById('rewardCodeDisplay').innerText = assignedRewardCode;
-            document.getElementById('resultModal').style.display = 'block';
+            document.getElementById('contestArea').style.display = 'none';
+            document.getElementById('societySection').style.display = 'block';
         } else {
             alert("❌ Incorrect Answer! Try again.");
         }
     }
 
-    window.onload = loadContestData;
+    async function verifySocietyAndProceed() {
+        const societyVal = document.getElementById('societyInput').value.trim();
+        const errEl = document.getElementById('societyError');
+        
+        if (!societyVal) {
+            errEl.innerText = "Please enter a society name.";
+            errEl.style.display = 'block';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/societies/verify?name=${encodeURIComponent(societyVal)}`, { headers: NG_HEADERS });
+            if (res.ok) {
+                const societyData = await res.json();
+                validatedSocietyName = societyData.name || societyVal;
+                
+                document.getElementById('societySection').style.display = 'none';
+                
+                // Check device cache for this specific ad spin
+                const cacheKey = `spun_${adImgUrl}_${validatedSocietyName}`;
+                if (localStorage.getItem(cacheKey)) {
+                    document.getElementById('spinBtn').style.display = 'none';
+                    document.getElementById('spinNotice').innerText = "⚠️ This device has already spun for this ad!";
+                }
+
+                document.getElementById('spinSection').style.display = 'block';
+            } else {
+                errEl.innerText = "Society name not found in database. Please check spelling.";
+                errEl.style.display = 'block';
+            }
+        } catch (err) {
+            errEl.innerText = "Error verifying society. Try again.";
+            errEl.style.display = 'block';
+        }
+    }
+
+    async function executeSpin() {
+        const cacheKey = `spun_${adImgUrl}_${validatedSocietyName}`;
+        if (localStorage.getItem(cacheKey)) {
+            alert("You have already spun for this ad!");
+            return;
+        }
+
+        const roller = document.getElementById('rollerDisplay');
+        const spinBtn = document.getElementById('spinBtn');
+        spinBtn.disabled = true;
+
+        // Roll animation simulation
+        let counter = 0;
+        const rollingInterval = setInterval(() => {
+            const randomSymbols = ["🍒", "🎰", "⭐", "🎁", "🔔", "💎"];
+            roller.innerText = randomSymbols[Math.floor(Math.random() * randomSymbols.length)];
+            counter++;
+        }, 100);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/contest/spin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...NG_HEADERS },
+                body: JSON.stringify({ societyName: validatedSocietyName })
+            });
+
+            const data = await response.json();
+
+            setTimeout(() => {
+                clearInterval(rollingInterval);
+                localStorage.setItem(cacheKey, "true");
+                spinBtn.style.display = 'none';
+
+                if (data.won) {
+                    roller.innerText = "🎉 WON!";
+                    wonRewardCode = data.rewardCode;
+                    wonCouponPin = data.couponPin;
+                    
+                    document.getElementById('modalTitle').innerText = "You Won the Spin! 🎉";
+                    document.getElementById('modalBodyContent').style.display = 'block';
+                    document.getElementById('couponDisplaySection').style.display = 'none';
+                    document.getElementById('resultModal').style.display = 'block';
+                } else {
+                    roller.innerText = "❌ LOST!";
+                    document.getElementById('spinNotice').innerText = "Better luck next time! Spin completed.";
+                }
+            }, 2500);
+
+        } catch (err) {
+            clearInterval(rollingInterval);
+            spinBtn.disabled = false;
+            roller.innerText = "Error";
+            alert("Spin error occurred. Please try again.");
+        }
+    }
+
+    async function submitFlatWinner() {
+        const flatVal = document.getElementById('flatNumberInput').value.trim();
+        if (!flatVal) {
+            alert("Please enter your flat number.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/contest/winner`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...NG_HEADERS },
+                body: JSON.stringify({
+                    societyName: validatedSocietyName,
+                    flatNumber: flatVal,
+                    rewardCode: wonRewardCode
+                })
+            });
+
+            if (res.ok) {
+                document.getElementById('modalBodyContent').style.display = 'none';
+                document.getElementById('displayRewardCode').innerText = wonRewardCode;
+                document.getElementById('displayCouponPin').innerText = wonCouponPin;
+                document.getElementById('couponDisplaySection').style.display = 'block';
+                loadRecentWinners();
+            } else {
+                alert("Failed to save winner details.");
+            }
+        } catch (err) {
+            alert("Network error while saving winner info.");
+        }
+    }
+
+    async function loadRecentWinners() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/contest/winners`, { headers: NG_HEADERS });
+            if (res.ok) {
+                const winners = await res.json();
+                const container = document.getElementById('winnersListContainer');
+                
+                if (winners.length === 0) {
+                    container.innerHTML = "No winners recorded yet.";
+                    return;
+                }
+
+                container.innerHTML = winners.map(w => 
+                    `<div>🏠 <b>${w.societyName}</b> (Flat: ${w.flatNumber}) - Code: <code>${w.rewardCode}</code></div>`
+                ).join('');
+            }
+        } catch (err) {
+            document.getElementById('winnersListContainer').innerHTML = "Could not load winners.";
+        }
+    }
 </script>
 
 </body>
