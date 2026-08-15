@@ -124,6 +124,19 @@
             color: #2f3640;
         }
 
+        .email-btn {
+            display: inline-block;
+            margin-top: 12px;
+            background: #25D366;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-family: sans-serif;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
         .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: #fff; margin: 15% auto; padding: 25px; border: 2px solid #8d6e63; width: 85%; max-width: 360px; border-radius: 20px; text-align: center; }
         .close { color: #5d4037; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
@@ -172,10 +185,13 @@
 
     <div class="submit-rule-box">
         <b>📅 Monthly Submission Instruction:</b><br>
-        On the <b>26th day of every month</b>, compile your accumulated monthly codes and send an email to <span id="displayContestEmail" style="color: #d32f2f; font-weight: bold;">loading...</span>.<br>
+        On the <b>26th day of every month</b>, compile your accumulated monthly codes and send an email to <span id="displayContestEmail" style="color: #d32f2f; font-weight: bold;">mail.cnqdigital@gmail.com</span>.<br>
         * <b>Subject:</b> <code>OWC-FlatName-FlatNumber</code> (e.g., <i>OWC-Sunflower-A102</i>)<br>
         * <b>Body:</b> Mention all your collected codes for the month.<br>
-        Our team will select one lucky winner per flat name at month-end for exciting gifts!
+        Our team will select one lucky winner per flat name at month-end for exciting gifts!<br>
+        <center>
+            <a id="contestEmailBtn" href="mailto:mail.cnqdigital@gmail.com" class="email-btn">✉️ Send Email Now</a>
+        </center>
     </div>
 
     <a href="index.html" class="back-btn">⬅ Back to Home</a>
@@ -212,22 +228,25 @@
 
     let correctOptionIndex = null;
     let assignedRewardCode = "OWC-DEFAULT-CODE";
-    let contestEmailDestination = "contest@owlwatcher.com";
+    let contestEmailDestination = "mail.cnqdigital@gmail.com";
 
     async function loadContestData() {
         try {
-            // Fetch configuration or specific ad contest settings from backend / firebase data
             const response = await fetch(`${API_BASE_URL}/config`, { headers: NG_HEADERS });
             if (response.ok) {
                 const configData = await response.json();
                 if (configData.contestEmail) {
-                    contestEmailDestination = configData.contestEmail;
+                    contestEmailDestination = configData.contestEmail.trim();
                     document.getElementById('displayContestEmail').innerText = contestEmailDestination;
+                    
+                    // Update email button mailto link dynamically
+                    const emailBtn = document.getElementById('contestEmailBtn');
+                    if (emailBtn) {
+                        emailBtn.href = `mailto:${contestEmailDestination}`;
+                    }
                 }
             }
 
-            // In a complete implementation matching your backend setup, you can query ad-specific contest mapping. 
-            // Fallback default sample contest data if matching custom entry is retrieved:
             setupMockContestData();
         } catch (err) {
             console.error("Failed to load contest configuration:", err);
@@ -236,17 +255,14 @@
     }
 
     function setupMockContestData() {
-        // Sample dynamic question with fill in the blank & 4 choices. 
-        // These fields can be dynamically extended to map to unique ad image records stored in Firebase.
         const questionData = {
             question: "Owl Watcher is a smart vehicle _____ system.",
             options: ["Tracking", "Cooking", "Driving", "Flying"],
             correctIndex: 0,
-            rewardCode: "OWL-AD-CODE-789" // Unique code set by app owner per ad in firebase
+            rewardCode: "OWL-AD-CODE-789"
         };
 
         if (adImgUrl) {
-            // You can customize code assignment logic based on specific ad image hashes if needed
             assignedRewardCode = "OWC-" + Math.random().toString(36).substring(2, 8).toUpperCase();
         } else {
             assignedRewardCode = questionData.rewardCode;
