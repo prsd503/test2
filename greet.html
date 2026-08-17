@@ -219,15 +219,15 @@
     </div>
 
     <script>
-        // Real Firebase Client Configuration for Static Hosting (GitHub Pages)
-      const firebaseConfig = {
-  apiKey: "AIzaSyBEYKHQpy_VjmgjYIwQOPjXth1bghYsf9M",
-  authDomain: "finder-owl.firebaseapp.com", 
-  projectId: "finder-owl",
-  storageBucket: "finder-owl.firebasestorage.app",
-  messagingSenderId: "1011347100861",
-  appId: "1:1011347100861:web:24246f9a4eb24d812cd3d4"
-};
+        // Firebase Client Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEYKHQpy_VjmgjYIwQOPjXth1bghYsf9M",
+            authDomain: "finder-owl.firebaseapp.com", 
+            projectId: "finder-owl",
+            storageBucket: "finder-owl.firebasestorage.app",
+            messagingSenderId: "1011347100861",
+            appId: "1:1011347100861:web:24246f9a4eb24d812cd3d4"
+        };
 
         let db = null;
         try {
@@ -248,20 +248,21 @@
         const fireworksCanvas = document.getElementById('fireworksCanvas');
         const navLogoText = document.getElementById('navLogoText');
 
-        const BACKEND_URL = (window.location.hostname === 'localhost' && window.location.port !== '3000') 
-            ? 'http://localhost:3000' 
-            : '';
+        // Configured Ngrok Backend URL
+        const BACKEND_URL = "https://unloving-limit-ferry.ngrok-free.dev";
 
         async function fetchGreetingData() {
-            // 1. Try Backend API first (when running locally or with server)
+            // 1. Try Backend API first via Ngrok (with required skip-warning header)
             try {
-                const response = await fetch(`${BACKEND_URL}/api/ads/greeting/${greetingId}`);
+                const response = await fetch(`${BACKEND_URL}/api/ads/greeting/${greetingId}`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
                 if (response.ok) {
                     const data = await response.json();
                     if (data) return data;
                 }
             } catch (err) {
-                console.log("Backend API offline, falling back to direct Firestore...");
+                console.log("Backend API offline or blocked, falling back to direct Firestore...");
             }
 
             // 2. Fallback: Direct Firestore Read (for GitHub Pages static hosting)
