@@ -6,7 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Lexend:wght@300;400;500&display=swap" rel="stylesheet">
     <title>Owl Watcher | Portal</title>
     
-    <!-- Firebase App & Firestore SDKs (Used as fallback for static hosting like GitHub Pages) -->
+    <!-- Firebase App & Firestore SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -219,15 +219,15 @@
     </div>
 
     <script>
-        // Initialize Firebase client SDK as a fallback for static hosting (GitHub Pages)
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        // Real Firebase Client Configuration for Static Hosting (GitHub Pages)
+      const firebaseConfig = {
+  apiKey: "AIzaSyBEYKHQpy_VjmgjYIwQOPjXth1bghYsf9M",
+  authDomain: "finder-owl.firebaseapp.com", 
+  projectId: "finder-owl",
+  storageBucket: "finder-owl.firebasestorage.app",
+  messagingSenderId: "1011347100861",
+  appId: "1:1011347100861:web:24246f9a4eb24d812cd3d4"
+};
 
         let db = null;
         try {
@@ -236,7 +236,7 @@
             }
             db = firebase.firestore();
         } catch (e) {
-            console.log("Firebase client fallback not configured or initialized.");
+            console.log("Firebase initialization error:", e);
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -252,9 +252,8 @@
             ? 'http://localhost:3000' 
             : '';
 
-        // Dual-Mode Fetch Function: Tries backend API first, falls back to direct Firestore if backend is missing (e.g. GitHub Pages)
         async function fetchGreetingData() {
-            // 1. Try Backend API
+            // 1. Try Backend API first (when running locally or with server)
             try {
                 const response = await fetch(`${BACKEND_URL}/api/ads/greeting/${greetingId}`);
                 if (response.ok) {
@@ -262,7 +261,7 @@
                     if (data) return data;
                 }
             } catch (err) {
-                console.log("Backend API offline or unreachable, switching to static fallback mode...");
+                console.log("Backend API offline, falling back to direct Firestore...");
             }
 
             // 2. Fallback: Direct Firestore Read (for GitHub Pages static hosting)
@@ -272,9 +271,13 @@
                     const docSnap = await docRef.get();
                     if (docSnap.exists) {
                         const data = docSnap.data();
+                        
+                        // Check if it matches a direct map key (e.g. "3")
                         if (data[greetingId]) {
                             return data[greetingId];
                         }
+                        
+                        // Otherwise, scan all map entries inside Aangan for matching greetingId
                         const items = Object.values(data);
                         const foundItem = items.find(item => item && (item.greetingId === greetingId || item.id === greetingId));
                         if (foundItem) return foundItem;
