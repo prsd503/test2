@@ -293,8 +293,8 @@
 </div>
 
 <script>
-    const API_BASE_URL = "https://unloving-limit-ferry.ngrok-free.dev/api";
-    const NG_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
+    // UPDATED: Pointing to your Netlify backend functions API base URL[cite: 2]
+    const API_BASE_URL = "https://melodious-kheer-93353e.netlify.app/api";
 
     async function getAppCheckHeaders() {
         let appCheckToken = "";
@@ -313,7 +313,7 @@
         try {
             const tokenResponse = await fetch(`${API_BASE_URL}/auth/token`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...NG_HEADERS }
+                headers: { 'Content-Type': 'application/json' }
             });
             if (tokenResponse.ok) {
                 const tokenData = await tokenResponse.json();
@@ -322,8 +322,7 @@
                     return {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${tokenData.token}`,
-                        ...appCheckHeaders,
-                        ...NG_HEADERS
+                        ...appCheckHeaders
                     };
                 }
             }
@@ -334,8 +333,7 @@
         const fallbackAppCheck = await getAppCheckHeaders();
         return { 
             'Content-Type': 'application/json', 
-            ...fallbackAppCheck,
-            ...NG_HEADERS 
+            ...fallbackAppCheck 
         };
     }
 
@@ -362,7 +360,7 @@
     
     async function fetchTeamPhone() {
         try {
-            const response = await fetch(`${API_BASE_URL}/config`, { headers: NG_HEADERS });
+            const response = await fetch(`${API_BASE_URL}/config`);
             if (response.ok) {
                 const data = await response.json();
                 if (data.teamPhone) {
@@ -724,7 +722,7 @@
         if (globalAdInterval) clearInterval(globalAdInterval);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/ads/global`, { headers: NG_HEADERS });
+            const response = await fetch(`${API_BASE_URL}/ads/global`);
             const ads = await response.json();
 
             if (!Array.isArray(ads) || ads.length === 0) {
@@ -733,12 +731,10 @@
                 return;
             }
 
-slider.innerHTML = "";
+            slider.innerHTML = "";
             ads.forEach((adData, index) => {
                 if (adData && adData.imageUrl) {
-                    // Create a link that points to contest.html and passes the ad's image URL
                     const contestLink = `contest.html?adImg=${encodeURIComponent(adData.imageUrl)}`;
-                    // Removed inline display: none to let the CSS .active class control visibility properly
                     slider.innerHTML += `
                         <div class="global-ad-slide" style="width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center;">
                             <img src="${adData.imageUrl}" style="max-height: 250px; max-width: 100%; object-fit: contain; border-radius: 10px;" alt="Global Promotion">
@@ -1028,8 +1024,6 @@ slider.innerHTML = "";
             });
         }
 
-    
-
         function animateFlames() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => {
@@ -1049,8 +1043,8 @@ slider.innerHTML = "";
         animateFlames();
     }
 </script> 
-          <!-- Owl Animation Container Placed Exclusively Inside Vehicle Search Page -->
-     <div id="owl-container">
+
+<div id="owl-container">
     <div id="owl-icon" onclick="activateOwlEffect()">
         <img src="owl.png" alt="Owl Icon" style="width: 55px; height: 55px; object-fit: contain;">
     </div>
