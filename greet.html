@@ -250,46 +250,53 @@
 
         // Configured Ngrok Backend URL
         const BACKEND_URL = "https://unloving-limit-ferry.ngrok-free.dev";
-
-        async function fetchGreetingData() {
-            // 1. Try Backend API first via Ngrok (with required skip-warning header)
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/ads/greeting/${greetingId}`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data) return data;
+async function fetchGreetingData() {
+    // 1. Try Backend API first via Ngrok using your existing /api/ads/local/Aangan route
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/ads/local/Aangan`, {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data) {
+                // Check if it matches a direct map key (e.g. "society_wish_bday1")
+                if (data[greetingId]) {
+                    return data[greetingId];
                 }
-            } catch (err) {
-                console.log("Backend API offline or blocked, falling back to direct Firestore...");
+                
+                // Otherwise, scan all map entries for matching greetingId or id
+                const items = Object.values(data);
+                const foundItem = items.find(item => item && (item.greetingId === greetingId || item.id === greetingId));
+                if (foundItem) return foundItem;
             }
-
-            // 2. Fallback: Direct Firestore Read (for GitHub Pages static hosting)
-            if (db) {
-                try {
-                    const docRef = db.collection('ads').doc('Aangan');
-                    const docSnap = await docRef.get();
-                    if (docSnap.exists) {
-                        const data = docSnap.data();
-                        
-                        // Check if it matches a direct map key (e.g. "3")
-                        if (data[greetingId]) {
-                            return data[greetingId];
-                        }
-                        
-                        // Otherwise, scan all map entries inside Aangan for matching greetingId
-                        const items = Object.values(data);
-                        const foundItem = items.find(item => item && (item.greetingId === greetingId || item.id === greetingId));
-                        if (foundItem) return foundItem;
-                    }
-                } catch (fbErr) {
-                    console.error("Direct Firebase fallback error:", fbErr);
-                }
-            }
-
-            return null;
         }
+    } catch (err) {
+        console.log("Backend API offline, falling back to direct Firestore...");
+    }
+
+    // 2. Fallback: Direct Firestore Read (if backend fails)
+    if (db) {
+        try {
+            const docRef = db.collection('ads').doc('Aangan');
+            const docSnap = await docRef.get();
+            if (docSnap.exists) {
+                const data = docSnap.data();
+                if (data[greetingId]) {
+                    return data[greetingId];
+                }
+                const items = Object.values(data);
+                const foundItem = items.find(item => item && (item.greetingId === greetingId || item.id === greetingId));
+                if (foundItem) return foundItem;
+            }
+        } catch (fbErr) {
+            console.error("Direct Firebase fallback error:", fbErr);
+        }
+    }
+
+    return null;
+}
+
+        
 
         if (type === 'ad') {
             document.body.classList.add('ad-theme');
