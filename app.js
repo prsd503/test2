@@ -25,8 +25,8 @@ const appCheck = initializeAppCheck(app, {
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// UPDATED: Pointing to your live Netlify backend
-const API_BASE = "https://melodious-kheer-93353e.netlify.app";
+// UPDATED: Pointing to your local Netlify CLI development server
+const API_BASE = "http://localhost:8888";
 
 // --- SECURED FETCH HELPER (UPDATED FOR FIREBASE TOKEN VERIFICATION) ---
 /**
