@@ -26,7 +26,12 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // UPDATED: Pointing to your local Netlify CLI development server
-const API_BASE = "http://localhost:8888";
+//const API_BASE = "http://localhost:8888";
+
+const API_BASE_URL = window.location.hostname === "localhost" 
+    ? "http://localhost:8888/api" 
+    : "https://melodious-kheer-93353e.netlify.app/api";
+
 
 // --- SECURED FETCH HELPER (UPDATED FOR FIREBASE TOKEN VERIFICATION) ---
 /**
