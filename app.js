@@ -25,13 +25,7 @@ const appCheck = initializeAppCheck(app, {
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// UPDATED: Pointing to your local Netlify CLI development server
-const API_BASE = "http://localhost:8888";
-
-//const API_BASE_URL = window.location.hostname === "localhost" 
-//    ? "http://localhost:8888/api" 
-//    : "https://melodious-kheer-93353e.netlify.app/api";
-
+const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev";
 
 // --- SECURED FETCH HELPER (UPDATED FOR FIREBASE TOKEN VERIFICATION) ---
 /**
@@ -40,7 +34,8 @@ const API_BASE = "http://localhost:8888";
  */
 export async function authenticatedFetch(url, options = {}) {
   try {
-    const baseHeaders = {};
+    // Ensure Ngrok skip header is ALWAYS present to avoid "Failed to fetch" on mobile.
+    const baseHeaders = { 'ngrok-skip-browser-warning': 'true' };
 
     // If the user is not logged in yet, bypass token fetch and use standard fetch with base headers
     if (!auth.currentUser) {
@@ -55,7 +50,8 @@ export async function authenticatedFetch(url, options = {}) {
     const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
       },
       body: JSON.stringify({ idToken })
     });
@@ -72,6 +68,7 @@ export async function authenticatedFetch(url, options = {}) {
     // 3. Build headers with the new token
     const headers = {
       'Authorization': `Bearer ${appToken}`,
+      'ngrok-skip-browser-warning': 'true',
       ...options.headers
     };
 
