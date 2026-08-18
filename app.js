@@ -25,29 +25,37 @@ const appCheck = initializeAppCheck(app, {
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-const API_BASE = "https://unloving-limit-ferry.ngrok-free.dev";
+// UPDATED: Pointing to your local Netlify CLI development server
+const API_BASE = "http://localhost:8888";
+
+//const API_BASE_URL = window.location.hostname === "localhost" 
+//    ? "http://localhost:8888/api" 
+//    : "https://melodious-kheer-93353e.netlify.app/api";
+
 
 // --- SECURED FETCH HELPER (UPDATED FOR FIREBASE TOKEN VERIFICATION) ---
 /**
  * Use this wrapper instead of standard fetch() for protected API endpoints.
- * It fetches a fresh JWT from the backend using the Firebase ID token and injects it[cite: 2].
+ * It fetches a fresh JWT from the backend using the Firebase ID token and injects it
  */
 export async function authenticatedFetch(url, options = {}) {
   try {
-    // If the user is not logged in yet, bypass token fetch and use standard fetch[cite: 2]
+    const baseHeaders = {};
+
+    // If the user is not logged in yet, bypass token fetch and use standard fetch with base headers
     if (!auth.currentUser) {
+      options.headers = { ...baseHeaders, ...options.headers };
       return fetch(url, options);
     }
 
     // 1. Get the Firebase ID token for the currently logged-in user
     const idToken = await auth.currentUser.getIdToken();
 
-    // 2. Request a fresh JWT from your backend by verifying the Firebase ID token[cite: 2]
+    // 2. Request a fresh JWT from your backend by verifying the Firebase ID token
     const tokenResponse = await fetch(`${API_BASE}/api/auth/token`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ idToken })
     });
@@ -61,10 +69,9 @@ export async function authenticatedFetch(url, options = {}) {
 
     console.log("Acquired application JWT. Expires in:", tokenData.expiresin, "seconds");
 
-    // 3. Build headers with the new token[cite: 2]
+    // 3. Build headers with the new token
     const headers = {
       'Authorization': `Bearer ${appToken}`,
-      'ngrok-skip-browser-warning': 'true',
       ...options.headers
     };
 
@@ -74,7 +81,7 @@ export async function authenticatedFetch(url, options = {}) {
 
     options.headers = headers;
     
-    // 4. Execute the original fetch request[cite: 2]
+    // 4. Execute the original fetch request
     return fetch(url, options);
 
   } catch (error) {
