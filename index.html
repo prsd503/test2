@@ -294,8 +294,13 @@
 
 <script>
     // UPDATED: Pointing to your local Netlify CLI development server[cite: 2]
-    const API_BASE_URL = "http://localhost:8888/api";
+   // const API_BASE_URL = "http://localhost:8888/api";
 
+const API_BASE_URL = window.location.hostname === "localhost" 
+    ? "http://localhost:8888/api" 
+    : "https://melodious-kheer-93353e.netlify.app/api";
+
+    
     async function getAppCheckHeaders() {
         let appCheckToken = "";
         if (typeof firebase !== 'undefined' && firebase.appCheck) {
